@@ -1,0 +1,27 @@
+{
+  "name":"Plugin messages",
+  "description":"This is the messages of the plugin",
+  "packs": [
+    {
+      "name": "English version (Default Pack)",
+      "description": "Note: The first pack will be considered the default pack, others packs cannot have messages that doesn't have in the default pack.",
+      "locales": [
+        "EN_US"
+      ],
+      "messages": {
+        "only_players": "&cThis command can only be performed by players in-game",
+        "change_language": "&8 - &7You can change your language using &f/language&7."
+      }
+    },
+    {
+      "name": "Portuguese version",
+      "locales": [
+        "PT_BR"
+      ],
+      "messages": {
+        "only_players": "&cEsse comando só pode ser executado por jogadores dentro do jogo!",
+        "change_language": "&8 - &7Você pode alterar a sua linguagem usando &f/language&7."
+      }
+    }
+  ]
+}
