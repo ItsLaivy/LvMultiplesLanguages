@@ -2,9 +2,6 @@ package codes.laivy.mlanguage.lang;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-
-@SuppressWarnings("unused")
 public enum Locale {
 
     AF("Afrikaans"),
@@ -164,7 +161,6 @@ public enum Locale {
 
     Locale(@NotNull String name) {
         this.name = name;
-        Language.LANGUAGES.put(this, new HashMap<>());
     }
 
     public @NotNull String getName() {

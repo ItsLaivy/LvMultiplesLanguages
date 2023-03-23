@@ -5,6 +5,7 @@
     "sql informations": {
       "table": "table",
       "database": "database",
+      "variable_locale": "locale",
 
       "mysql": {
         "address": "localhost",
@@ -18,7 +19,6 @@
     }
   },
   "configurations": {
-    "default language code": "EN_US",
-    "default unknown translation message": "<unknown translation: '%key%', lang: '%language%'>"
+    "default language code": "EN_US"
   }
 }
