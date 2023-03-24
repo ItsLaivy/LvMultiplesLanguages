@@ -2,11 +2,15 @@ package codes.laivy.mlanguage.main;
 
 import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.MultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.item.ItemTranslatorBukkitImpl;
+import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.utils.Platform;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class BungeeMultiplesLanguages extends Plugin implements Platform {
 
@@ -17,7 +21,21 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform {
     private @NotNull IMultiplesLanguagesAPI api;
 
     public BungeeMultiplesLanguages() {
-        this.api = new MultiplesLanguagesAPI(this, new ItemTranslatorBukkitImpl());
+        this.api = new MultiplesLanguagesAPI(this, null) {
+            @Override
+            public @Nullable Locale getLocale(@NotNull UUID user) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(user);
+                if (player != null) {
+                    return Locale.getByCode(player.getLocale().getLanguage().toLowerCase());
+                }
+                return null;
+            }
+
+            @Override
+            public void setLocale(@NotNull UUID user, @Nullable Locale locale) {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     @Override

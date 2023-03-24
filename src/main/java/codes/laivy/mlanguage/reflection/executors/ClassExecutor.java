@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.reflection.executors;
 
+import codes.laivy.mlanguage.utils.ClassUtils;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -216,7 +217,7 @@ public class ClassExecutor implements Executor {
     }
 
     public boolean isReflectiveInstance(@NotNull Object object) {
-        return getReflectionClass().isAssignableFrom(object.getClass());
+        return ClassUtils.isInstanceOf(getReflectionClass(), object.getClass());
     }
     public boolean isReflectiveInstance(@NotNull ObjectExecutor object) {
         Object value = object.getValue();

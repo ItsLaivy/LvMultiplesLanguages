@@ -13,7 +13,7 @@ public class NBTTagByte extends NBTBase {
     }
 
     /**
-     * Construct a LaivyNPC NBTTagByte from an NMS NBTTagByte
+     * Construct a Multiples languages NBTTagByte from an NMS NBTTagByte
      * @param value a NMS NBTTagByte
      */
     protected NBTTagByte(@Nullable Object value) {

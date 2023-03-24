@@ -21,8 +21,12 @@ public class ItemStack extends ObjectExecutor {
         super(value);
     }
 
-    public @NotNull NBTTagCompound getTag() {
-        return new NBTTagCompound(multiplesLanguagesBukkit().getVersion().getFieldExec("ItemStack:tag").invokeInstance(this));
+    public @Nullable NBTTagCompound getTag() {
+        Object object = multiplesLanguagesBukkit().getVersion().getFieldExec("ItemStack:tag").invokeInstance(this);
+        if (object == null) {
+            return null;
+        }
+        return new NBTTagCompound(object);
     }
     public void setTag(@NotNull NBTTagCompound compound) {
         multiplesLanguagesBukkit().getVersion().getFieldExec("ItemStack:tag").set(this, compound.getValue());

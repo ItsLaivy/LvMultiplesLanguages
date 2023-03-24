@@ -5,8 +5,15 @@ import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.reflection.classes.nbt.NBTBase;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.*;
+import codes.laivy.mlanguage.reflection.classes.packets.Packet;
+import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.reflection.classes.player.CraftPlayer;
+import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
+import codes.laivy.mlanguage.reflection.classes.player.NetworkManager;
+import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.executors.*;
 import codes.laivy.mlanguage.reflection.objects.*;
+import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,12 +69,17 @@ public class V1_8_R1 implements Version {
         load(V1_8_R1.class, "NBTBase:NBTTagLong", new NBTTagLong.NBTTagLongClass("net.minecraft.server.v1_8_R1.NBTTagLong"));
         load(V1_8_R1.class, "NBTBase:NBTTagShort", new NBTTagShort.NBTTagShortClass("net.minecraft.server.v1_8_R1.NBTTagShort"));
         load(V1_8_R1.class, "NBTBase:NBTTagString", new NBTTagString.NBTTagStringClass("net.minecraft.server.v1_8_R1.NBTTagString"));
-        //
-
         // Items
         load(V1_8_R1.class, "ItemStack", new ItemStack.ItemStackClass("net.minecraft.server.v1_8_R1.ItemStack"));
         load(V1_8_R1.class, "CraftItemStack", new CraftItemStack.CraftItemStackClass("org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack"));
-        //
+        // Packets
+        load(V1_8_R1.class, "Packet", new Packet.PacketClass("net.minecraft.server.v1_8_R1.Packet"));
+        load(V1_8_R1.class, "PacketPlayOutSetSlot", new PacketPlayOutSetSlot.PacketPlayOutSetSlotClass("net.minecraft.server.v1_8_R1.PacketPlayOutSetSlot"));
+        // Player
+        load(V1_8_R1.class, "EntityPlayer", new EntityPlayer.EntityPlayerClass("net.minecraft.server.v1_8_R1.EntityPlayer"));
+        load(V1_8_R1.class, "CraftPlayer", new CraftPlayer.CraftPlayerClass("org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer"));
+        load(V1_8_R1.class, "PlayerConnection", new PlayerConnection.PlayerConnectionClass("net.minecraft.server.v1_8_R1.PlayerConnection"));
+        load(V1_8_R1.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_8_R1.NetworkManager"));
     }
 
     @Override
@@ -79,10 +91,13 @@ public class V1_8_R1 implements Version {
         load(V1_8_R1.class, "NBTTagCompound:contains", new MethodExecutor(getClassExec("NBTBase:NBTTagCompound"), ClassExecutor.BOOLEAN, "hasKey", "Check if a NBTTagCompound contains a key", ClassExecutor.STRING));
         load(V1_8_R1.class, "NBTTagCompound:isEmpty", new MethodExecutor(getClassExec("NBTBase:NBTTagCompound"), ClassExecutor.BOOLEAN, "isEmpty", "Check if a NBTTagCompound is empty"));
         load(V1_8_R1.class, "NBTTagCompound:keySet", new MethodExecutor(getClassExec("NBTBase:NBTTagCompound"), new ClassExecutor(Set.class) {}, "c", "Gets a NBTTagCompound's keys"));
+        load(V1_8_R1.class, "NBTTagString:getData", new MethodExecutor(getClassExec("NBTBase:NBTTagString"), ClassExecutor.STRING, "a_", "Gets a NBTTagString's data"));
         // Item
         load(V1_8_R1.class, "CraftItemStack:asCraftMirror", new MethodExecutor(getClassExec("CraftItemStack"), getClassExec("CraftItemStack"), "asCraftMirror", "Gets the CraftItemStack from a NMS ItemStack", getClassExec("ItemStack")));
         load(V1_8_R1.class, "CraftItemStack:asNMSCopy", new MethodExecutor(getClassExec("CraftItemStack"), getClassExec("ItemStack"), "asNMSCopy", "Gets a NMS ItemStack from a Craft ItemStack", ClassExecutor.ITEMSTACK));
-        //
+        // Player
+        load(V1_8_R1.class, "CraftPlayer:getHandle", new MethodExecutor(getClassExec("CraftPlayer"), getClassExec("EntityPlayer"), "getHandle", "Gets the EntityPlayer of a CraftPlayer"));
+        load(V1_8_R1.class, "PlayerConnection:sendPacket", new MethodExecutor(getClassExec("PlayerConnection"), ClassExecutor.VOID, "sendPacket", "Sends a packet to a PlayerConnection", getClassExec("Packet")));
     }
 
     @Override
@@ -91,7 +106,15 @@ public class V1_8_R1 implements Version {
         load(V1_8_R1.class, "NBTTagList:list", new FieldExecutor(getClassExec("NBTBase:NBTTagList"), new ClassExecutor(List.class) {}, "list", "Gets the list of a NBTTagList"));
         // Item
         load(V1_8_R1.class, "ItemStack:tag", new FieldExecutor(getClassExec("ItemStack"), getClassExec("NBTBase:NBTTagCompound"), "tag", "Gets the item NBT tag"));
-        //
+        // Packets
+        load(V1_8_R1.class, "PacketPlayOutSetSlot:windowId", new FieldExecutor(getClassExec("PacketPlayOutSetSlot"), ClassExecutor.INT, "a", "Gets the windowId of the PacketPlayOutSetSlot packet"));
+        load(V1_8_R1.class, "PacketPlayOutSetSlot:slot", new FieldExecutor(getClassExec("PacketPlayOutSetSlot"), ClassExecutor.INT, "b", "Gets the slot of the PacketPlayOutSetSlot packet"));
+        load(V1_8_R1.class, "PacketPlayOutSetSlot:item", new FieldExecutor(getClassExec("PacketPlayOutSetSlot"), getClassExec("ItemStack"), "c", "Gets the item of the PacketPlayOutSetSlot packet"));
+        // Player
+        load(V1_8_R1.class, "EntityPlayer:locale", new FieldExecutor(getClassExec("EntityPlayer"), ClassExecutor.STRING, "locale", "Gets the locale of an EntityPlayer"));
+        load(V1_8_R1.class, "EntityPlayer:playerConnection", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("PlayerConnection"), "playerConnection", "Gets the PlayerConnection of an EntityPlayer"));
+        load(V1_8_R1.class, "PlayerConnection:networkManager", new FieldExecutor(getClassExec("PlayerConnection"), getClassExec("NetworkManager"), "networkManager", "Gets the NetworkManager of a PlayerConnection"));
+        load(V1_8_R1.class, "NetworkManager:channel", new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "i", "Gets the Channel of a NetworkManager"));
     }
 
     @Override

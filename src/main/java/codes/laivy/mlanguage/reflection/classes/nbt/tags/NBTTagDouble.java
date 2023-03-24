@@ -13,7 +13,7 @@ public class NBTTagDouble extends NBTBase {
     }
 
     /**
-     * Construct a LaivyNPC NBTTagDouble from an NMS NBTTagDouble
+     * Construct a Multiples languages NBTTagDouble from an NMS NBTTagDouble
      * @param value a NMS NBTTagDouble
      */
     protected NBTTagDouble(@Nullable Object value) {

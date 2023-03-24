@@ -19,7 +19,7 @@ public class NBTTagList extends NBTBase {
     }
 
     /**
-     * Construct a LaivyNPC NBTTagList from an NMS NBTTagList
+     * Construct a Multiples languages NBTTagList from an NMS NBTTagList
      * @param value a NMS NBTTagList
      */
     protected NBTTagList(@Nullable Object value) {

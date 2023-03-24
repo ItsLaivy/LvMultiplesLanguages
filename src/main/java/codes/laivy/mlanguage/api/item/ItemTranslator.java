@@ -1,24 +1,24 @@
 package codes.laivy.mlanguage.api.item;
 
-import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * This is responsible to translate the items
- * @param <T> the item class
+ * @param <I> the item class
+ * @param <P> the player class
  */
-public interface ItemTranslator<T> {
+public interface ItemTranslator<I, P> {
 
-    boolean isTranslatable(@NotNull T item);
-
-    void translate(@NotNull T item, @NotNull Locale locale);
+    boolean isTranslatable(@NotNull I item);
 
     /**
-     * Reset the item name and lore to the default locale language
-     * This method is called everytime needs to be changed to the default language code
-     *
+     * Translates a item
      * @param item the item
+     * @param player the player
+     * @param window the window ID of this item's inventory
+     * @param slot the item slot
      */
-    void reset(@NotNull T item);
+    @NotNull PacketPlayOutSetSlot translate(@NotNull I item, @NotNull P player, int window, int slot);
 
 }

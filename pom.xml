@@ -62,13 +62,6 @@
             <version>2.10.1</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>codes.laivy</groupId>
-            <artifactId>data</artifactId>
-            <version>1.0</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -101,7 +94,6 @@
                         <includes>
                             <include>com.google.code.gson:gson</include>
                             <include>org.jetbrains:annotations</include>
-                            <include>codes.laivy:data</include>
                         </includes>
                     </artifactSet>
                 </configuration>

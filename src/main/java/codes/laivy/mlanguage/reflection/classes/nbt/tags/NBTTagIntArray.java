@@ -14,7 +14,7 @@ public class NBTTagIntArray extends NBTBase {
     }
 
     /**
-     * Construct a LaivyNPC NBTTagIntArray from an NMS NBTTagIntArray
+     * Construct a Multiples languages NBTTagIntArray from an NMS NBTTagIntArray
      * @param value a NMS NBTTagIntArray
      */
     protected NBTTagIntArray(@Nullable Object value) {

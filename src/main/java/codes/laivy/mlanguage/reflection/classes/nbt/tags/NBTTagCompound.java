@@ -45,7 +45,7 @@ public class NBTTagCompound extends NBTBase {
         multiplesLanguagesBukkit().getVersion().nbtCompound(Version.NBTCompoundAction.SET, this, new StringObjExec(key), base);
     }
     public NBTBase get(@NotNull String key) {
-        return (NBTBase) multiplesLanguagesBukkit().getVersion().nbtCompound(Version.NBTCompoundAction.GET, this, new StringObjExec(key), null);
+        return new NBTBase(multiplesLanguagesBukkit().getVersion().nbtCompound(Version.NBTCompoundAction.GET, this, new StringObjExec(key), null));
     }
     public void remove(@NotNull String key) {
         multiplesLanguagesBukkit().getVersion().nbtCompound(Version.NBTCompoundAction.REMOVE, this, new StringObjExec(key), null);

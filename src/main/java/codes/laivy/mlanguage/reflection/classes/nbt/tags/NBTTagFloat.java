@@ -13,7 +13,7 @@ public class NBTTagFloat extends NBTBase {
     }
 
     /**
-     * Construct a LaivyNPC NBTTagFloat from an NMS NBTTagFloat
+     * Construct a Multiples languages NBTTagFloat from an NMS NBTTagFloat
      * @param value a NMS NBTTagFloat
      */
     protected NBTTagFloat(@Nullable Object value) {

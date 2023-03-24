@@ -1,4 +1,4 @@
-package codes.laivy.mlanguage.api.item;
+package codes.laivy.mlanguage.api.bukkit;
 
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.TranslatableItem;
@@ -22,20 +22,19 @@ public class TranslatableBukkitItem implements TranslatableItem<ItemStack> {
         codes.laivy.mlanguage.reflection.classes.item.ItemStack nmsItem = codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack(item);
         NBTTagCompound compound = nmsItem.getTag();
 
-        compound.set("Translatable", new NBTTagByte((byte) 1));
-        if (getName() != null) {
-            compound.set("NameTranslation", new NBTTagString(getName().serialize().serialize().toString()));
-        }
-        if (getLore() != null) {
-            compound.set("LoreTranslation", new NBTTagString(getLore().serialize().serialize().toString()));
+        if (compound != null) {
+            compound.set("Translatable", new NBTTagByte((byte) 1));
+            if (getName() != null) {
+                compound.set("NameTranslation", new NBTTagString(getName().serialize().serialize().toString()));
+            }
+            if (getLore() != null) {
+                compound.set("LoreTranslation", new NBTTagString(getLore().serialize().serialize().toString()));
+            }
+        } else {
+            throw new IllegalArgumentException("This item doesn't have a translation");
         }
 
-        this.item = new ItemStack(nmsItem.getCraftItemStack().getItemStack()) {
-            @Override
-            public boolean isSimilar(ItemStack stack) {
-                return super.isSimilar(stack);
-            }
-        };
+        this.item = nmsItem.getCraftItemStack().getItemStack();
     }
 
     @Override

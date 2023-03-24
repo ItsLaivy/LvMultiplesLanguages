@@ -2,15 +2,18 @@ package codes.laivy.mlanguage.main;
 
 import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.MultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.item.ItemTranslatorBukkitImpl;
-import codes.laivy.mlanguage.api.item.TranslatableBukkitItem;
+import codes.laivy.mlanguage.api.bukkit.BukkitMessage;
+import codes.laivy.mlanguage.api.bukkit.ItemTranslatorBukkitImpl;
+import codes.laivy.mlanguage.api.bukkit.TranslatableBukkitItem;
 import codes.laivy.mlanguage.injection.InjectionUtils;
+import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
+import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.utils.Platform;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -22,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
+import java.util.UUID;
 
 public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Listener {
 
@@ -33,7 +37,24 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
     private @NotNull IMultiplesLanguagesAPI api;
 
     public BukkitMultiplesLanguages() {
-        this.api = new MultiplesLanguagesAPI(this, new ItemTranslatorBukkitImpl());
+        //noinspection ResultOfMethodCallIgnored
+        getDataFolder().mkdirs();
+        this.api = new MultiplesLanguagesAPI(this, new ItemTranslatorBukkitImpl()) {
+            @Override
+            public @Nullable Locale getLocale(@NotNull UUID user) {
+                Player player = Bukkit.getPlayer(user);
+                if (player.isOnline()) {
+                    System.out.println("Locale: '" + Locale.getByCode(EntityPlayer.getEntityPlayer(player).getLocale()) + "', NMS: '" + EntityPlayer.getEntityPlayer(player).getLocale() + "'");
+                    return Locale.getByCode(EntityPlayer.getEntityPlayer(player).getLocale());
+                }
+                return null;
+            }
+
+            @Override
+            public void setLocale(@NotNull UUID user, @Nullable Locale locale) {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     @Override
@@ -84,6 +105,8 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
         } catch (Throwable e) {
             throw new RuntimeException("Version loading", e);
         }
+
+        getApi().load();
     }
 
     @EventHandler
@@ -98,14 +121,15 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
     @EventHandler
     private void chat(@NotNull AsyncPlayerChatEvent e) {
         Bukkit.getScheduler().runTask(this, () -> {
-            if (e.getPlayer().getItemInHand() != null) {
-                Bukkit.broadcastMessage(e.getPlayer().getItemInHand().getType().name());
-                ItemStack item = ItemStack.getNMSItemStack(e.getPlayer().getItemInHand());
-                Bukkit.broadcastMessage(item.getTag().getValue().toString());
-
-                TranslatableBukkitItem a = new TranslatableBukkitItem(item.getCraftItemStack().getItemStack(), null, null);
-                Bukkit.broadcastMessage("Tag: '" + ItemStack.getNMSItemStack(a.getItem()).getTag() + "'");
-                e.getPlayer().getInventory().addItem(a.getItem());
+            if (e.getMessage().equals("1")) {
+                if (e.getPlayer().getItemInHand() != null) {
+                    TranslatableBukkitItem a = new TranslatableBukkitItem(e.getPlayer().getItemInHand(), new BukkitMessage(Objects.requireNonNull(getApi().getLanguage("Nome teste", this)), "Teste1"), new BukkitMessage(Objects.requireNonNull(getApi().getLanguage("Nome teste", this)), "Teste2"));
+                    Bukkit.broadcastMessage("Tag: '" + ItemStack.getNMSItemStack(a.getItem()).getTag() + "'");
+                    e.getPlayer().getInventory().addItem(a.getItem());
+                }
+            } else if (e.getMessage().equals("2")) {
+                Bukkit.broadcastMessage(e.getPlayer().getItemInHand().getClass().getName());
+                Bukkit.broadcastMessage(e.getPlayer().getItemInHand().isSimilar(e.getPlayer().getItemInHand()) + "");
             }
         });
     }

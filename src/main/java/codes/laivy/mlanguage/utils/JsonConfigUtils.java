@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.utils;
 
+import codes.laivy.mlanguage.LvMultiplesLanguages;
 import com.google.gson.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +15,7 @@ public class JsonConfigUtils {
         return saveResource(resourceName, path, false);
     }
     public static boolean saveResource(String resourceName, Path path, boolean replace) {
-        try (@Nullable InputStream stream = JsonConfigUtils.class.getResourceAsStream(resourceName)) {
+            try (@Nullable InputStream stream = LvMultiplesLanguages.class.getResourceAsStream(resourceName)) {
             if (stream != null) {
                 File file = new File(path.toFile(), resourceName);
                 if (file.exists()) {
@@ -25,7 +26,7 @@ public class JsonConfigUtils {
                     }
                 }
 
-                JsonObject resourceConfig = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                JsonObject resourceConfig = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
                 try (PrintWriter writer = new PrintWriter(file)) {
@@ -53,7 +54,7 @@ public class JsonConfigUtils {
 
         File file = new File(path.toFile(), resourceName);
         try {
-            return new JsonParser().parse(new FileReader(file));
+            return JsonParser.parseReader(new FileReader(file));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
-public abstract class NBTBase extends ObjectExecutor {
-    protected NBTBase(@Nullable Object value) {
+public class NBTBase extends ObjectExecutor {
+    public NBTBase(@Nullable Object value) {
         super(value);
     }
 

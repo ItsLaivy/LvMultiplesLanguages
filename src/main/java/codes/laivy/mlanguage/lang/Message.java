@@ -3,6 +3,10 @@ package codes.laivy.mlanguage.lang;
 import codes.laivy.mlanguage.data.SerializedData;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * The Message class represents a message in a specific language, with a unique ID that allows
@@ -18,7 +22,7 @@ public interface Message {
      * The language of this Message
      * @return the language
      */
-    @NotNull Language getLanguage();
+    @NotNull MessageStorage getLanguage();
 
     /**
      * The language message ID of this Message
@@ -31,9 +35,20 @@ public interface Message {
      * @return the default replaces
      * @param locale the locale
      */
-    @NotNull BaseComponent[] getReplaces(@NotNull Locale locale);
+    default @NotNull BaseComponent[] getReplaces(@Nullable Locale locale) {
+        Set<BaseComponent> componentSet = new LinkedHashSet<>();
+        for (Message message : getReplaces()) {
+            componentSet.add(message.get(locale));
+        }
+        return componentSet.toArray(new BaseComponent[0]);
+    }
 
-    @NotNull BaseComponent get(@NotNull Locale locale);
+    /**
+     * @return the untranslated version of the replaces
+     */
+    @NotNull Message[] getReplaces();
+
+    @NotNull BaseComponent get(@Nullable Locale locale);
 
     @NotNull SerializedData serialize();
 

@@ -13,7 +13,7 @@ public class NBTTagShort extends NBTBase {
     }
 
     /**
-     * Construct a LaivyNPC NBTTagShort from an NMS NBTTagShort
+     * Construct a Multiples languages NBTTagShort from an NMS NBTTagShort
      * @param value a NMS NBTTagShort
      */
     protected NBTTagShort(@Nullable Object value) {

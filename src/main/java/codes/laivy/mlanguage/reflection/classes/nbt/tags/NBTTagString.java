@@ -13,11 +13,15 @@ public class NBTTagString extends NBTBase {
     }
 
     /**
-     * Construct a LaivyNPC NBTTagString from an NMS NBTTagString
+     * Construct a Multiples languages NBTTagString from an NMS NBTTagString
      * @param value a NMS NBTTagString
      */
-    protected NBTTagString(@Nullable Object value) {
+    public NBTTagString(@Nullable Object value) {
         super(value);
+    }
+
+    public @Nullable String getData() {
+        return (String) multiplesLanguagesBukkit().getVersion().getMethodExec("NBTTagString:getData").invokeInstance(this);
     }
 
     @Override
