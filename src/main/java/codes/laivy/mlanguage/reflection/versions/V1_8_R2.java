@@ -24,15 +24,11 @@ public class V1_8_R2 extends V1_8_R1 {
             if (executor instanceof ClassExecutor) {
                 return false;
             } else if (executor instanceof FieldExecutor) {
-
-                if (key.equals("NetworkManager:channel")) {
-                    load(V1_8_R2.class, key, new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "k", "Gets the Channel of a NetworkManager"));
-                    return false;
-                }
+                return !key.equals("NetworkManager:channel");
             }
-
         }
-        return true;
+
+        return super.onLoad(version, key, executor);
     }
 
     @Override
@@ -64,5 +60,12 @@ public class V1_8_R2 extends V1_8_R1 {
         load(V1_8_R2.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_8_R2.NetworkManager"));
         // Inventory
         load(V1_8_R2.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_8_R2.Container"));
+    }
+
+    @Override
+    public void loadFields() {
+        super.loadFields();
+
+        load(V1_8_R2.class, "NetworkManager:channel", new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "k", "Gets the Channel of a NetworkManager"));
     }
 }

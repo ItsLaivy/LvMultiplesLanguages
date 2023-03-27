@@ -85,7 +85,7 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
             //noinspection unchecked
             Class<Version> clazz = (Class<Version>) ReflectionUtils.getNullableClass("codes.laivy.mlanguage.reflection.versions." + ReflectionUtils.getVersionName().toUpperCase());
             if (clazz == null) {
-                throw new NullPointerException("Couldn't find this server version's properties (" + ReflectionUtils.getVersionName() + ")");
+                throw new NullPointerException("Couldn't find this server version's properties (" + ReflectionUtils.getVersionName() + "), this plugin version isn't compatible with this version yet.");
             }
 
             Constructor<Version> constructor = clazz.getDeclaredConstructor();
