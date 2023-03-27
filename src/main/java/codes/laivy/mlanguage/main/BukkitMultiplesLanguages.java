@@ -9,15 +9,19 @@ import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.utils.Platform;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,8 +65,8 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
     }
 
     @Override
-    public void log(@NotNull Object message) {
-        getServer().getConsoleSender().sendMessage("§8[§6" + getDescription().getName() + "§8]§7" + " " + message);
+    public void log(@NotNull BaseComponent component) {
+        getServer().getConsoleSender().sendMessage("§8[§6" + getDescription().getName() + "§8]§7" + " " + component.toPlainText());
     }
 
     public @NotNull Version getVersion() {
@@ -92,7 +96,7 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
             version.loadMethods();
             version.loadFields();
 
-            log("§7Loaded: " + version.getClasses().size() + " classes, " + version.getMethods().size() + " methods and " + version.getFields().size() + " fields");
+            log(new TextComponent("§7Loaded: " + version.getClasses().size() + " classes, " + version.getMethods().size() + " methods and " + version.getFields().size() + " fields"));
 
             setVersion(version);
         } catch (Throwable e) {
@@ -103,8 +107,25 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
     }
 
     @EventHandler
+    private void gameModeChange(@NotNull PlayerGameModeChangeEvent e) {
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            getApi().getItemTranslator().translateInventory(e.getPlayer());
+        }, 1);
+    }
+
+    @EventHandler
     private void login(@NotNull PlayerJoinEvent e) {
         InjectionUtils.injectPlayer(e.getPlayer());
+
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            if (e.getPlayer().isOnline()) {
+                if (e.getPlayer().getGameMode() == GameMode.CREATIVE) {
+                    e.getPlayer().setGameMode(GameMode.SURVIVAL);
+                } else {
+                    e.getPlayer().setGameMode(GameMode.CREATIVE);
+                }
+            }
+        }, 50, 50);
     }
     @EventHandler
     private void quit(@NotNull PlayerQuitEvent e) {
@@ -138,6 +159,12 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
                 }
             } else if (e.getMessage().equals("5")) {
                 Bukkit.broadcastMessage(ItemStack.getNMSItemStack(e.getPlayer().getItemInHand()).getTag().toString());
+            } else if (e.getMessage().equals("6")) {
+                ItemStack nmsItem = ItemStack.getNMSItemStack(e.getPlayer().getItemInHand());
+                nmsItem.setName(new TextComponent("ATaa teste"));
+                org.bukkit.inventory.ItemStack bukkitItem = nmsItem.getCraftItemStack().getItemStack();
+
+                e.getPlayer().getInventory().addItem(bukkitItem);
             }
         });
     }

@@ -444,7 +444,7 @@ public class V1_8_R1 implements Version {
         }
 
         if (name != null) {
-            display.set("Name", new NBTTagString(ComponentSerializer.toString(name)));
+            display.set("Name", new NBTTagString(name.toPlainText()));
         } else {
             display.remove("Name");
         }

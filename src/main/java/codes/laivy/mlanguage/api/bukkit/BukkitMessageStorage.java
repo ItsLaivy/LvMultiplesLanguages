@@ -2,11 +2,13 @@ package codes.laivy.mlanguage.api.bukkit;
 
 import codes.laivy.mlanguage.data.MethodSupplier;
 import codes.laivy.mlanguage.data.SerializedData;
+import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.lang.Locale;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -42,17 +44,45 @@ public class BukkitMessageStorage implements MessageStorage {
         locale = (locale == null ? getDefaultLocale() : locale);
 
         if (getComponents().containsKey(id)) {
-            BaseComponent[] component;
+            BaseComponent[] components;
             if (getComponents().get(id).containsKey(locale)) {
-                component = getComponents().get(id).get(locale);
+                components = getComponents().get(id).get(locale);
             } else if (getComponents().get(id).containsKey(getDefaultLocale())) {
-                component = getComponents().get(id).get(getDefaultLocale());
+                components = getComponents().get(id).get(getDefaultLocale());
             } else {
                 throw new NullPointerException("This message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
-            // TODO: 23/03/2023 Replaces
-            return component;
+            // Replace strings "%s" in components with the values from the "replaces" array
+            Object[] replaceStrings = new String[replaces.length];
+            for (int i = 0; i < replaces.length; i++) {
+                Object index = replaces[i];
+
+                if (index instanceof Message) {
+                    replaceStrings[i] = BukkitMessageStorage.mergeBaseComponents(((Message) index).get(locale)).toPlainText();
+                } else if (index instanceof BaseComponent) {
+                    replaceStrings[i] = ((BaseComponent) index).toPlainText();
+                } else {
+                    replaceStrings[i] = String.valueOf(index);
+                }
+            }
+
+            for (BaseComponent component : components) {
+                if (component instanceof TextComponent) {
+                    TextComponent text = (TextComponent) component;
+                    text.setText(String.format(text.getText(), replaceStrings));
+                }
+                if (component.getExtra() != null) {
+                    for (BaseComponent extra : component.getExtra()) {
+                        if (extra instanceof TextComponent) {
+                            TextComponent text = (TextComponent) extra;
+                            text.setText(String.format(text.getText(), replaceStrings));
+                        }
+                    }
+                }
+            }
+
+            return components;
         } else {
             throw new NullPointerException("Couldn't find the message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "'");
         }
@@ -79,7 +109,6 @@ public class BukkitMessageStorage implements MessageStorage {
 
     @Override
     public void unload() {
-        // TODO: 23/03/2023 Language unloading
     }
 
     @Override
@@ -90,6 +119,16 @@ public class BukkitMessageStorage implements MessageStorage {
             data.addProperty("Default locale", getDefaultLocale().getCode());
             data.addProperty("Plugin", getPlugin().getName());
             data.addProperty("Name", getName());
+            // Components
+            JsonObject components = new JsonObject();
+            for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getComponents().entrySet()) {
+                JsonObject localizedComponents = new JsonObject();
+                for (Map.Entry<Locale, @NotNull BaseComponent[]> entry2 : entry.getValue().entrySet()) {
+                    localizedComponents.addProperty(entry2.getKey().name(), ComponentSerializer.toString(entry2.getValue()));
+                }
+                components.add(entry.getKey(), localizedComponents);
+            }
+            data.add("Components", components);
             // Method serialization
             Method method = getClass().getDeclaredMethod("deserialize", SerializedData.class);
             method.setAccessible(true);
@@ -104,7 +143,7 @@ public class BukkitMessageStorage implements MessageStorage {
         if (serializedData.getVersion() == 0) {
             JsonObject data = serializedData.getData().getAsJsonObject();
 
-            Locale defaultLocale = Locale.valueOf(data.get("Default locale").getAsString());
+            Locale defaultLocale = Locale.valueOf(data.get("Default locale").getAsString().toUpperCase());
             String name = data.get("Name").getAsString();
             String pluginName = data.get("Plugin").getAsString();
 
@@ -114,13 +153,23 @@ public class BukkitMessageStorage implements MessageStorage {
             }
 
             @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components = new LinkedHashMap<>();
-            // TODO: 27/03/2023 this
-//            for (JsonElement element : data.get("Components").getAsJsonArray()) {
-//                JsonObject componentJson = element.getAsJsonObject();
-//                for (Map.Entry<String, JsonElement> entry : componentJson.entrySet()) {
-//                    components.put(entry.getKey(), mergeBaseComponents(ComponentSerializer.parse(entry.getValue().toString())));
-//                }
-//            }
+            for (Map.Entry<String, JsonElement> entry : data.get("Components").getAsJsonObject().asMap().entrySet()) {
+                String key = entry.getKey();
+                Map<Locale, BaseComponent[]> localizedComponents = new LinkedHashMap<>();
+
+                for (Map.Entry<String, JsonElement> entry2 : entry.getValue().getAsJsonObject().asMap().entrySet()) {
+                    Locale locale;
+                    try {
+                        locale = Locale.valueOf(entry2.getKey().toUpperCase());
+                    } catch (IllegalArgumentException ignore) {
+                        throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
+                    }
+
+                    localizedComponents.put(locale, ComponentSerializer.parse(entry2.getValue().getAsString()));
+                }
+
+                components.put(key, localizedComponents);
+            }
 
             return new BukkitMessageStorage(defaultLocale, components, name, plugin);
         } else {

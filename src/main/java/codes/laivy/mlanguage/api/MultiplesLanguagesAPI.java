@@ -40,19 +40,22 @@ public abstract class MultiplesLanguagesAPI implements IMultiplesLanguagesAPI {
 
         @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> componentMap = new LinkedHashMap<>();
         componentMap.put("Teste1", new LinkedHashMap<Locale, BaseComponent[]>() {{
-            put(Locale.EN_US, new TextComponent[] {new TextComponent("Test cool name, just for test")});
-            put(Locale.PT_BR, new TextComponent[] {new TextComponent("Nome top só pra teste mesmo")});
+            put(Locale.EN_US, new TextComponent[] {new TextComponent("Test %s name, just for test")});
+            put(Locale.PT_BR, new TextComponent[] {new TextComponent("Nome %s teste mesmo")});
         }});
         componentMap.put("Teste2", new LinkedHashMap<Locale, BaseComponent[]>() {{
             put(Locale.EN_US, new TextComponent[] {new TextComponent("Cool test lore, just for testing :)")});
             put(Locale.PT_BR, new TextComponent[] {new TextComponent("Lore top só pra testar cara, que legal...")});
         }});
 
+        BukkitMessageStorage storage = new BukkitMessageStorage(Locale.EN_US, componentMap, "Nome teste", multiplesLanguagesBukkit());
         messageStorages = new LinkedHashSet<MessageStorage>() {{
-            add(new BukkitMessageStorage(Locale.EN_US, componentMap, "Nome teste", multiplesLanguagesBukkit()));
+            add(storage);
         }};
 
-        platform.log("§aLoaded " + messageStorages.size() + " language" + (messageStorages.size() == 1 ? "" : "s") + ".");
+        BukkitMessageStorage.deserialize(storage.serialize());
+
+        platform.log(new TextComponent("§aLoaded " + messageStorages.size() + " language" + (messageStorages.size() == 1 ? "" : "s") + "."));
     }
 
     @Override

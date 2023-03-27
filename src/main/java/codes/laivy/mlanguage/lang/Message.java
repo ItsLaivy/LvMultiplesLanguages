@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.lang;
 
+import codes.laivy.mlanguage.api.bukkit.BukkitMessage;
 import codes.laivy.mlanguage.data.SerializedData;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +24,7 @@ public interface Message {
      * The language of this Message
      * @return the language
      */
-    @NotNull MessageStorage getLanguage();
+    @NotNull MessageStorage getStorage();
 
     /**
      * The language message ID of this Message
@@ -49,7 +50,26 @@ public interface Message {
      */
     @NotNull Message[] getReplaces();
 
-    @NotNull BaseComponent[] get(@Nullable Locale locale);
+    default @NotNull BaseComponent[] get(@Nullable Locale locale, @Nullable Object... replaces) {
+        BaseComponent[] mReplaces = getReplaces(locale);
+        final Object[] finalReplaces = new Object[mReplaces.length + replaces.length];
+
+        int row = 0;
+        for (Object replace : mReplaces) {
+            finalReplaces[row] = replace;
+            row++;
+        }
+        for (Object replace : replaces) {
+            finalReplaces[row] = replace;
+            row++;
+        }
+
+        return getStorage().get(locale, getId(), finalReplaces);
+    }
+
+    default @NotNull BaseComponent[] get(@Nullable Locale locale) {
+        return this.get(locale, new Object[0]);
+    }
 
     @NotNull SerializedData serialize();
 

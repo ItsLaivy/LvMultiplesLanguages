@@ -14,12 +14,9 @@ import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.objects.IntegerObjExec;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,9 +43,22 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
             if (item != null) {
                 if (isTranslatable(item)) {
                     packets.add(translate(item.clone(), player, 0, row));
+                    reset(item);
                 }
             }
             row++;
+        }
+        row = 0;
+        if (player.getOpenInventory() != null) {
+            for (ItemStack item : player.getOpenInventory().getTopInventory()) {
+                if (item != null) {
+                    if (isTranslatable(item)) {
+                        packets.add(translate(item.clone(), player, entityPlayer.getActiveContainer().getId(), row));
+                        reset(item);
+                    }
+                }
+                row++;
+            }
         }
 
         for (Packet packet : packets) {
@@ -113,7 +123,7 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
                 } final Locale locale = l;
 
                 if (name != null) {
-                    multiplesLanguagesBukkit().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(locale)));
+                    multiplesLanguagesBukkit().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(locale, "Laivy")));
                 }
                 if (lore != null) {
                     multiplesLanguagesBukkit().getVersion().setItemBukkitLore(item, lore.get(locale));
@@ -121,6 +131,21 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
             }
         } else {
             throw new IllegalArgumentException("This item isn't translatable!");
+        }
+    }
+
+    /**
+     * Called everytime the item needs to be reset to the default messages (name/lore) locale
+     * @param item the item
+     */
+    default void reset(@NotNull ItemStack item) {
+        final @Nullable Message name = getName(item);
+        final @Nullable Message lore = getLore(item);
+
+        if (name != null) {
+            multiplesLanguagesBukkit().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(name.getStorage().getDefaultLocale())));
+        } if (lore != null) {
+            multiplesLanguagesBukkit().getVersion().setItemBukkitLore(item, lore.get(lore.getStorage().getDefaultLocale()));
         }
     }
 

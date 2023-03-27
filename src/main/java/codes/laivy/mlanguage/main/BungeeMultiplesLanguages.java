@@ -5,6 +5,7 @@ import codes.laivy.mlanguage.api.MultiplesLanguagesAPI;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.utils.Platform;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -49,8 +50,8 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform {
     }
 
     @Override
-    public void log(@NotNull Object object) {
-        // TODO: 22/03/2023 this
+    public void log(@NotNull BaseComponent component) {
+        ProxyServer.getInstance().getConsole().sendMessage(component);
     }
 
     @Override

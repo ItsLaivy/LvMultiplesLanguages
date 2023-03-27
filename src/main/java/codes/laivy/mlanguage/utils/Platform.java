@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.utils;
 
 import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +24,7 @@ public interface Platform {
     @NotNull IMultiplesLanguagesAPI getApi();
     void setApi(@NotNull IMultiplesLanguagesAPI api);
 
-    void log(@NotNull Object object);
+    void log(@NotNull BaseComponent component);
 
     enum Type {
         BUKKIT,

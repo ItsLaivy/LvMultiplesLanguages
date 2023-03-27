@@ -31,7 +31,7 @@ public class BukkitMessage implements Message {
     }
 
     @Override
-    public @NotNull MessageStorage getLanguage() {
+    public @NotNull MessageStorage getStorage() {
         return messageStorage;
     }
 
@@ -46,11 +46,6 @@ public class BukkitMessage implements Message {
     }
 
     @Override
-    public @NotNull BaseComponent[] get(@Nullable Locale locale) {
-        return messageStorage.get(locale, getId(), getReplaces(locale));
-    }
-
-    @Override
     public @NotNull SerializedData serialize() {
         try {
             // Data
@@ -60,8 +55,8 @@ public class BukkitMessage implements Message {
             }
 
             JsonObject language = new JsonObject();
-            language.addProperty("Name", getLanguage().getName());
-            language.addProperty("Plugin", ((Plugin) getLanguage().getPlugin()).getName());
+            language.addProperty("Name", getStorage().getName());
+            language.addProperty("Plugin", ((Plugin) getStorage().getPlugin()).getName());
 
             JsonObject data = new JsonObject();
             data.add("Language", language);

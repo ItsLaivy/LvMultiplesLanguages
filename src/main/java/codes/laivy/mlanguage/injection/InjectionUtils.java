@@ -1,17 +1,12 @@
 package codes.laivy.mlanguage.injection;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
-import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
 import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import io.netty.channel.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
@@ -51,18 +46,6 @@ public class InjectionUtils {
                             ItemStack item = current.getItemStack().getCraftItemStack().getItemStack().clone();
 
                             if (translator.isTranslatable(item)) {
-                                // Item default name and lore
-                                final @Nullable Message name = translator.getName(item);
-                                final @Nullable Message lore = translator.getLore(item);
-
-                                if (name != null) {
-                                    System.out.println("Changed name");
-                                    current.getItemStack().setName(BukkitMessageStorage.mergeBaseComponents(name.get(name.getLanguage().getDefaultLocale())));
-                                } if (lore != null) {
-                                    System.out.println("Changed lore");
-                                    current.getItemStack().setLore(lore.get(lore.getLanguage().getDefaultLocale()));
-                                }
-                                // Translation
                                 packet = translator.translate(item, player, current.getWindowId(), current.getSlot()).getValue();
                             }
                         }
