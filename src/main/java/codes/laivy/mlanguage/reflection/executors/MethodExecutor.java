@@ -80,6 +80,9 @@ public class MethodExecutor implements Executor {
         } assert this.getMethod() != null;
 
         try {
+            if (instance.getValue() == null) {
+                throw new NullPointerException("This value's instance is null.");
+            }
             return getMethod().invoke(instance.getValue(), ObjectExecutor.toObjectArray(methodParameters));
         } catch (Exception e) {
             throw new RuntimeException(getMeans(), e);

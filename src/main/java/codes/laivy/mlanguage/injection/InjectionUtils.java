@@ -1,14 +1,17 @@
 package codes.laivy.mlanguage.injection;
 
-import codes.laivy.mlanguage.api.item.ItemTranslator;
+import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
+import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
+import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
 import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import io.netty.channel.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.Arrays;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
@@ -41,16 +44,27 @@ public class InjectionUtils {
             public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
                 try {
                     if (packet.getClass().equals(multiplesLanguagesBukkit().getVersion().getClassExec("PacketPlayOutSetSlot").getReflectionClass())) {
-                        //noinspection unchecked
-                        @NotNull ItemTranslator<ItemStack, Player> translator = (ItemTranslator<ItemStack, Player>) Objects.requireNonNull(multiplesLanguagesBukkit().getApi().getItemTranslator());
-
-                        // TODO: 24/03/2023 Um sistema para definir o nome do real NMS item para o local padrão da lingua (assim não teremos problemas com items diferentes)
-                        
                         PacketPlayOutSetSlot current = new PacketPlayOutSetSlot(packet);
-                        ItemStack item = current.getItemStack().getCraftItemStack().getItemStack();
 
-                        if (translator.isTranslatable(item)) {
-                            packet = translator.translate(item, player, current.getWindowId(), current.getSlot()).getValue();
+                        if (current.getItemStack().getValue() != null && current.getItemStack().getTag() != null) {
+                            BukkitItemTranslator translator = multiplesLanguagesBukkit().getApi().getItemTranslator();
+                            ItemStack item = current.getItemStack().getCraftItemStack().getItemStack().clone();
+
+                            if (translator.isTranslatable(item)) {
+                                // Item default name and lore
+                                final @Nullable Message name = translator.getName(item);
+                                final @Nullable Message lore = translator.getLore(item);
+
+                                if (name != null) {
+                                    System.out.println("Changed name");
+                                    current.getItemStack().setName(BukkitMessageStorage.mergeBaseComponents(name.get(name.getLanguage().getDefaultLocale())));
+                                } if (lore != null) {
+                                    System.out.println("Changed lore");
+                                    current.getItemStack().setLore(lore.get(lore.getLanguage().getDefaultLocale()));
+                                }
+                                // Translation
+                                packet = translator.translate(item, player, current.getWindowId(), current.getSlot()).getValue();
+                            }
                         }
                     }
 

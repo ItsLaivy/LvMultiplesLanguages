@@ -81,6 +81,9 @@ public class FieldExecutor implements Executor {
             throw new RuntimeException("Cannot invoke this field as object field because it is an static field");
         } else {
             try {
+                if (instance != null && instance.getValue() == null) {
+                    throw new NullPointerException("This value's instance is null!");
+                }
                 return getField().get((instance != null ? instance.getValue() : null));
             } catch (Exception e) {
                 throw new RuntimeException(getMeans(), e);

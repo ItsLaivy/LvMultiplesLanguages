@@ -1,21 +1,19 @@
 package codes.laivy.mlanguage.main;
 
 import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.MultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bukkit.BukkitMessage;
-import codes.laivy.mlanguage.api.bukkit.ItemTranslatorBukkitImpl;
-import codes.laivy.mlanguage.api.bukkit.TranslatableBukkitItem;
+import codes.laivy.mlanguage.api.bukkit.*;
+import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslatorImpl;
 import codes.laivy.mlanguage.injection.InjectionUtils;
-import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
-import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.utils.Platform;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -25,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.Objects;
-import java.util.UUID;
 
 public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Listener {
 
@@ -34,37 +31,33 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
     }
 
     private @Nullable Version version;
-    private @NotNull IMultiplesLanguagesAPI api;
+    private @NotNull BukkitMultiplesLanguagesAPI api;
 
     public BukkitMultiplesLanguages() {
         //noinspection ResultOfMethodCallIgnored
         getDataFolder().mkdirs();
-        this.api = new MultiplesLanguagesAPI(this, new ItemTranslatorBukkitImpl()) {
-            @Override
-            public @Nullable Locale getLocale(@NotNull UUID user) {
-                Player player = Bukkit.getPlayer(user);
-                if (player.isOnline()) {
-                    System.out.println("Locale: '" + Locale.getByCode(EntityPlayer.getEntityPlayer(player).getLocale()) + "', NMS: '" + EntityPlayer.getEntityPlayer(player).getLocale() + "'");
-                    return Locale.getByCode(EntityPlayer.getEntityPlayer(player).getLocale());
-                }
-                return null;
-            }
-
-            @Override
-            public void setLocale(@NotNull UUID user, @Nullable Locale locale) {
-                throw new UnsupportedOperationException();
-            }
-        };
+        this.api = new BukkitMultiplesLanguagesAPI(this, new BukkitItemTranslatorImpl());
     }
 
     @Override
-    public @NotNull IMultiplesLanguagesAPI getApi() {
+    public @NotNull BukkitMultiplesLanguagesAPI getApi() {
         return api;
     }
 
     @Override
     public void setApi(@NotNull IMultiplesLanguagesAPI api) {
-        this.api = api;
+        if (api instanceof BukkitMultiplesLanguagesAPI) {
+            getApi().unload();
+            this.api = (BukkitMultiplesLanguagesAPI) api;
+            api.load();
+        } else {
+            throw new IllegalArgumentException("This API isn't a bukkit API!");
+        }
+    }
+
+    @EventHandler
+    private void click(@NotNull InventoryClickEvent e) {
+        Bukkit.broadcastMessage(e.getSlot() + "");
     }
 
     @Override
@@ -130,6 +123,21 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
             } else if (e.getMessage().equals("2")) {
                 Bukkit.broadcastMessage(e.getPlayer().getItemInHand().getClass().getName());
                 Bukkit.broadcastMessage(e.getPlayer().getItemInHand().isSimilar(e.getPlayer().getItemInHand()) + "");
+            } else if (e.getMessage().equals("3")) {
+                Bukkit.broadcastMessage(e.getPlayer().getItemInHand().getItemMeta().getDisplayName());
+                Bukkit.broadcastMessage(e.getPlayer().getItemInHand().getItemMeta().getLore().toString());
+            } else if (e.getMessage().equals("4")) {
+                Bukkit.broadcastMessage(ComponentSerializer.toString(ItemStack.getNMSItemStack(e.getPlayer().getItemInHand()).getName()));
+
+                @Nullable BaseComponent[] lore = ItemStack.getNMSItemStack(e.getPlayer().getItemInHand()).getLore();
+                if (lore != null) {
+                    Bukkit.broadcastMessage("Lore:");
+                    for (BaseComponent component : lore) {
+                        Bukkit.broadcastMessage(ComponentSerializer.toString(component));
+                    }
+                }
+            } else if (e.getMessage().equals("5")) {
+                Bukkit.broadcastMessage(ItemStack.getNMSItemStack(e.getPlayer().getItemInHand()).getTag().toString());
             }
         });
     }

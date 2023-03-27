@@ -38,14 +38,14 @@ public abstract class MultiplesLanguagesAPI implements IMultiplesLanguagesAPI {
     public void load() {
         defaultLocale = Locale.EN_US;
 
-        @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent>> componentMap = new LinkedHashMap<>();
-        componentMap.put("Teste1", new LinkedHashMap<Locale, BaseComponent>() {{
-            put(Locale.EN_US, new TextComponent("Test cool name, just for test"));
-            put(Locale.PT_BR, new TextComponent("Nome top só pra teste mesmo"));
+        @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> componentMap = new LinkedHashMap<>();
+        componentMap.put("Teste1", new LinkedHashMap<Locale, BaseComponent[]>() {{
+            put(Locale.EN_US, new TextComponent[] {new TextComponent("Test cool name, just for test")});
+            put(Locale.PT_BR, new TextComponent[] {new TextComponent("Nome top só pra teste mesmo")});
         }});
-        componentMap.put("Teste2", new LinkedHashMap<Locale, BaseComponent>() {{
-            put(Locale.EN_US, new TextComponent("Cool test lore, just for testing :)"));
-            put(Locale.PT_BR, new TextComponent("Lore top só pra testar cara, que legal..."));
+        componentMap.put("Teste2", new LinkedHashMap<Locale, BaseComponent[]>() {{
+            put(Locale.EN_US, new TextComponent[] {new TextComponent("Cool test lore, just for testing :)")});
+            put(Locale.PT_BR, new TextComponent[] {new TextComponent("Lore top só pra testar cara, que legal...")});
         }});
 
         messageStorages = new LinkedHashSet<MessageStorage>() {{
@@ -70,7 +70,7 @@ public abstract class MultiplesLanguagesAPI implements IMultiplesLanguagesAPI {
     }
 
     @Override
-    public @NotNull BaseComponent get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
         return messageStorage.get(locale, id, replaces);
     }
 

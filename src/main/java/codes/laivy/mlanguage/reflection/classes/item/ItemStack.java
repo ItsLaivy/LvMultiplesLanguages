@@ -4,9 +4,11 @@ import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagCompound;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.ObjectExecutor;
 import codes.laivy.mlanguage.reflection.objects.ItemStackObjExec;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
@@ -30,6 +32,20 @@ public class ItemStack extends ObjectExecutor {
     }
     public void setTag(@NotNull NBTTagCompound compound) {
         multiplesLanguagesBukkit().getVersion().getFieldExec("ItemStack:tag").set(this, compound.getValue());
+    }
+
+    public @Nullable BaseComponent getName() {
+        return multiplesLanguagesBukkit().getVersion().getItemDisplayName(this);
+    }
+    public void setName(@Nullable BaseComponent name) {
+        multiplesLanguagesBukkit().getVersion().setItemDisplayName(this, name);
+    }
+
+    public @Nullable BaseComponent[] getLore() {
+        return multiplesLanguagesBukkit().getVersion().getItemLore(this);
+    }
+    public void setLore(@Nullable BaseComponent[] lore) {
+        multiplesLanguagesBukkit().getVersion().setItemLore(this, lore);
     }
 
     public @NotNull CraftItemStack getCraftItemStack() {

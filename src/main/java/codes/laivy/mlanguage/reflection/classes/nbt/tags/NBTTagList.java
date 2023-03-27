@@ -22,8 +22,12 @@ public class NBTTagList extends NBTBase {
      * Construct a Multiples languages NBTTagList from an NMS NBTTagList
      * @param value a NMS NBTTagList
      */
-    protected NBTTagList(@Nullable Object value) {
+    public NBTTagList(@Nullable Object value) {
         super(value);
+    }
+
+    public @Nullable List<?> getList() {
+        return (List<?>) multiplesLanguagesBukkit().getVersion().getFieldExec("NBTTagList:list").invokeInstance(this);
     }
 
     public void concatenate(@NotNull NBTTagList compound) {

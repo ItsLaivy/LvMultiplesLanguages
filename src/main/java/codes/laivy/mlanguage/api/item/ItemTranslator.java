@@ -1,7 +1,8 @@
 package codes.laivy.mlanguage.api.item;
 
-import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.lang.Message;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This is responsible to translate the items
@@ -16,9 +17,21 @@ public interface ItemTranslator<I, P> {
      * Translates a item
      * @param item the item
      * @param player the player
-     * @param window the window ID of this item's inventory
-     * @param slot the item slot
      */
-    @NotNull PacketPlayOutSetSlot translate(@NotNull I item, @NotNull P player, int window, int slot);
+    void translate(@NotNull I item, @NotNull P player);
+
+    /**
+     * Gets the item name if applicable
+     * @param item the item
+     * @return the item message name or null if not applicable
+     */
+    @Nullable Message getName(@NotNull I item);
+
+    /**
+     * Gets the item lore if applicable
+     * @param item the item
+     * @return the item message lore or null if not applicable
+     */
+    @Nullable Message getLore(@NotNull I item);
 
 }

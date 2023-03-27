@@ -44,10 +44,10 @@ public interface IMultiplesLanguagesAPI {
         return null;
     }
 
-    default @NotNull BaseComponent get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull BaseComponent... replaces) {
+    default @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull BaseComponent... replaces) {
         return get(locale, messageStorage, id, (Object[]) replaces);
     }
-    @NotNull BaseComponent get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 
     @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 

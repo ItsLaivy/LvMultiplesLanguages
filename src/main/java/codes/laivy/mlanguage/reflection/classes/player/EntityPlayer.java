@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.reflection.classes.player;
 
+import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.ObjectExecutor;
 import org.bukkit.entity.Player;
@@ -26,6 +27,13 @@ public class EntityPlayer extends ObjectExecutor {
 
     public @NotNull String getLocale() {
         return (String) Objects.requireNonNull(multiplesLanguagesBukkit().getVersion().getFieldExec("EntityPlayer:locale").invokeInstance(this));
+    }
+
+    public @NotNull Container getActiveContainer() {
+        return new Container(multiplesLanguagesBukkit().getVersion().getFieldExec("EntityPlayer:activeContainer").invokeInstance(this));
+    }
+    public @NotNull Container getDefaultContainer() {
+        return new Container(multiplesLanguagesBukkit().getVersion().getFieldExec("EntityPlayer:defaultContainer").invokeInstance(this));
     }
 
     @Override

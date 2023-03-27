@@ -5,6 +5,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ public interface Message {
     default @NotNull BaseComponent[] getReplaces(@Nullable Locale locale) {
         Set<BaseComponent> componentSet = new LinkedHashSet<>();
         for (Message message : getReplaces()) {
-            componentSet.add(message.get(locale));
+            componentSet.addAll(Arrays.asList(message.get(locale)));
         }
         return componentSet.toArray(new BaseComponent[0]);
     }
@@ -48,7 +49,7 @@ public interface Message {
      */
     @NotNull Message[] getReplaces();
 
-    @NotNull BaseComponent get(@Nullable Locale locale);
+    @NotNull BaseComponent[] get(@Nullable Locale locale);
 
     @NotNull SerializedData serialize();
 

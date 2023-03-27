@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.reflection.versions;
 
+import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
@@ -11,14 +12,21 @@ import codes.laivy.mlanguage.reflection.classes.player.CraftPlayer;
 import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
+import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.*;
 import codes.laivy.mlanguage.reflection.objects.*;
 import io.netty.channel.Channel;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
+
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_8_R1 implements Version {
 
@@ -80,6 +88,8 @@ public class V1_8_R1 implements Version {
         load(V1_8_R1.class, "CraftPlayer", new CraftPlayer.CraftPlayerClass("org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer"));
         load(V1_8_R1.class, "PlayerConnection", new PlayerConnection.PlayerConnectionClass("net.minecraft.server.v1_8_R1.PlayerConnection"));
         load(V1_8_R1.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_8_R1.NetworkManager"));
+        // Inventory
+        load(V1_8_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_8_R1.Container"));
     }
 
     @Override
@@ -113,8 +123,12 @@ public class V1_8_R1 implements Version {
         // Player
         load(V1_8_R1.class, "EntityPlayer:locale", new FieldExecutor(getClassExec("EntityPlayer"), ClassExecutor.STRING, "locale", "Gets the locale of an EntityPlayer"));
         load(V1_8_R1.class, "EntityPlayer:playerConnection", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("PlayerConnection"), "playerConnection", "Gets the PlayerConnection of an EntityPlayer"));
+        load(V1_8_R1.class, "EntityPlayer:activeContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "activeContainer", "Gets the active container inventory of an EntityPlayer"));
+        load(V1_8_R1.class, "EntityPlayer:defaultContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "defaultContainer", "Gets the default container inventory of an EntityPlayer"));
         load(V1_8_R1.class, "PlayerConnection:networkManager", new FieldExecutor(getClassExec("PlayerConnection"), getClassExec("NetworkManager"), "networkManager", "Gets the NetworkManager of a PlayerConnection"));
         load(V1_8_R1.class, "NetworkManager:channel", new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "i", "Gets the Channel of a NetworkManager"));
+        // Container
+        load(V1_8_R1.class, "Container:windowId", new FieldExecutor(getClassExec("Container"), ClassExecutor.INT, "windowId", "Gets the id of a Container"));
     }
 
     @Override
@@ -393,5 +407,159 @@ public class V1_8_R1 implements Version {
     @Override
     public @NotNull String getName() {
         return "V1_8_R1";
+    }
+
+    @Override
+    public @Nullable BaseComponent getItemDisplayName(@NotNull ItemStack itemStack) {
+        NBTTagCompound tag = itemStack.getTag();
+
+        if (tag != null) {
+            if (tag.contains("display")) {
+                NBTTagCompound display = new NBTTagCompound(tag.get("display").getValue());
+                if (display.contains("Name")) {
+                    return BukkitMessageStorage.mergeBaseComponents(ComponentSerializer.parse(Objects.requireNonNull(new NBTTagString(display.get("Name").getValue()).getData())));
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void setItemDisplayName(@NotNull ItemStack itemStack, @Nullable BaseComponent name) {
+        NBTTagCompound tag = itemStack.getTag();
+
+        if (tag == null) {
+            itemStack.setTag((NBTTagCompound) nbtTag(NBTTag.COMPOUND));
+            tag = itemStack.getTag();
+        }
+
+        if (tag == null) {
+            throw new NullPointerException("Couldn't get the NBT Tag of this itemstack");
+        }
+
+        NBTTagCompound display = (NBTTagCompound) nbtTag(NBTTag.COMPOUND);
+        if (tag.contains("display")) {
+            display = new NBTTagCompound(tag.get("display").getValue());
+        }
+
+        if (name != null) {
+            display.set("Name", new NBTTagString(ComponentSerializer.toString(name)));
+        } else {
+            display.remove("Name");
+        }
+
+        tag.set("display", display);
+        itemStack.setTag(tag);
+    }
+
+    @Override
+    public @Nullable BaseComponent[] getItemLore(@NotNull ItemStack itemStack) {
+        NBTTagCompound tag = itemStack.getTag();
+
+        if (tag != null) {
+            if (tag.contains("display")) {
+                NBTTagCompound display = new NBTTagCompound(tag.get("display").getValue());
+                if (display.contains("Lore")) {
+                    List<BaseComponent> components = new LinkedList<>();
+
+                    for (Object nbtBase : Objects.requireNonNull(new NBTTagList(display.get("Lore").getValue()).getList())) {
+                        NBTTagString base = new NBTTagString(nbtBase);
+                        components.add(BukkitMessageStorage.mergeBaseComponents(ComponentSerializer.parse(Objects.requireNonNull(base.getData()))));
+                    }
+
+                    return components.toArray(new BaseComponent[0]);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void setItemLore(@NotNull ItemStack itemStack, @Nullable BaseComponent[] lore) {
+        NBTTagCompound tag = itemStack.getTag();
+
+        if (tag == null) {
+            itemStack.setTag((NBTTagCompound) nbtTag(NBTTag.COMPOUND));
+            tag = itemStack.getTag();
+        }
+
+        if (tag == null) {
+            throw new NullPointerException("Couldn't get the NBT Tag of this itemstack");
+        }
+
+        NBTTagCompound display = (NBTTagCompound) nbtTag(NBTTag.COMPOUND);
+        if (tag.contains("display")) {
+            display = new NBTTagCompound(tag.get("display").getValue());
+        }
+
+        if (lore != null) {
+            List<NBTBase> loreBase = new LinkedList<>();
+            for (BaseComponent line : lore) {
+                loreBase.add(multiplesLanguagesBukkit().getVersion().nbtTag(NBTTag.STRING, ComponentSerializer.toString(line)));
+            }
+            display.set("Lore", new NBTTagList(loreBase));
+        } else {
+            display.remove("Lore");
+        }
+
+        tag.set("display", display);
+        itemStack.setTag(tag);
+    }
+
+    @Override
+    public @Nullable BaseComponent getItemBukkitDisplayName(org.bukkit.inventory.@NotNull ItemStack itemStack) {
+        if (itemStack.hasItemMeta()) {
+            return new TextComponent(itemStack.getItemMeta().getDisplayName());
+        }
+        return null;
+    }
+
+    @Override
+    public void setItemBukkitDisplayName(org.bukkit.inventory.@NotNull ItemStack itemStack, @Nullable BaseComponent name) {
+        if (itemStack.hasItemMeta()) {
+            ItemMeta meta = itemStack.getItemMeta();
+
+            if (name != null) {
+                meta.setDisplayName(name.toLegacyText());
+            } else {
+                meta.setDisplayName(null);
+            }
+
+            itemStack.setItemMeta(meta);
+        }
+    }
+
+    @Override
+    public @Nullable BaseComponent[] getItemBukkitLore(org.bukkit.inventory.@NotNull ItemStack itemStack) {
+        if (itemStack.hasItemMeta()) {
+            List<BaseComponent> components = new LinkedList<>();
+            for (String str : itemStack.getItemMeta().getLore()) {
+                components.add(new TextComponent(str));
+            }
+            return components.toArray(new BaseComponent[0]);
+        }
+        return null;
+    }
+
+    @Override
+    public void setItemBukkitLore(org.bukkit.inventory.@NotNull ItemStack itemStack, @Nullable BaseComponent[] lore) {
+        if (itemStack.hasItemMeta()) {
+            ItemMeta meta = itemStack.getItemMeta();
+
+            if (lore != null) {
+                List<String> loreStr = new LinkedList<>();
+                for (BaseComponent component : lore) {
+                    loreStr.add(component != null ? component.toLegacyText() : null);
+                }
+
+                meta.setLore(loreStr);
+            } else {
+                meta.setLore(null);
+            }
+
+            itemStack.setItemMeta(meta);
+        }
     }
 }

@@ -7,13 +7,15 @@ import org.jetbrains.annotations.Nullable;
 
 public interface MessageStorage {
 
-    default @NotNull BaseComponent get(@Nullable Locale locale, @NotNull String id, @NotNull BaseComponent... replaces) {
+    default @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull BaseComponent... replaces) {
         return get(locale, id, (Object[]) replaces);
     }
-    @NotNull BaseComponent get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
+    @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
 
     @NotNull String getName();
     @NotNull Object getPlugin();
+
+    @NotNull Locale getDefaultLocale();
 
     @NotNull SerializedData serialize();
 

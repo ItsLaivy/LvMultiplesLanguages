@@ -4,11 +4,9 @@ import codes.laivy.mlanguage.data.MethodSupplier;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.lang.Locale;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -20,19 +18,19 @@ import java.util.Map;
 
 public class BukkitMessageStorage implements MessageStorage {
 
-    private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent>> components;
+    private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components;
     private final @NotNull String name;
     private final @NotNull Plugin plugin;
 
     private final @NotNull Locale defaultLocale;
 
-    public BukkitMessageStorage(@NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent>> components, @NotNull String name, @NotNull Plugin plugin) {
+    public BukkitMessageStorage(@NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components, @NotNull String name, @NotNull Plugin plugin) {
         this.defaultLocale = defaultLocale;
         this.components = components;
         this.name = name;
         this.plugin = plugin;
 
-        for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent>> entry : getComponents().entrySet()) {
+        for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getComponents().entrySet()) {
             if (!entry.getValue().containsKey(getDefaultLocale())) {
                 throw new IllegalStateException("Couldn't find the default locale (" + getDefaultLocale().name() + ") translation for code '" + entry.getKey() + "'");
             }
@@ -40,24 +38,32 @@ public class BukkitMessageStorage implements MessageStorage {
     }
 
     @Override
-    public @NotNull BaseComponent get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
         locale = (locale == null ? getDefaultLocale() : locale);
 
         if (getComponents().containsKey(id)) {
+            BaseComponent[] component;
             if (getComponents().get(id).containsKey(locale)) {
-                BaseComponent component = getComponents().get(id).get(locale);
-                // TODO: 23/03/2023 Replaces
-                return component;
+                component = getComponents().get(id).get(locale);
+            } else if (getComponents().get(id).containsKey(getDefaultLocale())) {
+                component = getComponents().get(id).get(getDefaultLocale());
+            } else {
+                throw new NullPointerException("This message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
+
+            // TODO: 23/03/2023 Replaces
+            return component;
+        } else {
+            throw new NullPointerException("Couldn't find the message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "'");
         }
-        throw new NullPointerException("Couldn't find the message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "'");
     }
 
+    @Override
     public @NotNull Locale getDefaultLocale() {
         return defaultLocale;
     }
 
-    public @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent>> getComponents() {
+    public @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> getComponents() {
         return components;
     }
 
@@ -107,7 +113,8 @@ public class BukkitMessageStorage implements MessageStorage {
                 throw new NullPointerException("Couldn't find the plugin '" + pluginName + "'");
             }
 
-            @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent>> components = new LinkedHashMap<>();
+            @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components = new LinkedHashMap<>();
+            // TODO: 27/03/2023 this
 //            for (JsonElement element : data.get("Components").getAsJsonArray()) {
 //                JsonObject componentJson = element.getAsJsonObject();
 //                for (Map.Entry<String, JsonElement> entry : componentJson.entrySet()) {

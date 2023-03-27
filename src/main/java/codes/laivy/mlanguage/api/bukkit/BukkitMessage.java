@@ -46,7 +46,7 @@ public class BukkitMessage implements Message {
     }
 
     @Override
-    public @NotNull BaseComponent get(@Nullable Locale locale) {
+    public @NotNull BaseComponent[] get(@Nullable Locale locale) {
         return messageStorage.get(locale, getId(), getReplaces(locale));
     }
 
