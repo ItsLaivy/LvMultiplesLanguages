@@ -21,7 +21,7 @@ public class NBTTagString extends NBTBase {
     }
 
     public @Nullable String getData() {
-        return (String) multiplesLanguagesBukkit().getVersion().getMethodExec("NBTTagString:getData").invokeInstance(this);
+        return (String) multiplesLanguagesBukkit().getVersion().getFieldExec("NBTTagString:getData").invokeInstance(this);
     }
 
     @Override

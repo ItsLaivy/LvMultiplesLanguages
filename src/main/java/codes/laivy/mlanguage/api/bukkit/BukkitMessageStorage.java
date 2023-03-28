@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sun.jvm.hotspot.utilities.ObjectReader;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -53,30 +54,16 @@ public class BukkitMessageStorage implements MessageStorage {
                 throw new NullPointerException("This message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
-            // Replace strings "%s" in components with the values from the "replaces" array
-            Object[] replaceStrings = new String[replaces.length];
-            for (int i = 0; i < replaces.length; i++) {
-                Object index = replaces[i];
-
-                if (index instanceof Message) {
-                    replaceStrings[i] = BukkitMessageStorage.mergeBaseComponents(((Message) index).get(locale)).toPlainText();
-                } else if (index instanceof BaseComponent) {
-                    replaceStrings[i] = ((BaseComponent) index).toPlainText();
-                } else {
-                    replaceStrings[i] = String.valueOf(index);
-                }
-            }
-
             for (BaseComponent component : components) {
                 if (component instanceof TextComponent) {
                     TextComponent text = (TextComponent) component;
-                    text.setText(String.format(text.getText(), replaceStrings));
+                    text.setText(replace(locale, text.getText(), replaces));
                 }
                 if (component.getExtra() != null) {
                     for (BaseComponent extra : component.getExtra()) {
                         if (extra instanceof TextComponent) {
                             TextComponent text = (TextComponent) extra;
-                            text.setText(String.format(text.getText(), replaceStrings));
+                            text.setText(replace(locale, text.getText(), replaces));
                         }
                     }
                 }
@@ -86,6 +73,27 @@ public class BukkitMessageStorage implements MessageStorage {
         } else {
             throw new NullPointerException("Couldn't find the message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "'");
         }
+    }
+
+    private @NotNull String replace(@NotNull Locale locale, @NotNull String string, @NotNull Object... replaces) {
+        for (Object replace : replaces) {
+            if (!string.contains("%s")) {
+                break;
+            }
+
+            String index;
+
+            if (replace instanceof Message) {
+                index = BukkitMessageStorage.mergeBaseComponents(((Message) replace).get(locale)).toPlainText();
+            } else if (replace instanceof BaseComponent) {
+                index = ((BaseComponent) replace).toPlainText();
+            } else {
+                index = String.valueOf(replace);
+            }
+
+            string = string.replaceFirst("%s", index);
+        }
+        return string;
     }
 
     @Override
