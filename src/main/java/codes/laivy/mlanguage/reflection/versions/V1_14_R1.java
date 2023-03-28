@@ -2,6 +2,7 @@ package codes.laivy.mlanguage.reflection.versions;
 
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
+import codes.laivy.mlanguage.reflection.classes.item.CraftMetaItem;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.reflection.classes.nbt.NBTBase;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.*;
@@ -14,8 +15,18 @@ import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
+import codes.laivy.mlanguage.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.reflection.executors.MethodExecutor;
+import codes.laivy.mlanguage.utils.ClassUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_14_R1 extends V1_13_R2 {
     
@@ -34,6 +45,51 @@ public class V1_14_R1 extends V1_13_R2 {
         }
 
         return super.onLoad(version, key, executor);
+    }
+
+    @Override
+    public void setItemLore(@NotNull ItemStack itemStack, @NotNull BaseComponent[] lore) {
+        NBTTagCompound tag = itemStack.getTag();
+
+        if (tag == null) {
+            itemStack.setTag((NBTTagCompound) nbtTag(NBTTag.COMPOUND));
+            tag = itemStack.getTag();
+        }
+
+        if (tag == null) {
+            throw new NullPointerException("Couldn't get the NBT Tag of this itemstack");
+        }
+
+        NBTTagCompound display = (NBTTagCompound) nbtTag(NBTTag.COMPOUND);
+        if (tag.contains("display")) {
+            display = new NBTTagCompound(tag.get("display").getValue());
+        }
+
+        if (lore != null) {
+            List<NBTBase> loreBase = new LinkedList<>();
+            for (BaseComponent line : lore) {
+                loreBase.add(multiplesLanguagesBukkit().getVersion().nbtTag(NBTTag.STRING, ComponentSerializer.toString(line)));
+            }
+            display.set("Lore", new NBTTagList(loreBase));
+        } else {
+            display.remove("Lore");
+        }
+
+        tag.set("display", display);
+        itemStack.setTag(tag);
+    }
+
+    @Override
+    public void setItemBukkitLore(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull BaseComponent[] lore) {
+        if (ClassUtils.isInstanceOf(getClassExec("CraftMetaItem").getReflectionClass(), itemStack.getItemMeta().getClass())) {
+            if (itemStack.hasItemMeta()) {
+                CraftMetaItem itemMeta = new CraftMetaItem(itemStack.getItemMeta());
+                itemMeta.setLore(lore);
+                itemStack.setItemMeta((ItemMeta) itemMeta.getValue());
+                return;
+            }
+        }
+        super.setItemBukkitLore(itemStack, lore);
     }
 
     @Override
@@ -72,5 +128,12 @@ public class V1_14_R1 extends V1_13_R2 {
         super.loadMethods();
 
         load(V1_14_R1.class, "NBTTagCompound:set", new MethodExecutor(getClassExec("NBTBase:NBTTagCompound"), getClassExec("NBTBase"), "set", "Sets a value inside a NBTTagCompound", ClassExecutor.STRING, getClassExec("NBTBase")));
+    }
+
+    @Override
+    public void loadFields() {
+        super.loadFields();
+
+        load(V1_13_R1.class, "CraftMetaItem:lore", new FieldExecutor(getClassExec("CraftMetaItem"), new ClassExecutor(List.class), "lore", "Gets the component lore of a ItemMeta"));
     }
 }

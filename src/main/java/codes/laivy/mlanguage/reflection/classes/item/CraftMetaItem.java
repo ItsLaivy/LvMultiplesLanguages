@@ -1,0 +1,53 @@
+package codes.laivy.mlanguage.reflection.classes.item;
+
+import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
+import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
+import codes.laivy.mlanguage.reflection.executors.ObjectExecutor;
+import codes.laivy.mlanguage.reflection.versions.V1_13_R1;
+import codes.laivy.mlanguage.reflection.versions.V1_14_R1;
+import codes.laivy.mlanguage.utils.ReflectionUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+
+public class CraftMetaItem extends ObjectExecutor {
+    public CraftMetaItem(@Nullable Object value) {
+        super(value);
+    }
+
+    public void setDisplayName(@NotNull BaseComponent[] displayName) {
+        if (ReflectionUtils.isCompatible(V1_13_R1.class)) {
+            if (displayName != null) {
+                multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(this, IChatBaseComponent.convert(displayName));
+            } else {
+                multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(this, null);
+            }
+        } else {
+            throw new UnsupportedOperationException("This method is only available since 1.14+");
+        }
+    }
+    public void setLore(@NotNull BaseComponent[] lore) {
+        if (ReflectionUtils.isCompatible(V1_14_R1.class)) {
+            if (lore != null) {
+                multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(this, IChatBaseComponent.convert(lore));
+            } else {
+                multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(this, null);
+            }
+        } else {
+            throw new UnsupportedOperationException("This method is only available since 1.14+");
+        }
+    }
+
+    @Override
+    public @NotNull CraftMetaItemClass getClassExecutor() {
+        return (CraftMetaItemClass) multiplesLanguagesBukkit().getVersion().getClassExec("CraftMetaItem");
+    }
+
+    public static class CraftMetaItemClass extends ClassExecutor {
+        public CraftMetaItemClass(@NotNull String className) {
+            super(className);
+        }
+    }
+}

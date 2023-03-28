@@ -66,7 +66,7 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
 
     @Override
     public void log(@NotNull BaseComponent component) {
-        getServer().getConsoleSender().sendMessage("§8[§6" + getDescription().getName() + "§8]§7" + " " + component.toPlainText());
+        getServer().getConsoleSender().sendMessage("§8[§6" + getDescription().getName() + "§8]§7" + " " + component.toLegacyText());
     }
 
     public @NotNull Version getVersion() {
@@ -147,16 +147,6 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
             } else if (e.getMessage().equals("3")) {
                 Bukkit.broadcastMessage(e.getPlayer().getItemInHand().getItemMeta().getDisplayName());
                 Bukkit.broadcastMessage(e.getPlayer().getItemInHand().getItemMeta().getLore().toString());
-            } else if (e.getMessage().equals("4")) {
-                Bukkit.broadcastMessage(ComponentSerializer.toString(ItemStack.getNMSItemStack(e.getPlayer().getItemInHand()).getName()));
-
-                @Nullable BaseComponent[] lore = ItemStack.getNMSItemStack(e.getPlayer().getItemInHand()).getLore();
-                if (lore != null) {
-                    Bukkit.broadcastMessage("Lore:");
-                    for (BaseComponent component : lore) {
-                        Bukkit.broadcastMessage(ComponentSerializer.toString(component));
-                    }
-                }
             } else if (e.getMessage().equals("5")) {
                 Bukkit.broadcastMessage(ItemStack.getNMSItemStack(e.getPlayer().getItemInHand()).getTag().toString());
             } else if (e.getMessage().equals("6")) {

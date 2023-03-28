@@ -14,7 +14,11 @@ import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
+import codes.laivy.mlanguage.reflection.executors.FieldExecutor;
+import codes.laivy.mlanguage.reflection.executors.MethodExecutor;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class V1_17_R1 extends V1_16_R3 {
     
@@ -22,6 +26,10 @@ public class V1_17_R1 extends V1_16_R3 {
     public boolean onLoad(@NotNull Class<? extends Version> version, @NotNull String key, @NotNull Executor executor) {
         if (version == V1_16_R3.class) {
             if (executor instanceof ClassExecutor) {
+                return false;
+            }
+        } else if (version == V1_8_R1.class) {
+            if (key.equals("EntityPlayer:playerConnection") || key.equals("NBTTagList:list") || key.equals("ChatSerializer:convertToBase")) {
                 return false;
             }
         }
@@ -60,4 +68,18 @@ public class V1_17_R1 extends V1_16_R3 {
         load(V1_17_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_17_R1.Container"));
     }
 
+    @Override
+    public void loadMethods() {
+        super.loadMethods();
+
+        load(V1_17_R1.class, "ChatSerializer:convertToBase", new MethodExecutor(getClassExec("IChatBaseComponent"), ClassExecutor.STRING, "getText", "Converts a IChatBaseComponent to a string"));
+    }
+
+    @Override
+    public void loadFields() {
+        super.loadFields();
+
+        load(V1_17_R1.class, "EntityPlayer:playerConnection", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("PlayerConnection"), "b", "Gets the PlayerConnection of the player"));
+        load(V1_17_R1.class, "NBTTagList:list", new FieldExecutor(getClassExec("NBTBase:NBTTagList"), new ClassExecutor(List.class) {}, "c", "Gets the list of a NBTTagList"));
+    }
 }

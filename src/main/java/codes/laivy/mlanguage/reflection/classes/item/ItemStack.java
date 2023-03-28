@@ -34,16 +34,10 @@ public class ItemStack extends ObjectExecutor {
         multiplesLanguagesBukkit().getVersion().getFieldExec("ItemStack:tag").set(this, compound.getValue());
     }
 
-    public @Nullable BaseComponent getName() {
-        return multiplesLanguagesBukkit().getVersion().getItemDisplayName(this);
-    }
     public void setName(@Nullable BaseComponent name) {
         multiplesLanguagesBukkit().getVersion().setItemDisplayName(this, name);
     }
 
-    public @Nullable BaseComponent[] getLore() {
-        return multiplesLanguagesBukkit().getVersion().getItemLore(this);
-    }
     public void setLore(@Nullable BaseComponent[] lore) {
         multiplesLanguagesBukkit().getVersion().setItemLore(this, lore);
     }

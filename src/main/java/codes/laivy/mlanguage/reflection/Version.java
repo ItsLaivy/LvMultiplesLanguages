@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.reflection;
 
 import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.reflection.classes.nbt.NBTBase;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagCompound;
@@ -143,24 +144,23 @@ public interface Version {
     }
 
     // ItemStack
-    @Nullable BaseComponent getItemDisplayName(@NotNull ItemStack itemStack);
     void setItemDisplayName(@NotNull ItemStack itemStack, @Nullable BaseComponent name);
 
-    @Nullable BaseComponent[] getItemLore(@NotNull ItemStack itemStack);
-
-    void setItemLore(@NotNull ItemStack itemStack, @Nullable BaseComponent[] lore);
+    void setItemLore(@NotNull ItemStack itemStack, @NotNull BaseComponent[] lore);
 
     // Bukkit ItemStack
-    @Nullable BaseComponent getItemBukkitDisplayName(@NotNull org.bukkit.inventory.ItemStack itemStack);
     void setItemBukkitDisplayName(@NotNull org.bukkit.inventory.ItemStack itemStack, @Nullable BaseComponent name);
 
-    @Nullable BaseComponent[] getItemBukkitLore(@NotNull org.bukkit.inventory.ItemStack itemStack);
-
-    void setItemBukkitLore(@NotNull org.bukkit.inventory.ItemStack itemStack, @Nullable BaseComponent[] lore);
+    void setItemBukkitLore(@NotNull org.bukkit.inventory.ItemStack itemStack, @NotNull BaseComponent[] lore);
     // ItemStack
 
     // Player
     @NotNull Locale getPlayerMinecraftLocale(@NotNull Player player);
     // Player
+
+    // Chat
+    @NotNull IChatBaseComponent baseComponentToIChatComponent(@NotNull BaseComponent... components);
+    @NotNull BaseComponent[] iChatComponentToBaseComponent(@NotNull IChatBaseComponent iChatBaseComponent);
+    // Chat
 
 }

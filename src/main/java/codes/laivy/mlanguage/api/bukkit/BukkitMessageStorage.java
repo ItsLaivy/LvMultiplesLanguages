@@ -84,9 +84,9 @@ public class BukkitMessageStorage implements MessageStorage {
             String index;
 
             if (replace instanceof Message) {
-                index = BukkitMessageStorage.mergeBaseComponents(((Message) replace).get(locale)).toPlainText();
+                index = BukkitMessageStorage.mergeBaseComponents(((Message) replace).get(locale)).toLegacyText();
             } else if (replace instanceof BaseComponent) {
-                index = ((BaseComponent) replace).toPlainText();
+                index = ((BaseComponent) replace).toLegacyText();
             } else {
                 index = String.valueOf(replace);
             }
