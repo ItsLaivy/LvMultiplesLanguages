@@ -14,7 +14,11 @@ import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
+import codes.laivy.mlanguage.reflection.executors.MethodExecutor;
+import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
 
 public class V1_13_R1 extends V1_12_R1 {
     
@@ -23,6 +27,10 @@ public class V1_13_R1 extends V1_12_R1 {
         if (version == V1_12_R1.class) {
             if (executor instanceof ClassExecutor) {
                 return false;
+            }
+        } else if (version == V1_8_R1.class) {
+            if (executor instanceof MethodExecutor) {
+                return !key.equals("NBTTagCompound:keySet");
             }
         }
 
@@ -60,4 +68,10 @@ public class V1_13_R1 extends V1_12_R1 {
         load(V1_13_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_13_R1.Container"));
     }
 
+    @Override
+    public void loadMethods() {
+        super.loadMethods();
+
+        load(V1_13_R1.class, "NBTTagCompound:keySet", new MethodExecutor(getClassExec("NBTBase:NBTTagCompound"), new ClassExecutor(Set.class) {}, "getKeys", "Gets a NBTTagCompound's keys"));
+    }
 }
