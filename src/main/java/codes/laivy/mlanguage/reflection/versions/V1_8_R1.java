@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.reflection.versions;
 
 import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
+import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
@@ -19,6 +20,7 @@ import io.netty.channel.Channel;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -561,5 +563,10 @@ public class V1_8_R1 implements Version {
 
             itemStack.setItemMeta(meta);
         }
+    }
+
+    @Override
+    public @NotNull Locale getPlayerMinecraftLocale(@NotNull Player player) {
+        return Locale.getByCode(player.spigot().getLocale());
     }
 }

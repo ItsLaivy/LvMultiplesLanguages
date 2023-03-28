@@ -50,7 +50,7 @@ public class BukkitMultiplesLanguagesAPI extends MultiplesLanguagesAPI implement
     public @Nullable Locale getLocale(@NotNull UUID user) {
         Player player = Bukkit.getPlayer(user);
         if (player.isOnline()) {
-            return Locale.getByCode(player.spigot().getLocale());
+            return multiplesLanguagesBukkit().getVersion().getPlayerMinecraftLocale(player);
         }
         return null;
     }

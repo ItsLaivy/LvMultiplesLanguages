@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.reflection.versions;
 
+import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
@@ -14,7 +15,11 @@ import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class V1_15_R1 extends V1_14_R1 {
     
@@ -27,6 +32,16 @@ public class V1_15_R1 extends V1_14_R1 {
         }
 
         return super.onLoad(version, key, executor);
+    }
+
+    @Override
+    public @NotNull Locale getPlayerMinecraftLocale(@NotNull Player player) {
+        try {
+            Method method = player.getClass().getDeclaredMethod("getLocale");
+            return Locale.getByCode((String) method.invoke(player));
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

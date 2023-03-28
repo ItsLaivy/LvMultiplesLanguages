@@ -26,7 +26,9 @@ public class V1_8_R3 extends V1_8_R2 {
             if (executor instanceof ClassExecutor) {
                 return false;
             } else if (executor instanceof FieldExecutor) {
-                return !key.equals("NetworkManager:channel");
+                if (key.equals("NetworkManager:channel")) {
+                    return false;
+                }
             }
         }
 

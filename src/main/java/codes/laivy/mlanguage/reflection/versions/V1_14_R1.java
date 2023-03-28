@@ -14,6 +14,7 @@ import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
+import codes.laivy.mlanguage.reflection.executors.MethodExecutor;
 import org.jetbrains.annotations.NotNull;
 
 public class V1_14_R1 extends V1_13_R2 {
@@ -23,6 +24,12 @@ public class V1_14_R1 extends V1_13_R2 {
         if (version == V1_13_R2.class) {
             if (executor instanceof ClassExecutor) {
                 return false;
+            }
+        } else if (version == V1_8_R1.class) {
+            if (executor instanceof MethodExecutor) {
+                if (key.equals("NBTTagCompound:set")) {
+                    return false;
+                }
             }
         }
 
@@ -60,4 +67,10 @@ public class V1_14_R1 extends V1_13_R2 {
         load(V1_14_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_14_R1.Container"));
     }
 
+    @Override
+    public void loadMethods() {
+        super.loadMethods();
+
+        load(V1_14_R1.class, "NBTTagCompound:set", new MethodExecutor(getClassExec("NBTBase:NBTTagCompound"), getClassExec("NBTBase"), "set", "Sets a value inside a NBTTagCompound", ClassExecutor.STRING, getClassExec("NBTBase")));
+    }
 }

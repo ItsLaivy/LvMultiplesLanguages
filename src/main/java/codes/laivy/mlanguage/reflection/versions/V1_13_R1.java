@@ -30,7 +30,9 @@ public class V1_13_R1 extends V1_12_R1 {
             }
         } else if (version == V1_8_R1.class) {
             if (executor instanceof MethodExecutor) {
-                return !key.equals("NBTTagCompound:keySet");
+                if (key.equals("NBTTagCompound:keySet")) {
+                    return false;
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.reflection;
 
+import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.reflection.classes.nbt.NBTBase;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagCompound;
@@ -10,6 +11,7 @@ import codes.laivy.mlanguage.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.reflection.executors.MethodExecutor;
 import codes.laivy.mlanguage.reflection.objects.StringObjExec;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -156,5 +158,9 @@ public interface Version {
 
     void setItemBukkitLore(@NotNull org.bukkit.inventory.ItemStack itemStack, @Nullable BaseComponent[] lore);
     // ItemStack
+
+    // Player
+    @NotNull Locale getPlayerMinecraftLocale(@NotNull Player player);
+    // Player
 
 }
