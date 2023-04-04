@@ -5,10 +5,14 @@ import codes.laivy.mlanguage.api.bukkit.*;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslatorImpl;
 import codes.laivy.mlanguage.injection.InjectionUtils;
 import codes.laivy.mlanguage.reflection.Version;
+import codes.laivy.mlanguage.reflection.classes.packets.Packet;
+import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.utils.Platform;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.world.inventory.Container;
+import net.minecraft.world.inventory.Slot;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -22,7 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Listener {
 
@@ -144,10 +150,21 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
     private void chat(@NotNull AsyncPlayerChatEvent e) {
         if (e.getMessage().equals("change")) {
             CHANGE = !CHANGE;
+        } else if (e.getMessage().equals("for")) {
+            Container container = (Container) EntityPlayer.getEntityPlayer(e.getPlayer()).getActiveContainer().getValue();
+            for (Slot slot : container.i) {
+                Bukkit.broadcastMessage("Item: '" + slot.e().toString() + "', slot: '" + slot.a + "'");
+            }
         } else {
             e.setCancelled(true);
             e.getPlayer().sendMessage("§aMode changed.");
             MODE = Integer.parseInt(e.getMessage());
+
+            Set<Packet> packets = new LinkedHashSet<>();
+            packets.add(multiplesLanguagesBukkit().getVersion().createSetSlotPacket(0, MODE, codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack(new ItemStack(Material.DIAMOND))));
+            for (Packet packet : packets) {
+                EntityPlayer.getEntityPlayer(e.getPlayer()).getConnection().sendPacket(packet);
+            }
         }
 //        Bukkit.getScheduler().runTask(this, () -> {
 //            if (e.getMessage().equals("1")) {

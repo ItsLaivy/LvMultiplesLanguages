@@ -47,63 +47,47 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
         // State id
         int state = entityPlayer.getActiveContainer().getStateId();
         entityPlayer.getActiveContainer().setStateId(state + 1);
-        // Item changing
-
-//        for (int slot = 0; slot < playerInventory.getSize(); slot++) {
-//            ItemStack item = player.getInventory().getItem(slot);
-//
-//            if (item != null && item.getType() != Material.AIR && isTranslatable(item)) {
-//                packets.add(translate(item, player, entityPlayer.getActiveContainer().getId(), 36 + slot));
-//            }
-//        }
-        if () {
-
+        // Armor translation
+        int slot = 5;
+        for (ItemStack armor : playerInventory.getArmorContents()) {
+            if (armor != null && armor.getType() != Material.AIR) {
+                if (isTranslatable(armor)) {
+                    packets.add(translate(armor, player, entityPlayer.getActiveContainer().getId(), slot));
+                }
+            }
+            slot++;
         }
+        // Inventory translation
+        for (ItemStack item : playerInventory.getContents()) {
+            if (item != null && item.getType() != Material.AIR) {
+                if (isTranslatable(item)) {
+                    final int dSlot;
 
-//        for (int slot = 0; slot < view.getTopInventory().getSize(); slot++) {
-//            ItemStack item = view.getTopInventory().getItem(slot);
-//
-//            if (item != null && item.getType() != Material.AIR && isTranslatable(item)) {
-////                packets.add(multiplesLanguagesBukkit().getVersion().createSetSlotPacket(entityPlayer.getDefaultContainer().getId(), slot, getNMSItemStack()));
-//                packets.add(translate(item, player, entityPlayer.getDefaultContainer().getId(), slot));
-//            }
-//        }
-//        for (int row = 0; row < view.getTopInventory().getSize(); row++) {
-//            ItemStack item = view.getTopInventory().getItem(row);
-//
-//            if (item != null && item.getType() != Material.AIR) {
-//                if (isTranslatable(item)) {
-//                    Bukkit.broadcastMessage("Top inv: '" + item.getType().name() + "'");
-//                    // translate(ItemStack, Player, windowId, slot)
-//                    packets.add(translate(item.clone(), player, entityPlayer.getActiveContainer().getId(), row));
-//                    reset(item);
-//                }
-//            }
-//        }
+                    if (slot == 49) {
+                        dSlot = 45;
+                    } else if ((slot - 9) < 9) {
+                        dSlot = slot + 27;
+                    } else {
+                        dSlot = slot - 9;
+                    }
 
-//        //int row = 36;
-//        for (ItemStack item : player.getInventory().getContents()) {
-//            if (item != null) {
-//                if (isTranslatable(item)) {
-//                    packets.add(translate(item.clone(), player, 0, row));
-//                    reset(item);
-//                }
-//            }
-//            row++;
-//        }
-//        row = 0;
-//        if (player.getOpenInventory() != null) {
-//            for (ItemStack item : player.getOpenInventory().getTopInventory()) {
-//                if (item != null) {
-//                    if (isTranslatable(item)) {
-//                        packets.add(translate(item.clone(), player, entityPlayer.getActiveContainer().getId(), row));
-//                        reset(item);
-//                    }
-//                }
-//                row++;
-//            }
-//        }
+                    packets.add(translate(item.clone(), player, 0, dSlot));
+                }
+            }
+            slot++;
+        }
+        // Opened inventory translation
+        for (int row = 0; row < view.getTopInventory().getSize(); row++) {
+            ItemStack item = view.getTopInventory().getItem(row);
 
+            if (item != null && item.getType() != Material.AIR) {
+                if (isTranslatable(item)) {
+                    packets.add(translate(item.clone(), player, entityPlayer.getDefaultContainer().getId(), row));
+                    reset(item);
+                }
+            }
+        }
+        // Sending packets
         for (Packet packet : packets) {
             entityPlayer.getConnection().sendPacket(packet);
         }

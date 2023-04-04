@@ -530,6 +530,8 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @NotNull Locale getPlayerMinecraftLocale(@NotNull Player player) {
-        return Locale.getByCode(player.spigot().getLocale());
+        // TODO: 04/04/2023 1.8
+        //return Locale.getByCode(player.spigot().getLocale());
+        return Locale.getByCode(player.getLocale());
     }
 }
