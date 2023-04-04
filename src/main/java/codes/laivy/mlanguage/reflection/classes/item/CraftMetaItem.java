@@ -10,6 +10,9 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class CraftMetaItem extends ObjectExecutor {
@@ -19,22 +22,16 @@ public class CraftMetaItem extends ObjectExecutor {
 
     public void setDisplayName(@NotNull BaseComponent[] displayName) {
         if (ReflectionUtils.isCompatible(V1_13_R1.class)) {
-            if (displayName != null) {
-                multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(this, IChatBaseComponent.convert(displayName));
-            } else {
-                multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(this, null);
-            }
+            V1_13_R1 version = (V1_13_R1) multiplesLanguagesBukkit().getVersion();
+            version.setCraftItemMetaDisplayName(this, displayName);
         } else {
             throw new UnsupportedOperationException("This method is only available since 1.14+");
         }
     }
     public void setLore(@NotNull BaseComponent[] lore) {
         if (ReflectionUtils.isCompatible(V1_14_R1.class)) {
-            if (lore != null) {
-                multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(this, IChatBaseComponent.convert(lore));
-            } else {
-                multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(this, null);
-            }
+            V1_13_R1 version = (V1_13_R1) multiplesLanguagesBukkit().getVersion();
+            version.setCraftItemMetaLore(this, lore);
         } else {
             throw new UnsupportedOperationException("This method is only available since 1.14+");
         }

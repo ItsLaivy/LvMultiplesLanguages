@@ -2,7 +2,9 @@ package codes.laivy.mlanguage.reflection.versions;
 
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.reflection.Version;
+import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
+import codes.laivy.mlanguage.reflection.classes.item.CraftMetaItem;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.reflection.classes.nbt.NBTBase;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.*;
@@ -63,6 +65,7 @@ public class V1_15_R1 extends V1_14_R1 {
         // Items
         load(V1_15_R1.class, "ItemStack", new ItemStack.ItemStackClass("net.minecraft.server.v1_15_R1.ItemStack"));
         load(V1_15_R1.class, "CraftItemStack", new CraftItemStack.CraftItemStackClass("org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack"));
+        load(V1_15_R1.class, "CraftMetaItem", new CraftMetaItem.CraftMetaItemClass("org.bukkit.craftbukkit.v1_15_R1.inventory.CraftMetaItem"));
         // Packets
         load(V1_15_R1.class, "Packet", new Packet.PacketClass("net.minecraft.server.v1_15_R1.Packet"));
         load(V1_15_R1.class, "PacketPlayOutSetSlot", new PacketPlayOutSetSlot.PacketPlayOutSetSlotClass("net.minecraft.server.v1_15_R1.PacketPlayOutSetSlot"));
@@ -73,6 +76,9 @@ public class V1_15_R1 extends V1_14_R1 {
         load(V1_15_R1.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_15_R1.NetworkManager"));
         // Inventory
         load(V1_15_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_15_R1.Container"));
+        // Chat
+        load(V1_15_R1.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_15_R1.IChatBaseComponent"));
+        load(V1_15_R1.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_15_R1.IChatBaseComponent$ChatSerializer"));
     }
 
 }

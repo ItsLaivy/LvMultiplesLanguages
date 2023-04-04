@@ -6,6 +6,7 @@ import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.utils.Platform;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
@@ -40,12 +41,22 @@ public abstract class MultiplesLanguagesAPI implements IMultiplesLanguagesAPI {
 
         @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> componentMap = new LinkedHashMap<>();
         componentMap.put("Teste1", new LinkedHashMap<Locale, BaseComponent[]>() {{
-            put(Locale.EN_US, new TextComponent[] {new TextComponent("Test %s name, just for test")});
-            put(Locale.PT_BR, new TextComponent[] {new TextComponent("Nome %s teste mesmo")});
+            TextComponent c = new TextComponent("Test name, just for test");
+            c.setColor(ChatColor.RED);
+            put(Locale.EN_US, new TextComponent[] {c});
+
+            c = new TextComponent("Nome teste mesmo");
+            c.setColor(ChatColor.GREEN);
+            put(Locale.PT_BR, new TextComponent[] {c});
         }});
         componentMap.put("Teste2", new LinkedHashMap<Locale, BaseComponent[]>() {{
-            put(Locale.EN_US, new TextComponent[] {new TextComponent("Cool test lore, just for testing :)")});
-            put(Locale.PT_BR, new TextComponent[] {new TextComponent("Lore top só pra testar cara, que legal...")});
+            TextComponent c = new TextComponent("Cool test lore, just for testing :)");
+            c.setColor(ChatColor.RED);
+            put(Locale.EN_US, new TextComponent[] {c});
+
+            c = new TextComponent("Lore top só pra testar cara, que legal...");
+            c.setColor(ChatColor.GREEN);
+            put(Locale.PT_BR, new TextComponent[] {c});
         }});
 
         BukkitMessageStorage storage = new BukkitMessageStorage(Locale.EN_US, componentMap, "Nome teste", multiplesLanguagesBukkit());

@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.reflection.versions;
 
 import codes.laivy.mlanguage.reflection.Version;
+import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.reflection.classes.nbt.NBTBase;
@@ -64,6 +65,9 @@ public class V1_8_R3 extends V1_8_R2 {
         load(V1_8_R3.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_8_R3.NetworkManager"));
         // Inventory
         load(V1_8_R3.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_8_R3.Container"));
+        // Chat
+        load(V1_8_R3.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_8_R3.IChatBaseComponent"));
+        load(V1_8_R3.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_8_R3.IChatBaseComponent$ChatSerializer"));
     }
 
     @Override

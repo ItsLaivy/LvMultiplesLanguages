@@ -2,10 +2,12 @@ package codes.laivy.mlanguage.reflection;
 
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
+import codes.laivy.mlanguage.reflection.classes.item.CraftMetaItem;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.reflection.classes.nbt.NBTBase;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagCompound;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagList;
+import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
 import codes.laivy.mlanguage.reflection.executors.FieldExecutor;
@@ -13,6 +15,7 @@ import codes.laivy.mlanguage.reflection.executors.MethodExecutor;
 import codes.laivy.mlanguage.reflection.objects.StringObjExec;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -162,5 +165,9 @@ public interface Version {
     @NotNull IChatBaseComponent baseComponentToIChatComponent(@NotNull BaseComponent... components);
     @NotNull BaseComponent[] iChatComponentToBaseComponent(@NotNull IChatBaseComponent iChatBaseComponent);
     // Chat
+
+    // Packet
+    @NotNull PacketPlayOutSetSlot createSetSlotPacket(int windowId, int slot, @NotNull ItemStack itemStack);
+    // Packet
 
 }

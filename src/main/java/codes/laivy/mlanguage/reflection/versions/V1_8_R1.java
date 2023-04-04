@@ -93,8 +93,8 @@ public class V1_8_R1 implements Version {
         // Inventory
         load(V1_8_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_8_R1.Container"));
         // Chat
-        load(V1_8_R1.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_13_R1.IChatBaseComponent"));
-        load(V1_8_R1.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.V1_13_R1.IChatBaseComponent$ChatSerializer"));
+        load(V1_8_R1.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_8_R1.IChatBaseComponent"));
+        load(V1_8_R1.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_8_R1.ChatSerializer"));
     }
 
     @Override
@@ -132,11 +132,15 @@ public class V1_8_R1 implements Version {
         load(V1_8_R1.class, "EntityPlayer:locale", new FieldExecutor(getClassExec("EntityPlayer"), ClassExecutor.STRING, "locale", "Gets the locale of an EntityPlayer"));
         load(V1_8_R1.class, "EntityPlayer:playerConnection", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("PlayerConnection"), "playerConnection", "Gets the PlayerConnection of an EntityPlayer"));
         load(V1_8_R1.class, "EntityPlayer:activeContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "activeContainer", "Gets the active container inventory of an EntityPlayer"));
-        load(V1_8_R1.class, "EntityPlayer:defaultContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "defaultContainer", "Gets the default container inventory of an EntityPlayer"));
         load(V1_8_R1.class, "PlayerConnection:networkManager", new FieldExecutor(getClassExec("PlayerConnection"), getClassExec("NetworkManager"), "networkManager", "Gets the NetworkManager of a PlayerConnection"));
         load(V1_8_R1.class, "NetworkManager:channel", new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "i", "Gets the Channel of a NetworkManager"));
         // Container
         load(V1_8_R1.class, "Container:windowId", new FieldExecutor(getClassExec("Container"), ClassExecutor.INT, "windowId", "Gets the id of a Container"));
+    }
+
+    @Override
+    public @NotNull PacketPlayOutSetSlot createSetSlotPacket(int windowId, int slot, @NotNull ItemStack itemStack) {
+        return new PacketPlayOutSetSlot(getClassExec("PacketPlayOutSetSlot").getConstructor(ClassExecutor.INT, ClassExecutor.INT, multiplesLanguagesBukkit().getVersion().getClassExec("ItemStack")).newInstance(new IntegerObjExec(windowId), new IntegerObjExec(slot), itemStack));
     }
 
     @Override

@@ -13,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.jvm.hotspot.utilities.ObjectReader;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -132,7 +131,10 @@ public class BukkitMessageStorage implements MessageStorage {
             for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getComponents().entrySet()) {
                 JsonObject localizedComponents = new JsonObject();
                 for (Map.Entry<Locale, @NotNull BaseComponent[]> entry2 : entry.getValue().entrySet()) {
-                    localizedComponents.addProperty(entry2.getKey().name(), ComponentSerializer.toString(entry2.getValue()));
+                    String message = ComponentSerializer.toString(entry2.getValue());
+                    if (message != null) {
+                        localizedComponents.addProperty(entry2.getKey().name(), message);
+                    }
                 }
                 components.add(entry.getKey(), localizedComponents);
             }
@@ -173,7 +175,7 @@ public class BukkitMessageStorage implements MessageStorage {
                         throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
                     }
 
-                    localizedComponents.put(locale, ComponentSerializer.parse(entry2.getValue().getAsString()));
+                    localizedComponents.put(locale, ComponentSerializer.parse(entry2.getValue().toString()));
                 }
 
                 components.put(key, localizedComponents);

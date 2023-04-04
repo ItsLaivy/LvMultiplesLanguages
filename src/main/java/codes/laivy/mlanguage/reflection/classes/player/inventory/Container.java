@@ -2,6 +2,7 @@ package codes.laivy.mlanguage.reflection.classes.player.inventory;
 
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.ObjectExecutor;
+import codes.laivy.mlanguage.reflection.objects.IntegerObjExec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +16,14 @@ public class Container extends ObjectExecutor {
     public int getId() {
         //noinspection DataFlowIssue
         return (int) multiplesLanguagesBukkit().getVersion().getFieldExec("Container:windowId").invokeInstance(this);
+    }
+
+    public int getStateId() {
+        //noinspection DataFlowIssue
+        return (int) multiplesLanguagesBukkit().getVersion().getFieldExec("Container:stateId").invokeInstance(this);
+    }
+    public void setStateId(int stateId) {
+        multiplesLanguagesBukkit().getVersion().getFieldExec("Container:stateId").set(this, stateId);
     }
 
     @Override

@@ -12,6 +12,8 @@ import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLangu
 
 public class InjectionUtils {
 
+    public static int state = 0;
+
     private static @NotNull Channel getPlayerChannel(@NotNull Player player) {
         return EntityPlayer.getEntityPlayer(player).getConnection().getNetworkManager().getChannel();
     }
@@ -44,6 +46,8 @@ public class InjectionUtils {
                         if (current.getItemStack().getValue() != null && current.getItemStack().getTag() != null) {
                             BukkitItemTranslator translator = multiplesLanguagesBukkit().getApi().getItemTranslator();
                             ItemStack item = current.getItemStack().getCraftItemStack().getItemStack().clone();
+
+                            state = current.getState();
 
                             if (translator.isTranslatable(item)) {
                                 packet = translator.translate(item, player, current.getWindowId(), current.getSlot()).getValue();

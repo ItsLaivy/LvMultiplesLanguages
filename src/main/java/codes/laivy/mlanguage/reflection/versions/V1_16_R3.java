@@ -1,7 +1,9 @@
 package codes.laivy.mlanguage.reflection.versions;
 
 import codes.laivy.mlanguage.reflection.Version;
+import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
+import codes.laivy.mlanguage.reflection.classes.item.CraftMetaItem;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.reflection.classes.nbt.NBTBase;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.*;
@@ -14,7 +16,15 @@ import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
+import codes.laivy.mlanguage.reflection.executors.FieldExecutor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_16_R3 extends V1_16_R2 {
     
@@ -24,9 +34,36 @@ public class V1_16_R3 extends V1_16_R2 {
             if (executor instanceof ClassExecutor) {
                 return false;
             }
+        } else if (version == V1_13_R1.class) {
+            if (executor instanceof FieldExecutor) {
+                if (key.equals("CraftMetaItem:displayName")) {
+                    return false;
+                }
+            }
         }
 
         return super.onLoad(version, key, executor);
+    }
+
+    @Override
+    public void setCraftItemMetaDisplayName(@NotNull CraftMetaItem item, @NotNull BaseComponent[] name) {
+        if (name != null) {
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, ComponentSerializer.toString(name));
+        } else {
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
+        }
+    }
+    public void setCraftItemMetaLore(@NotNull CraftMetaItem item, @NotNull BaseComponent[] lore) {
+        if (lore != null) {
+            List<Object> objects = new LinkedList<>();
+            for (BaseComponent component : lore) {
+                objects.add(ComponentSerializer.toString(component));
+            }
+
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
+        } else {
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
+        }
     }
 
     @Override
@@ -48,6 +85,7 @@ public class V1_16_R3 extends V1_16_R2 {
         // Items
         load(V1_16_R3.class, "ItemStack", new ItemStack.ItemStackClass("net.minecraft.server.v1_16_R3.ItemStack"));
         load(V1_16_R3.class, "CraftItemStack", new CraftItemStack.CraftItemStackClass("org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack"));
+        load(V1_16_R3.class, "CraftMetaItem", new CraftMetaItem.CraftMetaItemClass("org.bukkit.craftbukkit.v1_16_R3.inventory.CraftMetaItem"));
         // Packets
         load(V1_16_R3.class, "Packet", new Packet.PacketClass("net.minecraft.server.v1_16_R3.Packet"));
         load(V1_16_R3.class, "PacketPlayOutSetSlot", new PacketPlayOutSetSlot.PacketPlayOutSetSlotClass("net.minecraft.server.v1_16_R3.PacketPlayOutSetSlot"));
@@ -58,6 +96,15 @@ public class V1_16_R3 extends V1_16_R2 {
         load(V1_16_R3.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_16_R3.NetworkManager"));
         // Inventory
         load(V1_16_R3.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_16_R3.Container"));
+        // Chat
+        load(V1_16_R3.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_16_R3.IChatBaseComponent"));
+        load(V1_16_R3.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_16_R3.IChatBaseComponent$ChatSerializer"));
     }
 
+    @Override
+    public void loadMethods() {
+        super.loadMethods();
+
+        load(V1_16_R3.class, "CraftMetaItem:displayName", new FieldExecutor(getClassExec("CraftMetaItem"), ClassExecutor.STRING, "displayName", "Gets the component display name of a ItemMeta"));
+    }
 }

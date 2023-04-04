@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.reflection.versions;
 
 import codes.laivy.mlanguage.reflection.Version;
+import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.reflection.classes.item.CraftMetaItem;
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
@@ -24,7 +25,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_13_R1 extends V1_12_R1 {
     
@@ -93,6 +98,26 @@ public class V1_13_R1 extends V1_12_R1 {
         super.setItemBukkitDisplayName(itemStack, name);
     }
 
+    public void setCraftItemMetaDisplayName(@NotNull CraftMetaItem item, @NotNull BaseComponent[] name) {
+        if (name != null) {
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, IChatBaseComponent.convert(name).getValue());
+        } else {
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
+        }
+    }
+    public void setCraftItemMetaLore(@NotNull CraftMetaItem item, @NotNull BaseComponent[] lore) {
+        if (lore != null) {
+            List<Object> objects = new LinkedList<>();
+            for (BaseComponent component : lore) {
+                objects.add(component.toLegacyText());
+            }
+
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
+        } else {
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
+        }
+    }
+
     @Override
     public void loadClasses() {
         // NBT
@@ -123,6 +148,9 @@ public class V1_13_R1 extends V1_12_R1 {
         load(V1_13_R1.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_13_R1.NetworkManager"));
         // Inventory
         load(V1_13_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_13_R1.Container"));
+        // Chat
+        load(V1_13_R1.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_13_R1.IChatBaseComponent"));
+        load(V1_13_R1.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_13_R1.IChatBaseComponent$ChatSerializer"));
     }
 
     @Override
@@ -131,6 +159,8 @@ public class V1_13_R1 extends V1_12_R1 {
 
         // NBT
         load(V1_13_R1.class, "NBTTagCompound:keySet", new MethodExecutor(getClassExec("NBTBase:NBTTagCompound"), new ClassExecutor(Set.class) {}, "getKeys", "Gets a NBTTagCompound's keys"));
+        // Craft meta item
+        load(V1_13_R1.class, "CraftMetaItem:lore", new FieldExecutor(getClassExec("CraftMetaItem"), new ClassExecutor(List.class), "lore", "Gets the component lore of a ItemMeta"));
     }
 
     @Override
