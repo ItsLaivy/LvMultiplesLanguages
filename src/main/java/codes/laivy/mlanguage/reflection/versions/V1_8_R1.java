@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.reflection.versions;
 
+import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
@@ -16,11 +17,17 @@ import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.reflection.executors.*;
 import codes.laivy.mlanguage.reflection.objects.*;
+import codes.laivy.mlanguage.utils.ReflectionUtils;
 import com.google.gson.JsonElement;
 import io.netty.channel.Channel;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.MODE;
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_8_R1 implements Version {
@@ -132,6 +140,7 @@ public class V1_8_R1 implements Version {
         load(V1_8_R1.class, "EntityPlayer:locale", new FieldExecutor(getClassExec("EntityPlayer"), ClassExecutor.STRING, "locale", "Gets the locale of an EntityPlayer"));
         load(V1_8_R1.class, "EntityPlayer:playerConnection", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("PlayerConnection"), "playerConnection", "Gets the PlayerConnection of an EntityPlayer"));
         load(V1_8_R1.class, "EntityPlayer:activeContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "activeContainer", "Gets the active container inventory of an EntityPlayer"));
+        load(V1_8_R1.class, "EntityPlayer:defaultContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "defaultContainer", "Gets the default container inventory of an EntityPlayer"));
         load(V1_8_R1.class, "PlayerConnection:networkManager", new FieldExecutor(getClassExec("PlayerConnection"), getClassExec("NetworkManager"), "networkManager", "Gets the NetworkManager of a PlayerConnection"));
         load(V1_8_R1.class, "NetworkManager:channel", new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "i", "Gets the Channel of a NetworkManager"));
         // Container
@@ -139,8 +148,83 @@ public class V1_8_R1 implements Version {
     }
 
     @Override
-    public @NotNull PacketPlayOutSetSlot createSetSlotPacket(int windowId, int slot, @NotNull ItemStack itemStack) {
+    public @NotNull PacketPlayOutSetSlot createSetSlotPacket(int windowId, int slot, int state, @NotNull ItemStack itemStack) {
         return new PacketPlayOutSetSlot(getClassExec("PacketPlayOutSetSlot").getConstructor(ClassExecutor.INT, ClassExecutor.INT, multiplesLanguagesBukkit().getVersion().getClassExec("ItemStack")).newInstance(new IntegerObjExec(windowId), new IntegerObjExec(slot), itemStack));
+    }
+
+    @Override
+    public void translateInventory(@NotNull Player player) {
+        BukkitItemTranslator translator = multiplesLanguagesBukkit().getApi().getItemTranslator();
+        // translator.translate(ItemStack, Player, windowId, slot, state (ignore esse))
+
+        try {
+            EntityPlayer entityPlayer = EntityPlayer.getEntityPlayer(player);
+            Set<PacketPlayOutSetSlot> packets = new LinkedHashSet<>();
+
+            PlayerInventory playerInventory = player.getInventory();
+            InventoryView view = player.getOpenInventory();
+            // Armor translation
+            int slot = view.getTopInventory().getSize();
+            if (view.getTopInventory().getType() != InventoryType.CRAFTING) {
+                slot += 5;
+            }
+
+            Bukkit.broadcastMessage("Bottom: '" + view.getBottomInventory().getSize() + "', Top: '" + view.getTopInventory().getSize() + "'");
+
+            List<org.bukkit.inventory.ItemStack> armors = Arrays.asList(playerInventory.getArmorContents());
+            Collections.reverse(armors);
+            for (org.bukkit.inventory.ItemStack armor : armors) {
+                if (armor != null && armor.getType() != Material.AIR) {
+                    if (translator.isTranslatable(armor)) {
+                        packets.add(translator.translate(armor, player, 0, slot, -1));
+                        translator.reset(armor);
+                    }
+                }
+                slot++;
+            }
+            // Inventory translation
+            for (org.bukkit.inventory.ItemStack item : playerInventory.getContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    if (translator.isTranslatable(item)) {
+                        final int dSlot;
+
+                        if (slot == 49 && ReflectionUtils.isCompatible(V1_9_R1.class)) {
+                            dSlot = 45;
+                        } else if ((slot - 9) < ((view.getTopInventory().getSize() + 5) + 9)) {
+                            dSlot = slot + 27 + (view.getTopInventory().getType() != InventoryType.CRAFTING ? -9 : 0);
+                        } else {
+                            dSlot = slot + 9 + (view.getTopInventory().getType() != InventoryType.CRAFTING ? -27 : -18);
+                        }
+
+                        if (item.getType() != Material.WOOL) {
+                            boolean breaked = ((slot - 9) < ((view.getTopInventory().getSize() + 5) + 9));
+                            Bukkit.broadcastMessage("Changed slot: '" + dSlot + "', original: '" + slot + "', item: '" + item.getAmount() + " " + item.getType().name().toLowerCase() + "', break: '" + ((breaked ? "§a" : "§c") + breaked) + "§f', break spot: '" + ((view.getTopInventory().getSize() + 5) + 9) + "', current: '" + (slot - 9) + "'");
+                        }
+
+                        packets.add(translator.translate(item.clone(), player, entityPlayer.getActiveContainer().getId(), dSlot, -1));
+                        translator.reset(item);
+                    }
+                }
+                slot++;
+            }
+            // Opened inventory translation
+            for (int row = 0; row < view.getTopInventory().getSize(); row++) {
+                org.bukkit.inventory.ItemStack item = view.getTopInventory().getItem(row);
+
+                if (item != null && item.getType() != Material.AIR) {
+                    if (translator.isTranslatable(item)) {
+                        packets.add(translator.translate(item.clone(), player, entityPlayer.getActiveContainer().getId(), row, -1));
+                        translator.reset(item);
+                    }
+                }
+            }
+            // Sending packets
+            for (Packet packet : packets) {
+                entityPlayer.getConnection().sendPacket(packet);
+            }
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
     @Override
@@ -513,25 +597,25 @@ public class V1_8_R1 implements Version {
         if (itemStack.hasItemMeta()) {
             ItemMeta meta = itemStack.getItemMeta();
 
-            if (lore != null) {
-                List<String> loreStr = new LinkedList<>();
-                for (BaseComponent component : lore) {
-                    loreStr.add(component.toLegacyText());
+            if (meta != null) {
+                if (lore != null) {
+                    List<String> loreStr = new LinkedList<>();
+                    for (BaseComponent component : lore) {
+                        loreStr.add(component.toLegacyText());
+                    }
+
+                    meta.setLore(loreStr);
+                } else {
+                    meta.setLore(null);
                 }
 
-                meta.setLore(loreStr);
-            } else {
-                meta.setLore(null);
+                itemStack.setItemMeta(meta);
             }
-
-            itemStack.setItemMeta(meta);
         }
     }
 
     @Override
     public @NotNull Locale getPlayerMinecraftLocale(@NotNull Player player) {
-        // TODO: 04/04/2023 1.8
-        //return Locale.getByCode(player.spigot().getLocale());
-        return Locale.getByCode(player.getLocale());
+        return Locale.getByCode(player.spigot().getLocale());
     }
 }

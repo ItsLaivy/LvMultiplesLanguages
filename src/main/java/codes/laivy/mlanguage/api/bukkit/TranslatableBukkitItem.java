@@ -2,12 +2,15 @@ package codes.laivy.mlanguage.api.bukkit;
 
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.TranslatableItem;
+import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagByte;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagCompound;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagString;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class TranslatableBukkitItem implements TranslatableItem<ItemStack> {
 
@@ -22,17 +25,19 @@ public class TranslatableBukkitItem implements TranslatableItem<ItemStack> {
         codes.laivy.mlanguage.reflection.classes.item.ItemStack nmsItem = codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack(item);
         NBTTagCompound compound = nmsItem.getTag();
 
-        if (compound != null) {
-            compound.set("Translatable", new NBTTagByte((byte) 1));
-            if (getName() != null) {
-                compound.set("NameTranslation", new NBTTagString(getName().serialize().serialize().toString()));
-            }
-            if (getLore() != null) {
-                compound.set("LoreTranslation", new NBTTagString(getLore().serialize().serialize().toString()));
-            }
-        } else {
-            throw new IllegalArgumentException("This item doesn't have a translation");
+        if (compound == null) {
+            compound = (NBTTagCompound) multiplesLanguagesBukkit().getVersion().nbtTag(Version.NBTTag.COMPOUND);
         }
+
+        compound.set("Translatable", new NBTTagByte((byte) 1));
+        if (getName() != null) {
+            compound.set("NameTranslation", new NBTTagString(getName().serialize().serialize().toString()));
+        }
+        if (getLore() != null) {
+            compound.set("LoreTranslation", new NBTTagString(getLore().serialize().serialize().toString()));
+        }
+
+        nmsItem.setTag(compound);
 
         this.item = nmsItem.getCraftItemStack().getItemStack();
     }

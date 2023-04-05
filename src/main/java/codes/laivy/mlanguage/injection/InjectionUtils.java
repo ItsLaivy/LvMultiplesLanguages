@@ -3,6 +3,9 @@ package codes.laivy.mlanguage.injection;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
 import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
 import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
+import codes.laivy.mlanguage.reflection.versions.V1_18_R1;
+import codes.laivy.mlanguage.reflection.versions.V1_8_R1;
+import codes.laivy.mlanguage.utils.ReflectionUtils;
 import io.netty.channel.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class InjectionUtils {
-
-    public static int state = 0;
 
     private static @NotNull Channel getPlayerChannel(@NotNull Player player) {
         return EntityPlayer.getEntityPlayer(player).getConnection().getNetworkManager().getChannel();
@@ -47,10 +48,15 @@ public class InjectionUtils {
                             BukkitItemTranslator translator = multiplesLanguagesBukkit().getApi().getItemTranslator();
                             ItemStack item = current.getItemStack().getCraftItemStack().getItemStack().clone();
 
-                            state = current.getState();
+                            int state;
+                            if (ReflectionUtils.isCompatible(V1_18_R1.class)) {
+                                state = current.getState();
+                            } else {
+                                state = -1;
+                            }
 
                             if (translator.isTranslatable(item)) {
-                                packet = translator.translate(item, player, current.getWindowId(), current.getSlot()).getValue();
+                                packet = translator.translate(item, player, current.getWindowId(), current.getSlot(), state).getValue();
                             }
                         }
                     }

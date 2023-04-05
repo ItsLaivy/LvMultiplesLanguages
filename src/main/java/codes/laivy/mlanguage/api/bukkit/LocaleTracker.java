@@ -29,7 +29,6 @@ public class LocaleTracker extends BukkitRunnable {
         for (Player player : Bukkit.getOnlinePlayers()) {
             Locale currentLocale = multiplesLanguagesBukkit().getApi().getLocale(player.getUniqueId());
             if (!Objects.equals(currentLocale, locales.getOrDefault(player.getUniqueId(), null))) { // Locale changed if true
-                Bukkit.broadcastMessage("Locale changed for '" + player.getName() + "'.");
                 multiplesLanguagesBukkit().getApi().getItemTranslator().translateInventory(player);
                 locales.put(player.getUniqueId(), currentLocale);
             }

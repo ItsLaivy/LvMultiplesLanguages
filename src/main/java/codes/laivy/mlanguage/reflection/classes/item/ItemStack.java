@@ -8,7 +8,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
@@ -30,8 +29,12 @@ public class ItemStack extends ObjectExecutor {
         }
         return new NBTTagCompound(object);
     }
-    public void setTag(@NotNull NBTTagCompound compound) {
-        multiplesLanguagesBukkit().getVersion().getFieldExec("ItemStack:tag").set(this, compound.getValue());
+    public void setTag(@Nullable NBTTagCompound compound) {
+        if (compound != null) {
+            multiplesLanguagesBukkit().getVersion().getFieldExec("ItemStack:tag").set(this, compound.getValue());
+        } else {
+            multiplesLanguagesBukkit().getVersion().getFieldExec("ItemStack:tag").set(this, null);
+        }
     }
 
     public void setName(@Nullable BaseComponent name) {

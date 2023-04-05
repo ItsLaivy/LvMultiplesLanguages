@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.reflection.versions;
 
-import codes.laivy.mlanguage.injection.InjectionUtils;
+import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
+import codes.laivy.mlanguage.api.item.ItemTranslator;
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.reflection.classes.item.CraftItemStack;
@@ -20,11 +21,15 @@ import codes.laivy.mlanguage.reflection.executors.Executor;
 import codes.laivy.mlanguage.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.reflection.executors.MethodExecutor;
 import codes.laivy.mlanguage.reflection.objects.IntegerObjExec;
+import codes.laivy.mlanguage.utils.ReflectionUtils;
 import io.netty.channel.Channel;
-import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Random;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
@@ -63,9 +68,7 @@ public class V1_18_R1 extends V1_17_R1 {
     }
 
     @Override
-    public @NotNull PacketPlayOutSetSlot createSetSlotPacket(int windowId, int slot, @NotNull ItemStack itemStack) {
-        int state = InjectionUtils.state;
-        InjectionUtils.state++;
+    public @NotNull PacketPlayOutSetSlot createSetSlotPacket(int windowId, int slot, int state, @NotNull ItemStack itemStack) {
         return new PacketPlayOutSetSlot(getClassExec("PacketPlayOutSetSlot").getConstructor(ClassExecutor.INT, ClassExecutor.INT, ClassExecutor.INT, multiplesLanguagesBukkit().getVersion().getClassExec("ItemStack")).newInstance(new IntegerObjExec(windowId), new IntegerObjExec(state), new IntegerObjExec(slot), itemStack));
     }
 
@@ -138,5 +141,74 @@ public class V1_18_R1 extends V1_17_R1 {
         load(V1_18_R1.class, "Container:windowId", new FieldExecutor(getClassExec("Container"), ClassExecutor.INT, "j", "Gets the id of a Container"));
         load(V1_18_R1.class, "Container:stateId", new FieldExecutor(getClassExec("Container"), ClassExecutor.INT, "q", "Gets the state id of a Container"));
         load(V1_18_R1.class, "NetworkManager:channel", new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "k", "Gets the Channel of a NetworkManager"));
+    }
+
+    @Override
+    public void translateInventory(@NotNull Player player) {
+        BukkitItemTranslator translator = multiplesLanguagesBukkit().getApi().getItemTranslator();
+
+        try {
+            EntityPlayer entityPlayer = EntityPlayer.getEntityPlayer(player);
+            Set<PacketPlayOutSetSlot> packets = new LinkedHashSet<>();
+
+            PlayerInventory playerInventory = player.getInventory();
+            InventoryView view = player.getOpenInventory();
+            // State id
+            int activeState = 0;
+            int defaultState = 0;
+
+            if (ReflectionUtils.isCompatible(V1_18_R1.class)) {
+                activeState = entityPlayer.getActiveContainer().getStateId();
+                entityPlayer.getActiveContainer().setStateId(activeState + 1);
+                defaultState = entityPlayer.getDefaultContainer().getStateId();
+                entityPlayer.getDefaultContainer().setStateId(defaultState + 1);
+            }
+            // Armor translation
+            int slot = 5;
+            for (org.bukkit.inventory.ItemStack armor : playerInventory.getArmorContents()) {
+                if (armor != null && armor.getType() != Material.AIR) {
+                    if (translator.isTranslatable(armor)) {
+                        packets.add(translator.translate(armor, player, entityPlayer.getActiveContainer().getId(), slot, activeState));
+                    }
+                }
+                slot++;
+            }
+            // Inventory translation
+            for (org.bukkit.inventory.ItemStack item : playerInventory.getContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    if (translator.isTranslatable(item)) {
+                        final int dSlot;
+
+                        if (slot == 49) {
+                            dSlot = 45;
+                        } else if ((slot - 9) < 9) {
+                            dSlot = slot + 27;
+                        } else {
+                            dSlot = slot - 9;
+                        }
+
+                        packets.add(translator.translate(item.clone(), player, 0, dSlot, activeState));
+                    }
+                }
+                slot++;
+            }
+            // Opened inventory translation
+            for (int row = 0; row < view.getTopInventory().getSize(); row++) {
+                org.bukkit.inventory.ItemStack item = view.getTopInventory().getItem(row);
+
+                if (item != null && item.getType() != Material.AIR) {
+                    if (translator.isTranslatable(item)) {
+                        packets.add(translator.translate(item.clone(), player, entityPlayer.getDefaultContainer().getId(), row, defaultState));
+                        translator.reset(item);
+                    }
+                }
+            }
+            // Sending packets
+            for (Packet packet : packets) {
+                entityPlayer.getConnection().sendPacket(packet);
+            }
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 }

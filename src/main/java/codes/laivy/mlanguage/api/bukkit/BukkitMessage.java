@@ -20,18 +20,18 @@ import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLangu
 
 public class BukkitMessage implements Message {
 
-    private final @NotNull MessageStorage messageStorage;
+    private final @NotNull BukkitMessageStorage messageStorage;
     private final @NotNull String id;
     private final @NotNull BukkitMessage[] replaces;
 
-    public BukkitMessage(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull BukkitMessage... replaces) {
+    public BukkitMessage(@NotNull BukkitMessageStorage messageStorage, @NotNull String id, @NotNull BukkitMessage... replaces) {
         this.messageStorage = messageStorage;
         this.id = id;
         this.replaces = replaces;
     }
 
     @Override
-    public @NotNull MessageStorage getStorage() {
+    public @NotNull BukkitMessageStorage getStorage() {
         return messageStorage;
     }
 
@@ -88,6 +88,8 @@ public class BukkitMessage implements Message {
             MessageStorage messageStorage = multiplesLanguagesBukkit().getApi().getLanguage(langName, plugin);
             if (messageStorage == null) {
                 throw new NullPointerException("Couldn't found the language named '" + langName + "' from plugin '" + langPlugin + "'");
+            } else if (!(messageStorage instanceof BukkitMessageStorage)) {
+                throw new IllegalArgumentException("This message storage isn't a bukkit message storage!");
             }
 
             String id = data.get("Id").getAsString();
@@ -99,7 +101,7 @@ public class BukkitMessage implements Message {
                 row++;
             }
 
-            return new BukkitMessage(messageStorage, id, replaces);
+            return new BukkitMessage((BukkitMessageStorage) messageStorage, id, replaces);
         } else {
             throw new IllegalArgumentException("This SerializedData version '" + serializedData.getVersion() + "' isn't compatible with this deserializator");
         }

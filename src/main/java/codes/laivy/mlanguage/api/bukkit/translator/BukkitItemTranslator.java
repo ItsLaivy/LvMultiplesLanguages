@@ -7,25 +7,17 @@ import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagCompound;
 import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagString;
-import codes.laivy.mlanguage.reflection.classes.packets.Packet;
 import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
-import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.MODE;
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 import static codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack;
 
@@ -39,64 +31,13 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
         return false;
     }
     default void translateInventory(@NotNull Player player) {
-        EntityPlayer entityPlayer = EntityPlayer.getEntityPlayer(player);
-        Set<PacketPlayOutSetSlot> packets = new LinkedHashSet<>();
-
-        PlayerInventory playerInventory = player.getInventory();
-        InventoryView view = player.getOpenInventory();
-        // State id
-        int state = entityPlayer.getActiveContainer().getStateId();
-        entityPlayer.getActiveContainer().setStateId(state + 1);
-        // Armor translation
-        int slot = 5;
-        for (ItemStack armor : playerInventory.getArmorContents()) {
-            if (armor != null && armor.getType() != Material.AIR) {
-                if (isTranslatable(armor)) {
-                    packets.add(translate(armor, player, entityPlayer.getActiveContainer().getId(), slot));
-                }
-            }
-            slot++;
-        }
-        // Inventory translation
-        for (ItemStack item : playerInventory.getContents()) {
-            if (item != null && item.getType() != Material.AIR) {
-                if (isTranslatable(item)) {
-                    final int dSlot;
-
-                    if (slot == 49) {
-                        dSlot = 45;
-                    } else if ((slot - 9) < 9) {
-                        dSlot = slot + 27;
-                    } else {
-                        dSlot = slot - 9;
-                    }
-
-                    packets.add(translate(item.clone(), player, 0, dSlot));
-                }
-            }
-            slot++;
-        }
-        // Opened inventory translation
-        for (int row = 0; row < view.getTopInventory().getSize(); row++) {
-            ItemStack item = view.getTopInventory().getItem(row);
-
-            if (item != null && item.getType() != Material.AIR) {
-                if (isTranslatable(item)) {
-                    packets.add(translate(item.clone(), player, entityPlayer.getDefaultContainer().getId(), row));
-                    reset(item);
-                }
-            }
-        }
-        // Sending packets
-        for (Packet packet : packets) {
-            entityPlayer.getConnection().sendPacket(packet);
-        }
+        multiplesLanguagesBukkit().getVersion().translateInventory(player);
     }
 
-    default @NotNull PacketPlayOutSetSlot translate(@NotNull ItemStack item, @NotNull Player player, int window, int slot) {
-        if (isTranslatable(item) && player.isOnline()) {
+    default @NotNull PacketPlayOutSetSlot translate(@NotNull ItemStack item, @NotNull Player player, int window, int slot, int state) {
+        if (isTranslatable(item)) {
             translate(item, player);
-            return multiplesLanguagesBukkit().getVersion().createSetSlotPacket(window, slot, getNMSItemStack(item));
+            return multiplesLanguagesBukkit().getVersion().createSetSlotPacket(window, slot, state, getNMSItemStack(item));
         }
         throw new IllegalArgumentException("This item isn't translatable!");
     }
