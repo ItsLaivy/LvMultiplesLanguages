@@ -104,13 +104,6 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
     }
 
     @EventHandler
-    private void gameModeChange(@NotNull PlayerGameModeChangeEvent e) {
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            getApi().getItemTranslator().translateInventory(e.getPlayer());
-        }, 1);
-    }
-
-    @EventHandler
     private void login(@NotNull PlayerJoinEvent e) {
         InjectionUtils.injectPlayer(e.getPlayer());
 

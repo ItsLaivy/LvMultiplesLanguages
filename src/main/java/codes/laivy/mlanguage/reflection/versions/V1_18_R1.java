@@ -53,7 +53,7 @@ public class V1_18_R1 extends V1_17_R1 {
                 }
             }
         } else if (version == V1_8_R1.class) {
-            if (key.equals("ItemStack:tag") || key.equals("ChatSerializer:convertToBase") || key.equals("NBTTagCompound:get") || key.equals("NBTTagCompound:remove") || key.equals("NBTTagCompound:contains") || key.equals("NBTTagCompound:isEmpty") || key.equals("PlayerConnection:sendPacket")) {
+            if (key.equals("Slot:getItem") || key.equals("ItemStack:tag") || key.equals("ChatSerializer:convertToBase") || key.equals("NBTTagCompound:get") || key.equals("NBTTagCompound:remove") || key.equals("NBTTagCompound:contains") || key.equals("NBTTagCompound:isEmpty") || key.equals("PlayerConnection:sendPacket")) {
                 return false;
             }
         }
@@ -92,6 +92,7 @@ public class V1_18_R1 extends V1_17_R1 {
         // Inventory
         load(V1_18_R1.class, "Container", new Container.ContainerClass("net.minecraft.world.inventory.Container"));
         load(V1_18_R1.class, "Slot", new Slot.SlotClass("net.minecraft.world.inventory.Slot"));
+        load(V1_18_R1.class, "Slot:getItem", new MethodExecutor(getClassExec("Slot"), getClassExec("ItemStack"), "e", "Gets the item of a Slot"));
         // Chat
         load(V1_18_R1.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.network.chat.IChatBaseComponent"));
         load(V1_18_R1.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.network.chat.IChatBaseComponent$ChatSerializer"));
@@ -122,8 +123,8 @@ public class V1_18_R1 extends V1_17_R1 {
         load(V1_18_R1.class, "PacketPlayOutSetSlot:slot", new FieldExecutor(getClassExec("PacketPlayOutSetSlot"), ClassExecutor.INT, "e", "Gets the slot of the PacketPlayOutSetSlot packet"));
         load(V1_18_R1.class, "PacketPlayOutSetSlot:item", new FieldExecutor(getClassExec("PacketPlayOutSetSlot"), getClassExec("ItemStack"), "f", "Gets the item of the PacketPlayOutSetSlot packet"));
 
-        load(V1_18_R1.class, "EntityPlayer:activeContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "bV", "Gets the active container inventory of an EntityPlayer"));
-        load(V1_18_R1.class, "EntityPlayer:defaultContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "bW", "Gets the default container inventory of an EntityPlayer"));
+        load(V1_18_R1.class, "EntityPlayer:activeContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "bW", "Gets the active container inventory of an EntityPlayer"));
+        load(V1_18_R1.class, "EntityPlayer:defaultContainer", new FieldExecutor(getClassExec("EntityPlayer"), getClassExec("Container"), "bV", "Gets the default container inventory of an EntityPlayer"));
         load(V1_18_R1.class, "Container:windowId", new FieldExecutor(getClassExec("Container"), ClassExecutor.INT, "j", "Gets the id of a Container"));
         load(V1_18_R1.class, "NetworkManager:channel", new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "k", "Gets the Channel of a NetworkManager"));
     }

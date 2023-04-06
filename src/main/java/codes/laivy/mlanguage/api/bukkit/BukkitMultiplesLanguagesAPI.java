@@ -6,7 +6,10 @@ import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.utils.Platform;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +47,24 @@ public class BukkitMultiplesLanguagesAPI extends MultiplesLanguagesAPI implement
         }
 
         // Unregistering events
+        // TODO: 06/04/2023 this
+        PlayerGameModeChangeEvent.getHandlerList().unregister(this);
+        InventoryOpenEvent.getHandlerList().unregister(this);
+    }
+
+    @EventHandler
+    protected void gameModeChange(@NotNull PlayerGameModeChangeEvent e) {
+        Bukkit.getScheduler().runTaskLater(multiplesLanguagesBukkit(), () -> {
+            multiplesLanguagesBukkit().getApi().getItemTranslator().translateInventory(e.getPlayer());
+        }, 1);
+    }
+    @EventHandler
+    protected void inventoryOpen(@NotNull InventoryOpenEvent e) {
+        if (e.getPlayer() instanceof Player) {
+            Bukkit.getScheduler().runTaskLater(multiplesLanguagesBukkit(), () -> {
+                multiplesLanguagesBukkit().getApi().getItemTranslator().translateInventory((Player) e.getPlayer());
+            }, 1);
+        }
     }
 
     @Override
