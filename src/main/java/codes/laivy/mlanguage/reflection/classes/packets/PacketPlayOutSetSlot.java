@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.reflection.classes.packets;
 
 import codes.laivy.mlanguage.reflection.classes.item.ItemStack;
+import codes.laivy.mlanguage.reflection.versions.V1_17_R1;
 import codes.laivy.mlanguage.reflection.versions.V1_18_R1;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +23,12 @@ public class PacketPlayOutSetSlot extends Packet {
         return (int) multiplesLanguagesBukkit().getVersion().getFieldExec("PacketPlayOutSetSlot:slot").invokeInstance(this);
     }
     public int getState() {
-        if (!ReflectionUtils.isCompatible(V1_18_R1.class)) {
-            throw new UnsupportedOperationException("This method is only available since 1.18");
+        if (!ReflectionUtils.isCompatible(V1_17_R1.class)) {
+            V1_17_R1 v = (V1_17_R1) multiplesLanguagesBukkit().getVersion();
+
+            if (!v.isStateEnabled()) {
+                throw new UnsupportedOperationException("This method is only available since 1.17.1");
+            }
         }
 
         //noinspection DataFlowIssue

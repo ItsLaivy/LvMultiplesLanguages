@@ -6,6 +6,8 @@ import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslatorImpl;
 import codes.laivy.mlanguage.injection.InjectionUtils;
 import codes.laivy.mlanguage.reflection.Version;
 import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
+import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.reflection.classes.player.inventory.Slot;
 import codes.laivy.mlanguage.reflection.versions.V1_9_R1;
 import codes.laivy.mlanguage.utils.Platform;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
@@ -23,10 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Listener {
 
@@ -137,10 +136,24 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
             CHANGE = !CHANGE;
             return;
         }
+        if (e.getMessage().equals("test1")) {
+            e.setCancelled(true);
+            for (int row = 0; row < e.getPlayer().getOpenInventory().countSlots(); row++) {
+                e.getPlayer().getOpenInventory().setItem(row, new ItemStack(Material.DIAMOND, row + 1));
+            }
+            return;
+        }
+        if (e.getMessage().equals("test2")) {
+            e.setCancelled(true);
+            for (int row = 0; row < 50; row++) {
+                EntityPlayer.getEntityPlayer(e.getPlayer()).getConnection().sendPacket(version.createSetSlotPacket(0, row, -1, codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack(new ItemStack(Material.DIAMOND, row + 1))));
+            }
+            return;
+        }
 
         try {
-            //EntityPlayer.getEntityPlayer(e.getPlayer()).getConnection().sendPacket(version.createSetSlotPacket(0, Integer.parseInt(e.getMessage()), -1, codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack(new ItemStack(Material.DIAMOND))));
-            MODE = Integer.parseInt(e.getMessage());
+            EntityPlayer.getEntityPlayer(e.getPlayer()).getConnection().sendPacket(version.createSetSlotPacket(0, Integer.parseInt(e.getMessage()), -1, codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack(new ItemStack(Material.DIAMOND))));
+            //MODE = Integer.parseInt(e.getMessage());
         } catch (NumberFormatException ignore) {
             Bukkit.getScheduler().runTask(this, () -> {
                 if (e.getMessage().equals("get")) {

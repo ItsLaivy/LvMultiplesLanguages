@@ -14,6 +14,7 @@ import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.reflection.classes.player.inventory.Slot;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
 import codes.laivy.mlanguage.reflection.executors.FieldExecutor;
@@ -96,6 +97,7 @@ public class V1_16_R3 extends V1_16_R2 {
         load(V1_16_R3.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_16_R3.NetworkManager"));
         // Inventory
         load(V1_16_R3.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_16_R3.Container"));
+        load(V1_16_R3.class, "Slot", new Slot.SlotClass("net.minecraft.server.v1_16_R3.Slot"));
         // Chat
         load(V1_16_R3.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_16_R3.IChatBaseComponent"));
         load(V1_16_R3.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_16_R3.IChatBaseComponent$ChatSerializer"));

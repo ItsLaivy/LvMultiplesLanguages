@@ -159,7 +159,7 @@ public class FieldExecutor implements Executor {
             Class<?> r = returnType.getReflectionClass();
 
             if (!r.isAssignableFrom(field.getType())) {
-                throw new NoSuchMethodException("This field's type is '" + field.getType().getName() + "', the requested is '" + returnType.getName() + "'");
+                throw new NoSuchFieldException("This field's type is '" + field.getType().getName() + "', the requested is '" + returnType.getName() + "'");
             }
         } catch (Exception e) {
             throw new RuntimeException("Cannot create the FieldExecutor named '" + getName() + "' from class '" + getFieldClass().getName() + "' with return type '" + getReturnType().getName() + "', meaning '" + getMeans() + "'", e);

@@ -6,6 +6,10 @@ import codes.laivy.mlanguage.reflection.objects.IntegerObjExec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class Container extends ObjectExecutor {
@@ -24,6 +28,19 @@ public class Container extends ObjectExecutor {
     }
     public void setStateId(int stateId) {
         multiplesLanguagesBukkit().getVersion().getFieldExec("Container:stateId").set(this, stateId);
+    }
+
+    public @NotNull List<Slot> getSlots() {
+        List<Slot> slots = new LinkedList<>();
+        //noinspection unchecked
+        for (Object slot : (List<Object>) Objects.requireNonNull(multiplesLanguagesBukkit().getVersion().getFieldExec("Container:slots").invokeInstance(this))) {
+            slots.add(new Slot(slot));
+        }
+        return slots;
+    }
+
+    public int getSize() {
+        return getSlots().size();
     }
 
     @Override

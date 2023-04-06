@@ -13,6 +13,7 @@ import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.reflection.classes.player.inventory.Slot;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +60,7 @@ public class V1_9_R1 extends V1_8_R3 {
         load(V1_9_R1.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_9_R1.NetworkManager"));
         // Inventory
         load(V1_9_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_9_R1.Container"));
+        load(V1_9_R1.class, "Slot", new Slot.SlotClass("net.minecraft.server.v1_9_R1.Slot"));
         // Chat
         load(V1_9_R1.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_9_R1.IChatBaseComponent"));
         load(V1_9_R1.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_9_R1.IChatBaseComponent$ChatSerializer"));

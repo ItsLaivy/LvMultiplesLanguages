@@ -13,9 +13,13 @@ import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.reflection.classes.player.inventory.Slot;
 import codes.laivy.mlanguage.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.reflection.executors.Executor;
+import codes.laivy.mlanguage.reflection.executors.FieldExecutor;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class V1_12_R1 extends V1_11_R1 {
     
@@ -23,6 +27,10 @@ public class V1_12_R1 extends V1_11_R1 {
     public boolean onLoad(@NotNull Class<? extends Version> version, @NotNull String key, @NotNull Executor executor) {
         if (version == V1_11_R1.class) {
             if (executor instanceof ClassExecutor) {
+                return false;
+            }
+        } else if (version == V1_8_R1.class) {
+            if (key.equals("Container:slots")) {
                 return false;
             }
         }
@@ -59,9 +67,20 @@ public class V1_12_R1 extends V1_11_R1 {
         load(V1_12_R1.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_12_R1.NetworkManager"));
         // Inventory
         load(V1_12_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_12_R1.Container"));
+        load(V1_12_R1.class, "Slot", new Slot.SlotClass("net.minecraft.server.v1_12_R1.Slot"));
         // Chat
         load(V1_12_R1.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_12_R1.IChatBaseComponent"));
         load(V1_12_R1.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_12_R1.IChatBaseComponent$ChatSerializer"));
     }
 
+    @Override
+    public void loadFields() {
+        super.loadFields();
+
+        try {
+            load(V1_12_R1.class, "Container:slots", new FieldExecutor(getClassExec("Container"), new ClassExecutor(List.class), "c", "Gets the slots list of a Container"));
+        } catch (RuntimeException ignore) {
+            load(V1_12_R1.class, "Container:slots", new FieldExecutor(getClassExec("Container"), new ClassExecutor(List.class), "slots", "Gets the slots list of a Container"));
+        }
+    }
 }

@@ -15,9 +15,9 @@ import codes.laivy.mlanguage.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.reflection.classes.player.inventory.Slot;
 import codes.laivy.mlanguage.reflection.executors.*;
 import codes.laivy.mlanguage.reflection.objects.*;
-import codes.laivy.mlanguage.utils.ReflectionUtils;
 import com.google.gson.JsonElement;
 import io.netty.channel.Channel;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -25,9 +25,6 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.MODE;
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_8_R1 implements Version {
@@ -100,6 +96,7 @@ public class V1_8_R1 implements Version {
         load(V1_8_R1.class, "NetworkManager", new NetworkManager.NetworkManagerClass("net.minecraft.server.v1_8_R1.NetworkManager"));
         // Inventory
         load(V1_8_R1.class, "Container", new Container.ContainerClass("net.minecraft.server.v1_8_R1.Container"));
+        load(V1_8_R1.class, "Slot", new Slot.SlotClass("net.minecraft.server.v1_8_R1.Slot"));
         // Chat
         load(V1_8_R1.class, "IChatBaseComponent", new IChatBaseComponent.IChatBaseComponentClass("net.minecraft.server.v1_8_R1.IChatBaseComponent"));
         load(V1_8_R1.class, "ChatSerializer", new IChatBaseComponent.ChatSerializerClass("net.minecraft.server.v1_8_R1.ChatSerializer"));
@@ -123,6 +120,8 @@ public class V1_8_R1 implements Version {
         // Chat
         load(V1_8_R1.class, "ChatSerializer:convertToBase", new MethodExecutor(getClassExec("IChatBaseComponent"), ClassExecutor.STRING, "getText", "Converts a IChatBaseComponent to a string"));
         load(V1_8_R1.class, "ChatSerializer:convertToComponent", new MethodExecutor(getClassExec("ChatSerializer"), getClassExec("IChatBaseComponent"), "a", "Converts a string to a IChatBaseComponent", ClassExecutor.STRING));
+        // Inventory
+        load(V1_8_R1.class, "Slot:getItem", new MethodExecutor(getClassExec("Slot"), getClassExec("ItemStack"), "getItem", "Gets the item of a Slot"));
     }
 
     @Override
@@ -145,6 +144,9 @@ public class V1_8_R1 implements Version {
         load(V1_8_R1.class, "NetworkManager:channel", new FieldExecutor(getClassExec("NetworkManager"), new ClassExecutor(Channel.class), "i", "Gets the Channel of a NetworkManager"));
         // Container
         load(V1_8_R1.class, "Container:windowId", new FieldExecutor(getClassExec("Container"), ClassExecutor.INT, "windowId", "Gets the id of a Container"));
+        load(V1_8_R1.class, "Container:slots", new FieldExecutor(getClassExec("Container"), new ClassExecutor(List.class), "c", "Gets the slots list of a Container"));
+
+        load(V1_8_R1.class, "Slot:index", new FieldExecutor(getClassExec("Slot"), ClassExecutor.INT, "index", "Gets the index of a Slot"));
     }
 
     @Override
@@ -155,76 +157,49 @@ public class V1_8_R1 implements Version {
     @Override
     public void translateInventory(@NotNull Player player) {
         BukkitItemTranslator translator = multiplesLanguagesBukkit().getApi().getItemTranslator();
-        // translator.translate(ItemStack, Player, windowId, slot, state (ignore esse))
 
-        try {
-            EntityPlayer entityPlayer = EntityPlayer.getEntityPlayer(player);
-            Set<PacketPlayOutSetSlot> packets = new LinkedHashSet<>();
+        Container container = EntityPlayer.getEntityPlayer(player).getDefaultContainer();
+        List<Packet> packets = new LinkedList<>();
 
-            PlayerInventory playerInventory = player.getInventory();
-            InventoryView view = player.getOpenInventory();
-            // Armor translation
-            int slot = view.getTopInventory().getSize();
-            if (view.getTopInventory().getType() != InventoryType.CRAFTING) {
-                slot += 5;
-            }
-
-            Bukkit.broadcastMessage("Bottom: '" + view.getBottomInventory().getSize() + "', Top: '" + view.getTopInventory().getSize() + "'");
-
-            List<org.bukkit.inventory.ItemStack> armors = Arrays.asList(playerInventory.getArmorContents());
-            Collections.reverse(armors);
-            for (org.bukkit.inventory.ItemStack armor : armors) {
-                if (armor != null && armor.getType() != Material.AIR) {
-                    if (translator.isTranslatable(armor)) {
-                        packets.add(translator.translate(armor, player, 0, slot, -1));
-                        translator.reset(armor);
-                    }
-                }
-                slot++;
-            }
-            // Inventory translation
-            for (org.bukkit.inventory.ItemStack item : playerInventory.getContents()) {
-                if (item != null && item.getType() != Material.AIR) {
+        int index = 0;
+        for (Slot slot : container.getSlots()) {
+            if (slot.getItem() != null && slot.getItem().getValue() != null) {
+                org.bukkit.inventory.ItemStack item = slot.getItem().getCraftItemStack().getItemStack();
+                if (item.getType() != Material.AIR) {
                     if (translator.isTranslatable(item)) {
-                        final int dSlot;
-
-                        if (slot == 49 && ReflectionUtils.isCompatible(V1_9_R1.class)) {
-                            dSlot = 45;
-                        } else if ((slot - 9) < ((view.getTopInventory().getSize() + 5) + 9)) {
-                            dSlot = slot + 27 + (view.getTopInventory().getType() != InventoryType.CRAFTING ? -9 : 0);
-                        } else {
-                            dSlot = slot + 9 + (view.getTopInventory().getType() != InventoryType.CRAFTING ? -27 : -18);
-                        }
-
-                        if (item.getType() != Material.WOOL) {
-                            boolean breaked = ((slot - 9) < ((view.getTopInventory().getSize() + 5) + 9));
-                            Bukkit.broadcastMessage("Changed slot: '" + dSlot + "', original: '" + slot + "', item: '" + item.getAmount() + " " + item.getType().name().toLowerCase() + "', break: '" + ((breaked ? "§a" : "§c") + breaked) + "§f', break spot: '" + ((view.getTopInventory().getSize() + 5) + 9) + "', current: '" + (slot - 9) + "'");
-                        }
-
-                        packets.add(translator.translate(item.clone(), player, entityPlayer.getActiveContainer().getId(), dSlot, -1));
-                        translator.reset(item);
-                    }
-                }
-                slot++;
-            }
-            // Opened inventory translation
-            for (int row = 0; row < view.getTopInventory().getSize(); row++) {
-                org.bukkit.inventory.ItemStack item = view.getTopInventory().getItem(row);
-
-                if (item != null && item.getType() != Material.AIR) {
-                    if (translator.isTranslatable(item)) {
-                        packets.add(translator.translate(item.clone(), player, entityPlayer.getActiveContainer().getId(), row, -1));
-                        translator.reset(item);
+                        packets.add(translator.translate(item, player, 0, index, -1));
                     }
                 }
             }
-            // Sending packets
-            for (Packet packet : packets) {
-                entityPlayer.getConnection().sendPacket(packet);
-            }
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+            index++;
         }
+
+        if (isInventoryOpened(player)) {
+            Container activeContainer = EntityPlayer.getEntityPlayer(player).getActiveContainer();
+            index = 0;
+            for (org.bukkit.inventory.ItemStack item : player.getOpenInventory().getTopInventory()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    if (translator.isTranslatable(item)) {
+                        packets.add(translator.translate(item, player, activeContainer.getId(), index, -1));
+                    }
+                }
+                index++;
+            }
+        }
+
+        for (Packet packet : packets) {
+            EntityPlayer.getEntityPlayer(player).getConnection().sendPacket(packet);
+        }
+    }
+
+    /**
+     * Checks if the player has an inventory opened
+     * @param player the player
+     * @return true if the player has an inventory (like furnace, chest, ect...) opened
+     */
+    public boolean isInventoryOpened(@NotNull Player player) {
+        EntityPlayer entityPlayer = EntityPlayer.getEntityPlayer(player);
+        return !Objects.equals(entityPlayer.getActiveContainer(), entityPlayer.getDefaultContainer());
     }
 
     @Override

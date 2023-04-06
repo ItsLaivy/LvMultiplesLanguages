@@ -49,7 +49,7 @@ public class BukkitMultiplesLanguagesAPI extends MultiplesLanguagesAPI implement
     @Override
     public @Nullable Locale getLocale(@NotNull UUID user) {
         Player player = Bukkit.getPlayer(user);
-        if (player.isOnline()) {
+        if (player != null && player.isOnline()) {
             return multiplesLanguagesBukkit().getVersion().getPlayerMinecraftLocale(player);
         }
         return null;
