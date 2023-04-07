@@ -5,7 +5,3 @@ author: "ItsLaivy (DanielZinh#7616)"
 api-version: 1.13
 
 website: "https://laivy.codes/"
-
-libraries:
-  - org.xerial:sqlite-jdbc:3.40.0.0
-  - com.google.code.gson:gson:2.10.1

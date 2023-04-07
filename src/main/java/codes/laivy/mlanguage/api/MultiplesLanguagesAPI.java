@@ -22,8 +22,10 @@ public abstract class MultiplesLanguagesAPI implements IMultiplesLanguagesAPI {
 
     private @Nullable ItemTranslator<?, ?> itemTranslator;
 
-    private @Nullable Set<MessageStorage> messageStorages;
-    private @Nullable Locale defaultLocale;
+    protected @Nullable Set<MessageStorage> messageStorages;
+    protected @Nullable Locale defaultLocale;
+
+    protected boolean loaded = false;
 
     public MultiplesLanguagesAPI(@NotNull Platform platform, @Nullable ItemTranslator<?, ?> itemTranslator) {
         this.platform = platform;
@@ -31,48 +33,13 @@ public abstract class MultiplesLanguagesAPI implements IMultiplesLanguagesAPI {
     }
 
     @Override
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    @Override
     public @NotNull Platform getPlatform() {
         return platform;
-    }
-
-    @Override
-    public void load() {
-        defaultLocale = Locale.EN_US;
-
-        @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> componentMap = new LinkedHashMap<>();
-        componentMap.put("Teste1", new LinkedHashMap<Locale, BaseComponent[]>() {{
-            TextComponent c = new TextComponent("Test name, just for test");
-            c.setColor(ChatColor.RED);
-            put(Locale.EN_US, new TextComponent[] {c});
-
-            c = new TextComponent("Nome teste mesmo");
-            c.setColor(ChatColor.GREEN);
-            put(Locale.PT_BR, new TextComponent[] {c});
-        }});
-        componentMap.put("Teste2", new LinkedHashMap<Locale, BaseComponent[]>() {{
-            TextComponent c = new TextComponent("Cool test lore, just for testing :)");
-            c.setColor(ChatColor.RED);
-            put(Locale.EN_US, new TextComponent[] {c});
-
-            c = new TextComponent("Lore top só pra testar cara, que legal...");
-            c.setColor(ChatColor.GREEN);
-            put(Locale.PT_BR, new TextComponent[] {c});
-        }});
-
-        BukkitMessageStorage storage = new BukkitMessageStorage(Locale.EN_US, componentMap, "Nome teste", multiplesLanguagesBukkit());
-        messageStorages = new LinkedHashSet<MessageStorage>() {{
-            add(storage);
-        }};
-
-        BukkitMessageStorage.deserialize(storage.serialize());
-
-        platform.log(new TextComponent("§aLoaded " + messageStorages.size() + " language" + (messageStorages.size() == 1 ? "" : "s") + "."));
-    }
-
-    @Override
-    public void unload() {
-        messageStorages = null;
-        defaultLocale = null;
     }
 
     @Override

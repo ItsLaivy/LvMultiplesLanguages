@@ -1,13 +1,12 @@
 package codes.laivy.mlanguage.api.bukkit.translator;
 
 import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
-import codes.laivy.mlanguage.api.item.ItemTranslator;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
-import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagCompound;
-import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagString;
-import codes.laivy.mlanguage.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagCompound;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagString;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.GameMode;
@@ -16,34 +15,48 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Objects;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
-import static codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack;
+import static codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack;
 
-public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> {
+/**
+ * The default Bukkit item translator of the LvMultiplesLanguages
+ */
+public final class BukkitItemTranslator implements IBukkitItemTranslator {
     @Override
-    default boolean isTranslatable(@NotNull ItemStack item) {
-        codes.laivy.mlanguage.reflection.classes.item.ItemStack nmsItem = getNMSItemStack(item);
+    public boolean isTranslatable(@NotNull ItemStack item) {
+        codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack nmsItem = getNMSItemStack(item);
         if (nmsItem.getValue() != null && nmsItem.getTag() != null) {
             return nmsItem.getTag().contains("Translatable");
         }
         return false;
     }
-    default void translateInventory(@NotNull Player player) {
-        multiplesLanguagesBukkit().getVersion().translateInventory(player);
+
+    @Override
+    public void translateInventory(@NotNull Player player) {
+        multiplesLanguagesBukkit().getApi().getVersion().translateInventory(player);
     }
 
-    default @NotNull PacketPlayOutSetSlot translate(@NotNull ItemStack item, @NotNull Player player, int window, int slot, int state) {
+    /**
+     * Gets the SetSlot packet
+     * @param item the item
+     * @param player the player
+     * @param window the windowId
+     * @param slot the slot
+     * @param state the stateId (since 1.17.1, leave it -1 before this version)
+     * @return the SetSlot packet
+     */
+    public @NotNull PacketPlayOutSetSlot translate(@NotNull ItemStack item, @NotNull Player player, int window, int slot, int state) {
         if (isTranslatable(item)) {
             translate(item, player);
-            return multiplesLanguagesBukkit().getVersion().createSetSlotPacket(window, slot, state, getNMSItemStack(item));
+            return multiplesLanguagesBukkit().getApi().getVersion().createSetSlotPacket(window, slot, state, getNMSItemStack(item));
         }
         throw new IllegalArgumentException("This item isn't translatable!");
     }
 
     @Override
-    default @Nullable Message getName(@NotNull ItemStack item) {
+    public @Nullable Message getName(@NotNull ItemStack item) {
         if (isTranslatable(item)) {
             @NotNull NBTTagCompound tag = Objects.requireNonNull(getNMSItemStack(item).getTag());
             final Message name;
@@ -61,7 +74,7 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
     }
 
     @Override
-    default @Nullable Message getLore(@NotNull ItemStack item) {
+    public @Nullable Message getLore(@NotNull ItemStack item) {
         if (isTranslatable(item)) {
             @NotNull NBTTagCompound tag = Objects.requireNonNull(getNMSItemStack(item).getTag());
             final Message lore;
@@ -79,7 +92,7 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
     }
 
     @Override
-    default void translate(@NotNull ItemStack item, @NotNull Player player) {
+    public void translate(@NotNull ItemStack item, @NotNull Player player) {
         if (isTranslatable(item)) {
             final @Nullable Message name = getName(item);
             final @Nullable Message lore = getLore(item);
@@ -91,10 +104,10 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
                 } final Locale locale = l;
 
                 if (name != null) {
-                    multiplesLanguagesBukkit().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(locale)));
+                    multiplesLanguagesBukkit().getApi().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(locale)));
                 }
                 if (lore != null) {
-                    multiplesLanguagesBukkit().getVersion().setItemBukkitLore(item, lore.get(locale));
+                    multiplesLanguagesBukkit().getApi().getVersion().setItemBukkitLore(item, lore.get(locale));
                 }
             }
         } else {
@@ -106,15 +119,14 @@ public interface BukkitItemTranslator extends ItemTranslator<ItemStack, Player> 
      * Called everytime the item needs to be reset to the default messages (name/lore) locale
      * @param item the item
      */
-    default void reset(@NotNull ItemStack item) {
+    public void reset(@NotNull ItemStack item) {
         final @Nullable Message name = getName(item);
         final @Nullable Message lore = getLore(item);
 
         if (name != null) {
-            multiplesLanguagesBukkit().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(name.getStorage().getDefaultLocale())));
+            multiplesLanguagesBukkit().getApi().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(name.getStorage().getDefaultLocale())));
         } if (lore != null) {
-            multiplesLanguagesBukkit().getVersion().setItemBukkitLore(item, lore.get(lore.getStorage().getDefaultLocale()));
+            multiplesLanguagesBukkit().getApi().getVersion().setItemBukkitLore(item, lore.get(lore.getStorage().getDefaultLocale()));
         }
     }
-
 }

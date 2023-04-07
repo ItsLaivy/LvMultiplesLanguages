@@ -1,6 +1,5 @@
 package codes.laivy.mlanguage.lang;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMessage;
 import codes.laivy.mlanguage.data.SerializedData;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;

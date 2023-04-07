@@ -28,6 +28,12 @@ public interface IMultiplesLanguagesAPI {
     void unload();
 
     /**
+     * Checks if the API is loaded
+     * @return true if the api is loaded, false otherwise
+     */
+    boolean isLoaded();
+
+    /**
      * The platform running this API
      * @return the platform
      */

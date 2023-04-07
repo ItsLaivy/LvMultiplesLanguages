@@ -1,6 +1,6 @@
 package codes.laivy.mlanguage.utils;
 
-import codes.laivy.mlanguage.reflection.Version;
+import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +10,7 @@ import static org.bukkit.Bukkit.getServer;
 public class ReflectionUtils {
 
     public static boolean isCompatible(@NotNull Class<? extends Version> version) {
-        return version.isAssignableFrom(multiplesLanguagesBukkit().getVersion().getClass());
+        return version.isAssignableFrom(multiplesLanguagesBukkit().getApi().getVersion().getClass());
     }
 
     @NotNull
@@ -23,7 +23,7 @@ public class ReflectionUtils {
     }
 
     public static boolean isCompatible() {
-        return multiplesLanguagesBukkit().getVersion().isCompatible(getVersionName());
+        return multiplesLanguagesBukkit().getApi().getVersion().isCompatible(getVersionName());
     }
 
     @Nullable

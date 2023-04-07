@@ -2,10 +2,10 @@ package codes.laivy.mlanguage.api.bukkit;
 
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.TranslatableItem;
-import codes.laivy.mlanguage.reflection.Version;
-import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagByte;
-import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagCompound;
-import codes.laivy.mlanguage.reflection.classes.nbt.tags.NBTTagString;
+import codes.laivy.mlanguage.api.bukkit.reflection.Version;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagByte;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagCompound;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagString;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,11 +22,11 @@ public class TranslatableBukkitItem implements TranslatableItem<ItemStack> {
         this.name = name;
         this.lore = lore;
 
-        codes.laivy.mlanguage.reflection.classes.item.ItemStack nmsItem = codes.laivy.mlanguage.reflection.classes.item.ItemStack.getNMSItemStack(item);
+        codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack nmsItem = codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(item);
         NBTTagCompound compound = nmsItem.getTag();
 
         if (compound == null) {
-            compound = (NBTTagCompound) multiplesLanguagesBukkit().getVersion().nbtTag(Version.NBTTag.COMPOUND);
+            compound = (NBTTagCompound) multiplesLanguagesBukkit().getApi().getVersion().nbtTag(Version.NBTTag.COMPOUND);
         }
 
         compound.set("Translatable", new NBTTagByte((byte) 1));
