@@ -7,6 +7,7 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.versions.V1_17_R1;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
 import io.netty.channel.*;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -77,6 +78,7 @@ public class InjectionManager {
                             }
                         }
                     } else if (packet.getClass().equals(multiplesLanguagesBukkit().getApi().getVersion().getClassExec("PacketPlayOutWindowItems").getReflectionClass())) {
+                        Bukkit.broadcastMessage("Translation");
                         packet = multiplesLanguagesBukkit().getApi().getVersion().translateWindowItems(new PacketPlayOutWindowItems(packet), player).getValue();
                     }
 

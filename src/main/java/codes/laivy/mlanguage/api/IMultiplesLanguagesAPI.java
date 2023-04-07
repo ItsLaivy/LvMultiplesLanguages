@@ -39,10 +39,10 @@ public interface IMultiplesLanguagesAPI {
      */
     @NotNull Platform getPlatform();
 
-    @NotNull Set<MessageStorage> getLanguages();
+    @NotNull Set<MessageStorage> getStorages();
 
     default @Nullable MessageStorage getLanguage(@NotNull String name, @NotNull Object plugin) {
-        for (MessageStorage messageStorage : getLanguages()) {
+        for (MessageStorage messageStorage : getStorages()) {
             if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
                 return messageStorage;
             }
@@ -55,7 +55,7 @@ public interface IMultiplesLanguagesAPI {
     }
     @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 
-    @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Message... replaces);
 
     @Nullable Locale getLocale(@NotNull UUID user);
     void setLocale(@NotNull UUID user, @Nullable Locale locale);

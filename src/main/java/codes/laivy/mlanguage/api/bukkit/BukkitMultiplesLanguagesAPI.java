@@ -1,8 +1,9 @@
 package codes.laivy.mlanguage.api.bukkit;
 
-import codes.laivy.mlanguage.api.MultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
 import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.lang.Message;
+import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
@@ -19,6 +20,7 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +32,24 @@ import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLangu
 /**
  * The default api of the Bukkit LvMultiplesLanguages
  */
-public class BukkitMultiplesLanguagesAPI extends MultiplesLanguagesAPI implements Listener {
+public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI, Listener {
+
+    /**
+     * Returns the default api instance, or an exception if the default api isn't being used.
+     * @return the default api or an exception case not is being used
+     */
+    @ApiStatus.Internal
+    public static @NotNull BukkitMultiplesLanguagesAPI getDefApi() {
+
+    }
+
+    private final @NotNull BukkitMultiplesLanguages platform;
+    private final @NotNull BukkitItemTranslator itemTranslator;
+
+    private @Nullable Set<MessageStorage> messageStorages;
+    private @Nullable Locale defaultLocale;
+
+    private boolean loaded = false;
 
     private @NotNull InjectionManager injectionManager;
     private @Nullable BukkitTask task;
@@ -38,13 +57,38 @@ public class BukkitMultiplesLanguagesAPI extends MultiplesLanguagesAPI implement
     private @Nullable Version version;
 
     public BukkitMultiplesLanguagesAPI(@NotNull InjectionManager injectionManager, @NotNull BukkitMultiplesLanguages platform, @NotNull BukkitItemTranslator itemTranslator) {
-        super(platform, itemTranslator);
+        this.platform = platform;
+        this.itemTranslator = itemTranslator;
         this.injectionManager = injectionManager;
     }
 
     @Override
     public @NotNull BukkitMultiplesLanguages getPlatform() {
-        return (BukkitMultiplesLanguages) super.getPlatform();
+        return platform;
+    }
+
+    @Override
+    public @NotNull Set<MessageStorage> getStorages() {
+        if (messageStorages == null) {
+            throw new NullPointerException("The API isn't loaded yet");
+        }
+        return messageStorages;
+    }
+
+    @Override
+    public @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return messageStorage.get(locale, id, replaces);
+    }
+
+    @Override
+    public @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Message... replaces) {
+        if (!(messageStorage instanceof BukkitMessageStorage)) {
+            throw new UnsupportedOperationException("The message storage needs to be an instance of the bukkit message storage");
+        } else if (!(replaces instanceof BukkitMessage[])) {
+            throw new UnsupportedOperationException("The messages replaces array needs to be an instance of the bukkit message array");
+        }
+
+        return new BukkitMessage((BukkitMessageStorage) messageStorage, id, (BukkitMessage[]) replaces);
     }
 
     public @NotNull Version getVersion() {
@@ -115,11 +159,11 @@ public class BukkitMultiplesLanguagesAPI extends MultiplesLanguagesAPI implement
         }});
 
         BukkitMessageStorage storage = new BukkitMessageStorage(Locale.EN_US, componentMap, "Nome teste", multiplesLanguagesBukkit());
-        getLanguages().add(storage);
+        getStorages().add(storage);
 
         BukkitMessageStorage.deserialize(storage.serialize());
 
-        getPlatform().log(new TextComponent("§aLoaded " + getLanguages().size() + " language" + (getLanguages().size() == 1 ? "" : "s") + "."));
+        getPlatform().log(new TextComponent("§aLoaded " + getStorages().size() + " language" + (getStorages().size() == 1 ? "" : "s") + "."));
         //
 
         Bukkit.getPluginManager().registerEvents(this, multiplesLanguagesBukkit());
@@ -142,12 +186,16 @@ public class BukkitMultiplesLanguagesAPI extends MultiplesLanguagesAPI implement
         }
 
         // Unregistering events
-        // TODO: 06/04/2023 this
         PlayerGameModeChangeEvent.getHandlerList().unregister(this);
         InventoryOpenEvent.getHandlerList().unregister(this);
         InventoryClickEvent.getHandlerList().unregister(this);
         PlayerJoinEvent.getHandlerList().unregister(this);
         PlayerQuitEvent.getHandlerList().unregister(this);
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return loaded;
     }
 
     @EventHandler
@@ -187,12 +235,20 @@ public class BukkitMultiplesLanguagesAPI extends MultiplesLanguagesAPI implement
 
     @Override
     public void setLocale(@NotNull UUID user, @Nullable Locale locale) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("The default LvMultiplesLanguages API doesn't supports locale changes because it uses the client's locale");
+    }
+
+    @Override
+    public @NotNull Locale getDefaultLocale() {
+        if (defaultLocale == null) {
+            throw new NullPointerException("The API isn't loaded yet");
+        }
+        return defaultLocale;
     }
 
     @Override
     public @NotNull BukkitItemTranslator getItemTranslator() {
-        return (BukkitItemTranslator) Objects.requireNonNull(super.getItemTranslator());
+        return itemTranslator;
     }
 
 }

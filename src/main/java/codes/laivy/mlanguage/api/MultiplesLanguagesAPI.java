@@ -1,20 +1,15 @@
 package codes.laivy.mlanguage.api;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
 import codes.laivy.mlanguage.api.item.ItemTranslator;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.utils.Platform;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public abstract class MultiplesLanguagesAPI implements IMultiplesLanguagesAPI {
 
@@ -43,7 +38,7 @@ public abstract class MultiplesLanguagesAPI implements IMultiplesLanguagesAPI {
     }
 
     @Override
-    public @NotNull Set<MessageStorage> getLanguages() {
+    public @NotNull Set<MessageStorage> getStorages() {
         if (messageStorages != null) {
             return messageStorages;
         }
