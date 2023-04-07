@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedList;
 import java.util.List;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class V1_14_R1 extends V1_13_R2 {
 
@@ -63,9 +63,9 @@ public class V1_14_R1 extends V1_13_R2 {
                 objects.add(IChatBaseComponent.convert(component).getValue());
             }
 
-            multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
+            getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
         } else {
-            multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
+            getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
         }
     }
 
@@ -90,7 +90,7 @@ public class V1_14_R1 extends V1_13_R2 {
         if (lore != null) {
             List<NBTBase> loreBase = new LinkedList<>();
             for (BaseComponent line : lore) {
-                loreBase.add(multiplesLanguagesBukkit().getApi().getVersion().nbtTag(NBTTag.STRING, ComponentSerializer.toString(line)));
+                loreBase.add(getDefApi().getVersion().nbtTag(NBTTag.STRING, ComponentSerializer.toString(line)));
             }
             display.set("Lore", new NBTTagList(loreBase));
         } else {

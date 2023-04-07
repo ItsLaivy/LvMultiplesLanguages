@@ -1,11 +1,8 @@
 package codes.laivy.mlanguage.api.bukkit;
 
+import codes.laivy.mlanguage.api.bukkit.translator.IBukkitItemTranslator;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.TranslatableItem;
-import codes.laivy.mlanguage.api.bukkit.reflection.Version;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagByte;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagCompound;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagString;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,27 +16,14 @@ public class TranslatableBukkitItem implements TranslatableItem<ItemStack> {
     private final @Nullable Message lore;
 
     public TranslatableBukkitItem(@NotNull ItemStack item, @Nullable Message name, @Nullable Message lore) {
+        IBukkitItemTranslator translator = multiplesLanguagesBukkit().getApi().getItemTranslator();
+        if (translator == null) {
+            throw new UnsupportedOperationException("The current LvMultiplesLanguages api doesn't supports translatable items");
+        }
+
         this.name = name;
         this.lore = lore;
-
-        codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack nmsItem = codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(item);
-        NBTTagCompound compound = nmsItem.getTag();
-
-        if (compound == null) {
-            compound = (NBTTagCompound) multiplesLanguagesBukkit().getApi().getVersion().nbtTag(Version.NBTTag.COMPOUND);
-        }
-
-        compound.set("Translatable", new NBTTagByte((byte) 1));
-        if (getName() != null) {
-            compound.set("NameTranslation", new NBTTagString(getName().serialize().serialize().toString()));
-        }
-        if (getLore() != null) {
-            compound.set("LoreTranslation", new NBTTagString(getLore().serialize().serialize().toString()));
-        }
-
-        nmsItem.setTag(compound);
-
-        this.item = nmsItem.getCraftItemStack().getItemStack();
+        this.item = translator.setTranslatable(item, getName(), getLore());
     }
 
     @Override

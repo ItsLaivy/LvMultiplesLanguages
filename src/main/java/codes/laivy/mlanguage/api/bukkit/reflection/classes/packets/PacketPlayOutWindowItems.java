@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class PacketPlayOutWindowItems extends ObjectExecutor {
     public PacketPlayOutWindowItems(@Nullable Object value) {
@@ -20,15 +20,15 @@ public class PacketPlayOutWindowItems extends ObjectExecutor {
 
     public int getWindowId() {
         //noinspection DataFlowIssue
-        return (int) multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("PacketPlayOutWindowItems:windowId").invokeInstance(this);
+        return (int) getDefApi().getVersion().getFieldExec("PacketPlayOutWindowItems:windowId").invokeInstance(this);
     }
     public @Nullable ItemStack[] getItems() {
-        return multiplesLanguagesBukkit().getApi().getVersion().getWindowItemsPacketItems(this);
+        return getDefApi().getVersion().getWindowItemsPacketItems(this);
     }
 
     public int getStateId() {
         if (!ReflectionUtils.isCompatible(V1_17_R1.class)) {
-            V1_17_R1 v = (V1_17_R1) multiplesLanguagesBukkit().getApi().getVersion();
+            V1_17_R1 v = (V1_17_R1) getDefApi().getVersion();
 
             if (!v.isStateEnabled()) {
                 throw new UnsupportedOperationException("This method is only available since 1.17.1");
@@ -36,23 +36,23 @@ public class PacketPlayOutWindowItems extends ObjectExecutor {
         }
 
         //noinspection DataFlowIssue
-        return (int) multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("PacketPlayOutWindowItems:state").invokeInstance(this);
+        return (int) getDefApi().getVersion().getFieldExec("PacketPlayOutWindowItems:state").invokeInstance(this);
     }
     public @NotNull ItemStack getHeldItem() {
         if (!ReflectionUtils.isCompatible(V1_17_R1.class)) {
-            V1_17_R1 v = (V1_17_R1) multiplesLanguagesBukkit().getApi().getVersion();
+            V1_17_R1 v = (V1_17_R1) getDefApi().getVersion();
 
             if (!v.isStateEnabled()) {
                 throw new UnsupportedOperationException("This method is only available since 1.17.1");
             }
         }
 
-        return new ItemStack(multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("PacketPlayOutWindowItems:held").invokeInstance(this));
+        return new ItemStack(getDefApi().getVersion().getFieldExec("PacketPlayOutWindowItems:held").invokeInstance(this));
     }
 
     @Override
     public @NotNull PacketPlayOutWindowItemsClass getClassExecutor() {
-        return (PacketPlayOutWindowItemsClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("PacketPlayOutWindowItems");
+        return (PacketPlayOutWindowItemsClass) getDefApi().getVersion().getClassExec("PacketPlayOutWindowItems");
     }
 
     public static class PacketPlayOutWindowItemsClass extends ClassExecutor {

@@ -5,12 +5,12 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.NBTBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class NBTTagIntArray extends NBTBase {
     public NBTTagIntArray(int[] value) {
         //noinspection PrimitiveArrayArgumentToVarargsMethod
-        this(multiplesLanguagesBukkit().getApi().getVersion().nbtTag(Version.NBTTag.INT_ARRAY, value).getValue());
+        this(getDefApi().getVersion().nbtTag(Version.NBTTag.INT_ARRAY, value).getValue());
     }
 
     /**
@@ -23,7 +23,7 @@ public class NBTTagIntArray extends NBTBase {
 
     @Override
     public @NotNull NBTTagIntArrayClass getClassExecutor() {
-        return (NBTTagIntArrayClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("NBTBase:NBTTagIntArray");
+        return (NBTTagIntArrayClass) getDefApi().getVersion().getClassExec("NBTBase:NBTTagIntArray");
     }
 
     public static class NBTTagIntArrayClass extends NBTBaseClass {

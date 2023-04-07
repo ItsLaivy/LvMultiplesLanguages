@@ -1,17 +1,11 @@
 package codes.laivy.mlanguage.main;
 
 import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.MultiplesLanguagesAPI;
-import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.utils.Platform;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 public class BungeeMultiplesLanguages extends Plugin implements Platform {
 

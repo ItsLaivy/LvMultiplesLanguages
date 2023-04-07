@@ -1,6 +1,8 @@
 package codes.laivy.mlanguage.api.bukkit.translator;
 
 import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
+import codes.laivy.mlanguage.api.bukkit.reflection.Version;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagByte;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
@@ -17,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 import static codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack;
 
@@ -24,6 +27,10 @@ import static codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack
  * The default Bukkit item translator of the LvMultiplesLanguages
  */
 public final class BukkitItemTranslator implements IBukkitItemTranslator {
+
+    public BukkitItemTranslator() {
+    }
+
     @Override
     public boolean isTranslatable(@NotNull ItemStack item) {
         codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack nmsItem = getNMSItemStack(item);
@@ -34,8 +41,30 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
     }
 
     @Override
+    public @NotNull ItemStack setTranslatable(@NotNull ItemStack item, @Nullable Message name, @Nullable Message lore) {
+        codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack nmsItem = codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(item);
+        NBTTagCompound compound = nmsItem.getTag();
+
+        if (compound == null) {
+            compound = (NBTTagCompound) getDefApi().getVersion().nbtTag(Version.NBTTag.COMPOUND);
+        }
+
+        compound.set("Translatable", new NBTTagByte((byte) 1));
+        if (name != null) {
+            compound.set("NameTranslation", new NBTTagString(name.serialize().serialize().toString()));
+        }
+        if (lore != null) {
+            compound.set("LoreTranslation", new NBTTagString(lore.serialize().serialize().toString()));
+        }
+
+        nmsItem.setTag(compound);
+
+        return nmsItem.getCraftItemStack().getItemStack();
+    }
+
+    @Override
     public void translateInventory(@NotNull Player player) {
-        multiplesLanguagesBukkit().getApi().getVersion().translateInventory(player);
+        getDefApi().getVersion().translateInventory(player);
     }
 
     /**
@@ -50,7 +79,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
     public @NotNull PacketPlayOutSetSlot translate(@NotNull ItemStack item, @NotNull Player player, int window, int slot, int state) {
         if (isTranslatable(item)) {
             translate(item, player);
-            return multiplesLanguagesBukkit().getApi().getVersion().createSetSlotPacket(window, slot, state, getNMSItemStack(item));
+            return getDefApi().getVersion().createSetSlotPacket(window, slot, state, getNMSItemStack(item));
         }
         throw new IllegalArgumentException("This item isn't translatable!");
     }
@@ -104,10 +133,10 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
                 } final Locale locale = l;
 
                 if (name != null) {
-                    multiplesLanguagesBukkit().getApi().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(locale)));
+                    getDefApi().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(locale)));
                 }
                 if (lore != null) {
-                    multiplesLanguagesBukkit().getApi().getVersion().setItemBukkitLore(item, lore.get(locale));
+                    getDefApi().getVersion().setItemBukkitLore(item, lore.get(locale));
                 }
             }
         } else {
@@ -124,9 +153,9 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
         final @Nullable Message lore = getLore(item);
 
         if (name != null) {
-            multiplesLanguagesBukkit().getApi().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(name.getStorage().getDefaultLocale())));
+            getDefApi().getVersion().setItemBukkitDisplayName(item, BukkitMessageStorage.mergeBaseComponents(name.get(name.getStorage().getDefaultLocale())));
         } if (lore != null) {
-            multiplesLanguagesBukkit().getApi().getVersion().setItemBukkitLore(item, lore.get(lore.getStorage().getDefaultLocale()));
+            getDefApi().getVersion().setItemBukkitLore(item, lore.get(lore.getStorage().getDefaultLocale()));
         }
     }
 }

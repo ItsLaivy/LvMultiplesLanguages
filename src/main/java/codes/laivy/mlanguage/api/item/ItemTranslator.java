@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.api.item;
 
 import codes.laivy.mlanguage.lang.Message;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public interface ItemTranslator<I, P> {
 
     boolean isTranslatable(@NotNull I item);
+    @NotNull ItemStack setTranslatable(@NotNull I item, @Nullable Message name, @Nullable Message lore);
 
     /**
      * Translates a item

@@ -1,5 +1,7 @@
 package codes.laivy.mlanguage.api.bukkit;
 
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
@@ -19,7 +21,6 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,12 +36,25 @@ import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLangu
 public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI, Listener {
 
     /**
+     * Checks if the server is running the default api
+     * @return true if the server is running the default api (this api class), false otherwise
+     */
+    public static boolean isRunningDefApi() {
+        IBukkitMultiplesLanguagesAPI currentApi = multiplesLanguagesBukkit().getApi();
+        return currentApi instanceof BukkitMultiplesLanguagesAPI;
+    }
+
+    /**
      * Returns the default api instance, or an exception if the default api isn't being used.
      * @return the default api or an exception case not is being used
      */
     @ApiStatus.Internal
     public static @NotNull BukkitMultiplesLanguagesAPI getDefApi() {
-
+        if (isRunningDefApi()) {
+            return (BukkitMultiplesLanguagesAPI) multiplesLanguagesBukkit().getApi();
+        } else {
+            throw new UnsupportedOperationException("This server needs to be running the default api to perform this action");
+        }
     }
 
     private final @NotNull BukkitMultiplesLanguages platform;
@@ -52,7 +66,6 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     private boolean loaded = false;
 
     private @NotNull InjectionManager injectionManager;
-    private @Nullable BukkitTask task;
 
     private @Nullable Version version;
 
@@ -168,9 +181,6 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
 
         Bukkit.getPluginManager().registerEvents(this, multiplesLanguagesBukkit());
 
-        LocaleTracker runnable = new LocaleTracker();
-        //noinspection FunctionalExpressionCanBeFolded
-        task = Bukkit.getScheduler().runTaskTimer(multiplesLanguagesBukkit(), runnable::run, 20, 20);
         loaded = true;
     }
 
@@ -180,10 +190,6 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
 
         messageStorages = null;
         defaultLocale = null;
-
-        if (task != null) {
-            task.cancel();
-        }
 
         // Unregistering events
         PlayerGameModeChangeEvent.getHandlerList().unregister(this);
@@ -200,18 +206,12 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
 
     @EventHandler
     private void gameModeChange(@NotNull PlayerGameModeChangeEvent e) {
-        Bukkit.getScheduler().runTaskLater(multiplesLanguagesBukkit(), () -> multiplesLanguagesBukkit().getApi().getItemTranslator().translateInventory(e.getPlayer()), 1);
+        Bukkit.getScheduler().runTaskLater(multiplesLanguagesBukkit(), () -> getItemTranslator().translateInventory(e.getPlayer()), 1);
     }
     @EventHandler
     private void inventoryOpen(@NotNull InventoryOpenEvent e) {
         if (e.getPlayer() instanceof Player) {
-            Bukkit.getScheduler().runTaskLater(multiplesLanguagesBukkit(), () -> multiplesLanguagesBukkit().getApi().getItemTranslator().translateInventory((Player) e.getPlayer()), 1);
-        }
-    }
-    @EventHandler
-    private void inventoryClick(@NotNull InventoryClickEvent e) {
-        if (e.getWhoClicked() instanceof Player) {
-            Bukkit.getScheduler().runTaskLater(multiplesLanguagesBukkit(), () -> multiplesLanguagesBukkit().getApi().getItemTranslator().translateInventory((Player) e.getWhoClicked()), 5);
+            Bukkit.getScheduler().runTaskLater(multiplesLanguagesBukkit(), () -> getItemTranslator().translateInventory((Player) e.getPlayer()), 1);
         }
     }
 
@@ -228,7 +228,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     public @Nullable Locale getLocale(@NotNull UUID user) {
         Player player = Bukkit.getPlayer(user);
         if (player != null && player.isOnline()) {
-            return multiplesLanguagesBukkit().getApi().getVersion().getPlayerMinecraftLocale(player);
+            return getDefApi().getVersion().getPlayerMinecraftLocale(player);
         }
         return null;
     }

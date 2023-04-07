@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class NetworkManager extends ObjectExecutor {
     public NetworkManager(@Nullable Object value) {
@@ -16,12 +16,12 @@ public class NetworkManager extends ObjectExecutor {
     }
 
     public @NotNull Channel getChannel() {
-        return (Channel) Objects.requireNonNull(multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("NetworkManager:channel").invokeInstance(this));
+        return (Channel) Objects.requireNonNull(getDefApi().getVersion().getFieldExec("NetworkManager:channel").invokeInstance(this));
     }
 
     @Override
     public @NotNull NetworkManagerClass getClassExecutor() {
-        return (NetworkManagerClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("NetworkManager");
+        return (NetworkManagerClass) getDefApi().getVersion().getClassExec("NetworkManager");
     }
 
     public static class NetworkManagerClass extends ClassExecutor {

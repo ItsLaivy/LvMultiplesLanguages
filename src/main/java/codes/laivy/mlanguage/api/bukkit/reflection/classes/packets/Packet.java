@@ -5,7 +5,7 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.ObjectExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class Packet extends ObjectExecutor {
     public Packet(@Nullable Object value) {
@@ -14,7 +14,7 @@ public class Packet extends ObjectExecutor {
 
     @Override
     public @NotNull PacketClass getClassExecutor() {
-        return (PacketClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("Packet");
+        return (PacketClass) getDefApi().getVersion().getClassExec("Packet");
     }
 
     public static class PacketClass extends ClassExecutor {

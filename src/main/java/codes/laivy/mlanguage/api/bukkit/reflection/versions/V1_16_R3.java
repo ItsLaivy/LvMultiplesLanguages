@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedList;
 import java.util.List;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class V1_16_R3 extends V1_16_R2 {
 
@@ -55,9 +55,9 @@ public class V1_16_R3 extends V1_16_R2 {
     @Override
     public void setCraftItemMetaDisplayName(@NotNull CraftMetaItem item, @NotNull BaseComponent[] name) {
         if (name != null) {
-            multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, ComponentSerializer.toString(name));
+            getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, ComponentSerializer.toString(name));
         } else {
-            multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
+            getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
         }
     }
     public void setCraftItemMetaLore(@NotNull CraftMetaItem item, @NotNull BaseComponent[] lore) {
@@ -67,9 +67,9 @@ public class V1_16_R3 extends V1_16_R2 {
                 objects.add(ComponentSerializer.toString(component));
             }
 
-            multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
+            getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
         } else {
-            multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
+            getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
         }
     }
 

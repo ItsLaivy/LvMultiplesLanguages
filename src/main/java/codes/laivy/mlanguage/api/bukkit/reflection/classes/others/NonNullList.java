@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class NonNullList extends ObjectExecutor {
 
@@ -23,7 +23,7 @@ public class NonNullList extends ObjectExecutor {
     }
 
     public static @NotNull NonNullList create(@Nullable Object d, @NotNull List<Object> list) {
-        return new NonNullList(multiplesLanguagesBukkit().getApi().getVersion().getMethodExec("NonNullList:create").invokeStatic(new ObjectObjExec(d), new ObjectArrayObjExec(list.toArray(new Object[0]))));
+        return new NonNullList(getDefApi().getVersion().getMethodExec("NonNullList:create").invokeStatic(new ObjectObjExec(d), new ObjectArrayObjExec(list.toArray(new Object[0]))));
     }
 
     public NonNullList(@Nullable Object value) {
@@ -31,15 +31,15 @@ public class NonNullList extends ObjectExecutor {
     }
 
     public @NotNull List<?> getList() {
-        return (List<?>) Objects.requireNonNull(multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("NonNullList:list").invokeInstance(this));
+        return (List<?>) Objects.requireNonNull(getDefApi().getVersion().getFieldExec("NonNullList:list").invokeInstance(this));
     }
     public @Nullable Object getDefault() {
-        return multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("NonNullList:default").invokeInstance(this);
+        return getDefApi().getVersion().getFieldExec("NonNullList:default").invokeInstance(this);
     }
 
     @Override
     public @NotNull NonNullListClass getClassExecutor() {
-        return (NonNullListClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("NonNullList");
+        return (NonNullListClass) getDefApi().getVersion().getClassExec("NonNullList");
     }
 
     public static class NonNullListClass extends ClassExecutor {

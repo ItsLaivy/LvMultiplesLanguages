@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class V1_8_R1 implements Version {
 
@@ -183,7 +183,7 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @Nullable ItemStack[] getWindowItemsPacketItems(@NotNull PacketPlayOutWindowItems packet) {
-        @Nullable Object[] items = (Object[]) multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
+        @Nullable Object[] items = (Object[]) getDefApi().getVersion().getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
         Set<ItemStack> itemsSet = new LinkedHashSet<>();
 
         if (items == null) {
@@ -263,7 +263,7 @@ public class V1_8_R1 implements Version {
             items.add(codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(item));
         }
         // Creating the new packet with translated items applied
-        return multiplesLanguagesBukkit().getApi().getVersion().createWindowItemsPacket(windowId, -1, items.toArray(new codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack[0]), null);
+        return getDefApi().getVersion().createWindowItemsPacket(windowId, -1, items.toArray(new codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack[0]), null);
     }
 
     /**

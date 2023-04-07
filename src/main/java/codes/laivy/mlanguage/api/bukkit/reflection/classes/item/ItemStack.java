@@ -10,12 +10,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class ItemStack extends ObjectExecutor {
     @NotNull
     public static ItemStack getNMSItemStack(@NotNull org.bukkit.inventory.ItemStack item) {
-        return new ItemStack(multiplesLanguagesBukkit().getApi().getVersion().getMethodExec("CraftItemStack:asNMSCopy").invokeStatic(new ItemStackObjExec(item)));
+        return new ItemStack(getDefApi().getVersion().getMethodExec("CraftItemStack:asNMSCopy").invokeStatic(new ItemStackObjExec(item)));
     }
 
     public ItemStack(@Nullable Object value) {
@@ -23,7 +23,7 @@ public class ItemStack extends ObjectExecutor {
     }
 
     public @Nullable NBTTagCompound getTag() {
-        Object object = multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("ItemStack:tag").invokeInstance(this);
+        Object object = getDefApi().getVersion().getFieldExec("ItemStack:tag").invokeInstance(this);
         if (object == null) {
             return null;
         }
@@ -31,27 +31,27 @@ public class ItemStack extends ObjectExecutor {
     }
     public void setTag(@Nullable NBTTagCompound compound) {
         if (compound != null) {
-            multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("ItemStack:tag").set(this, compound.getValue());
+            getDefApi().getVersion().getFieldExec("ItemStack:tag").set(this, compound.getValue());
         } else {
-            multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("ItemStack:tag").set(this, null);
+            getDefApi().getVersion().getFieldExec("ItemStack:tag").set(this, null);
         }
     }
 
     public void setName(@Nullable BaseComponent name) {
-        multiplesLanguagesBukkit().getApi().getVersion().setItemDisplayName(this, name);
+        getDefApi().getVersion().setItemDisplayName(this, name);
     }
 
     public void setLore(@Nullable BaseComponent[] lore) {
-        multiplesLanguagesBukkit().getApi().getVersion().setItemLore(this, lore);
+        getDefApi().getVersion().setItemLore(this, lore);
     }
 
     public @NotNull CraftItemStack getCraftItemStack() {
-        return new CraftItemStack(Objects.requireNonNull(multiplesLanguagesBukkit().getApi().getVersion().getMethodExec("CraftItemStack:asCraftMirror").invokeStatic(this)));
+        return new CraftItemStack(Objects.requireNonNull(getDefApi().getVersion().getMethodExec("CraftItemStack:asCraftMirror").invokeStatic(this)));
     }
 
     @Override
     public @NotNull ItemStackClass getClassExecutor() {
-        return (ItemStackClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("ItemStack");
+        return (ItemStackClass) getDefApi().getVersion().getClassExec("ItemStack");
     }
 
     public static class ItemStackClass extends ClassExecutor {

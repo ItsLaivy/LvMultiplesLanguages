@@ -6,7 +6,7 @@ import codes.laivy.mlanguage.utils.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class PacketPlayOutSetSlot extends Packet {
     public PacketPlayOutSetSlot(@Nullable Object value) {
@@ -15,15 +15,15 @@ public class PacketPlayOutSetSlot extends Packet {
 
     public int getWindowId() {
         //noinspection DataFlowIssue
-        return (int) multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("PacketPlayOutSetSlot:windowId").invokeInstance(this);
+        return (int) getDefApi().getVersion().getFieldExec("PacketPlayOutSetSlot:windowId").invokeInstance(this);
     }
     public int getSlot() {
         //noinspection DataFlowIssue
-        return (int) multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("PacketPlayOutSetSlot:slot").invokeInstance(this);
+        return (int) getDefApi().getVersion().getFieldExec("PacketPlayOutSetSlot:slot").invokeInstance(this);
     }
     public int getStateId() {
         if (!ReflectionUtils.isCompatible(V1_17_R1.class)) {
-            V1_17_R1 v = (V1_17_R1) multiplesLanguagesBukkit().getApi().getVersion();
+            V1_17_R1 v = (V1_17_R1) getDefApi().getVersion();
 
             if (!v.isStateEnabled()) {
                 throw new UnsupportedOperationException("This method is only available since 1.17.1");
@@ -31,15 +31,15 @@ public class PacketPlayOutSetSlot extends Packet {
         }
 
         //noinspection DataFlowIssue
-        return (int) multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("PacketPlayOutSetSlot:state").invokeInstance(this);
+        return (int) getDefApi().getVersion().getFieldExec("PacketPlayOutSetSlot:state").invokeInstance(this);
     }
     public ItemStack getItemStack() {
-        return new ItemStack(multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("PacketPlayOutSetSlot:item").invokeInstance(this));
+        return new ItemStack(getDefApi().getVersion().getFieldExec("PacketPlayOutSetSlot:item").invokeInstance(this));
     }
 
     @Override
     public @NotNull PacketPlayOutSetSlotClass getClassExecutor() {
-        return (PacketPlayOutSetSlotClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("PacketPlayOutSetSlot");
+        return (PacketPlayOutSetSlotClass) getDefApi().getVersion().getClassExec("PacketPlayOutSetSlot");
     }
 
     public static final class PacketPlayOutSetSlotClass extends PacketClass {

@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class CraftItemStack extends ObjectExecutor {
     @NotNull
@@ -27,7 +27,7 @@ public class CraftItemStack extends ObjectExecutor {
 
     @Override
     public @NotNull CraftItemStackClass getClassExecutor() {
-        return (CraftItemStackClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("CraftItemStack");
+        return (CraftItemStackClass) getDefApi().getVersion().getClassExec("CraftItemStack");
     }
 
     public static class CraftItemStackClass extends ClassExecutor {

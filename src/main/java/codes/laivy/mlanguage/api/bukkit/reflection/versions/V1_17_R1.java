@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class V1_17_R1 extends V1_16_R3 {
 
@@ -200,7 +200,7 @@ public class V1_17_R1 extends V1_16_R3 {
                 items.add(codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(item));
             }
             // Creating the new packet with translated items applied
-            return multiplesLanguagesBukkit().getApi().getVersion().createWindowItemsPacket(windowId, stateId, items.toArray(new codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack[0]), held);
+            return getDefApi().getVersion().createWindowItemsPacket(windowId, stateId, items.toArray(new codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack[0]), held);
         } else {
             return super.translateWindowItems(original, player);
         }
@@ -209,7 +209,7 @@ public class V1_17_R1 extends V1_16_R3 {
     @Override
     public @NotNull PacketPlayOutSetSlot createSetSlotPacket(int windowId, int slot, int state, @NotNull ItemStack itemStack) {
         if (isStateEnabled()) {
-            return new PacketPlayOutSetSlot(getClassExec("PacketPlayOutSetSlot").getConstructor(ClassExecutor.INT, ClassExecutor.INT, ClassExecutor.INT, multiplesLanguagesBukkit().getApi().getVersion().getClassExec("ItemStack")).newInstance(new IntegerObjExec(windowId), new IntegerObjExec(state), new IntegerObjExec(slot), itemStack));
+            return new PacketPlayOutSetSlot(getClassExec("PacketPlayOutSetSlot").getConstructor(ClassExecutor.INT, ClassExecutor.INT, ClassExecutor.INT, getDefApi().getVersion().getClassExec("ItemStack")).newInstance(new IntegerObjExec(windowId), new IntegerObjExec(state), new IntegerObjExec(slot), itemStack));
         } else {
             return super.createSetSlotPacket(windowId, slot, state, itemStack);
         }

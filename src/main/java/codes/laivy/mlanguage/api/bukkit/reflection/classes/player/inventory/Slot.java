@@ -6,7 +6,7 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.ObjectExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
 public class Slot extends ObjectExecutor {
     public Slot(@Nullable Object value) {
@@ -15,15 +15,15 @@ public class Slot extends ObjectExecutor {
 
     public int getIndex() {
         //noinspection DataFlowIssue
-        return (int) multiplesLanguagesBukkit().getApi().getVersion().getFieldExec("Slot:index").invokeInstance(this);
+        return (int) getDefApi().getVersion().getFieldExec("Slot:index").invokeInstance(this);
     }
     public @Nullable ItemStack getItem() {
-        return new ItemStack(multiplesLanguagesBukkit().getApi().getVersion().getMethodExec("Slot:getItem").invokeInstance(this));
+        return new ItemStack(getDefApi().getVersion().getMethodExec("Slot:getItem").invokeInstance(this));
     }
 
     @Override
     public @NotNull SlotClass getClassExecutor() {
-        return (SlotClass) multiplesLanguagesBukkit().getApi().getVersion().getClassExec("Slot");
+        return (SlotClass) getDefApi().getVersion().getClassExec("Slot");
     }
 
     public static class SlotClass extends ClassExecutor {
