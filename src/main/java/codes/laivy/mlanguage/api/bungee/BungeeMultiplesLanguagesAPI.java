@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -52,8 +53,9 @@ public class BungeeMultiplesLanguagesAPI implements IMultiplesLanguagesAPI<Plugi
         getPlugin().log(new TextComponent("§7Loading message storages..."));
         try {
             for (File file : FileUtils.listFiles(getPlugin().getDataFolder().toString())) {
-                try (FileReader fileReader = new FileReader(file)) {
-                    BufferedReader bufferedReader = new BufferedReader(fileReader);
+                try (FileInputStream fileInputStream = new FileInputStream(file);
+                     InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
+                     BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
                     String line; // ignore
                     StringBuilder content = new StringBuilder();
@@ -62,11 +64,9 @@ public class BungeeMultiplesLanguagesAPI implements IMultiplesLanguagesAPI<Plugi
                         content.append(line);
                     }
 
-                    bufferedReader.close();
-
                     try {
                         //noinspection deprecation
-                        JsonElement json = new JsonParser().parse(content.toString().replace("\\\"", ""));
+                        JsonElement json = new JsonParser().parse(content.toString());
                         if (json.isJsonObject()) {
                             MessageStorage storage = SerializedData.deserialize(json.getAsJsonObject()).get(null);
                             storage.load();
@@ -116,10 +116,10 @@ public class BungeeMultiplesLanguagesAPI implements IMultiplesLanguagesAPI<Plugi
                 // Write the serialized data into
                 JsonElement data = storage.serialize().serialize();
 
-                try (FileWriter fileWriter = new FileWriter(file)) {
-                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                    bufferedWriter.write(new GsonBuilder().setPrettyPrinting().create().toJson(data));
-                    bufferedWriter.close();
+                try (FileOutputStream fileOutputStream = new FileOutputStream(file);
+                     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
+                     BufferedWriter writer = new BufferedWriter(outputStreamWriter)) {
+                    writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(data));
                 }
 
                 storage.unload();
@@ -128,8 +128,7 @@ public class BungeeMultiplesLanguagesAPI implements IMultiplesLanguagesAPI<Plugi
                 getPlugin().log(new TextComponent("§cCouldn't save message storage called '" + storage.getName() + "' of the plugin '" + getPlugin().getDescription().getName() + "'"));
             }
         }
-        //
-
+        // Unload variables
         messageStorages = null;
         loaded = false;
     }
