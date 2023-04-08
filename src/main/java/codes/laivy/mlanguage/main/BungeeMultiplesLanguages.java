@@ -9,6 +9,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin> {
 
     public static @NotNull BungeeMultiplesLanguages multiplesLanguagesBungee() {
@@ -30,6 +32,8 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin>
         // On server loads, load the API too
         serverLoaded = true;
         getApi().load();
+
+        System.out.println(ComponentUtils.getText(Objects.requireNonNull(getApi().getStorage(this, "Nome teste")).get("Teste3").get(null)));
     }
 
     @Override

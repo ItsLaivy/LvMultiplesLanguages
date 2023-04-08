@@ -125,6 +125,7 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Plu
         Bukkit.getScheduler().runTaskLater(this, () -> {
             serverLoaded = true;
             getApi().load();
+            System.out.println(ComponentUtils.getText(Objects.requireNonNull(getApi().getStorage(this, "Nome teste")).get("Teste3").get(null)));
         }, 1);
     }
 

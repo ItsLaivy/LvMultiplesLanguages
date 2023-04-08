@@ -49,7 +49,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
 
     @Override
     public @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull BaseComponent[]>> getData() {
-        return components;
+        return new LinkedHashMap<>(components);
     }
 
     @Override
@@ -67,9 +67,9 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
             }
 
             for (BaseComponent component : components) {
-                if (component instanceof TextComponent) {
-                    component.duplicate();
+                component = component.duplicate();
 
+                if (component instanceof TextComponent) {
                     TextComponent text = (TextComponent) component;
                     text.setText(replace(locale, ComponentUtils.getText(text), replaces));
                 }
@@ -170,7 +170,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
                         throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
                     }
 
-                    localizedComponents.put(locale, ComponentSerializer.parse(entry2.getValue().toString()));
+                    localizedComponents.put(locale, ComponentSerializer.parse(entry2.getValue().getAsString()));
                 }
 
                 components.put(key, localizedComponents);
@@ -188,7 +188,6 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
 
     @Override
     public void unload() {
-        getData().clear();
     }
 
     @Override
