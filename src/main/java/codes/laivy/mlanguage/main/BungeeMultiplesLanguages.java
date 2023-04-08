@@ -32,8 +32,6 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin>
         // On server loads, load the API too
         serverLoaded = true;
         getApi().load();
-
-        System.out.println(ComponentUtils.getText(Objects.requireNonNull(getApi().getStorage(this, "Nome teste")).get("Teste3").get(null)));
     }
 
     @Override

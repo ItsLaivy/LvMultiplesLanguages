@@ -15,6 +15,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -125,10 +126,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
                 JsonObject localizedComponents = new JsonObject();
 
                 for (Map.Entry<Locale, @NotNull BaseComponent[]> entry2 : entry.getValue().entrySet()) {
-                    String message = ComponentUtils.serialize(entry2.getValue()).toString();
-                    if (message != null) {
-                        localizedComponents.addProperty(entry2.getKey().name(), message);
-                    }
+                    localizedComponents.addProperty(entry2.getKey().name(), ComponentUtils.serialize(entry2.getValue()));
                 }
 
                 components.add(entry.getKey(), localizedComponents);
@@ -144,6 +142,13 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
         }
     }
 
+    /**
+     * The default deserializator of Multiples Language's default API
+     *
+     * @param serializedData the serialized data
+     * @return the storage deserialized
+     */
+    @ApiStatus.Internal
     public static @NotNull BungeeMessageStorage deserialize(@NotNull SerializedData serializedData) {
         if (serializedData.getVersion() == 0) {
             JsonObject data = serializedData.getData().getAsJsonObject();
@@ -158,11 +163,11 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
             }
 
             @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components = new LinkedHashMap<>();
-            for (Map.Entry<String, JsonElement> entry : data.get("Components").getAsJsonObject().asMap().entrySet()) {
+            for (Map.Entry<String, JsonElement> entry : data.get("Components").getAsJsonObject().entrySet()) {
                 String key = entry.getKey();
                 Map<Locale, BaseComponent[]> localizedComponents = new LinkedHashMap<>();
 
-                for (Map.Entry<String, JsonElement> entry2 : entry.getValue().getAsJsonObject().asMap().entrySet()) {
+                for (Map.Entry<String, JsonElement> entry2 : entry.getValue().getAsJsonObject().entrySet()) {
                     Locale locale;
                     try {
                         locale = Locale.valueOf(entry2.getKey().toUpperCase());

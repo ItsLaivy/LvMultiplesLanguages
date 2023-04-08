@@ -576,7 +576,6 @@ public class V1_8_R1 implements Version {
         }
 
         if (name != null) {
-            // TODO: 07/04/2023 Check
             display.set("Name", new NBTTagString(ComponentUtils.getText(name)));
         } else {
             display.remove("Name");
@@ -620,7 +619,7 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @NotNull IChatBaseComponent baseComponentToIChatComponent(@NotNull BaseComponent... components) {
-        return new IChatBaseComponent(getMethodExec("ChatSerializer:convertToComponent").invokeStatic(new StringObjExec(ComponentUtils.serialize(components).toString())));
+        return new IChatBaseComponent(getMethodExec("ChatSerializer:convertToComponent").invokeStatic(new StringObjExec(ComponentUtils.serialize(components))));
     }
 
     @Override

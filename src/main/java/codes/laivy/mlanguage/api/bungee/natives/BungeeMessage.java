@@ -7,12 +7,14 @@ import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -24,9 +26,9 @@ public class BungeeMessage implements IBungeeMessage {
 
     private final @NotNull IBungeeMessageStorage messageStorage;
     private final @NotNull String id;
-    private final @NotNull Message[] replaces;
+    private final @NotNull Object[] replaces;
 
-    public BungeeMessage(@NotNull IBungeeMessageStorage messageStorage, @NotNull String id, @NotNull Message... replaces) {
+    public BungeeMessage(@NotNull IBungeeMessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
         this.messageStorage = messageStorage;
         this.id = id;
         this.replaces = replaces;
@@ -48,7 +50,7 @@ public class BungeeMessage implements IBungeeMessage {
     }
 
     @Override
-    public @NotNull Message[] getReplacements() {
+    public @NotNull Object[] getReplacements() {
         return replaces;
     }
 
@@ -57,8 +59,16 @@ public class BungeeMessage implements IBungeeMessage {
         try {
             // Data
             JsonArray replaces = new JsonArray();
-            for (@NotNull Message replace : this.getReplacements()) {
-                replaces.add(replace.serialize().serialize());
+            for (@NotNull Object replace : this.getReplacements()) {
+                if (replace instanceof Message) {
+                    replaces.add(((Message) replace).serialize().serialize());
+                } else if (replace instanceof BaseComponent) {
+                    replaces.add(ComponentUtils.serialize(new BaseComponent[] { (BaseComponent) replace }));
+                } else if (replace instanceof BaseComponent[]) {
+                    replaces.add(ComponentUtils.serialize((BaseComponent[]) replace));
+                } else {
+                    replaces.add(String.valueOf(replace));
+                }
             }
 
             JsonObject language = new JsonObject();
@@ -100,11 +110,24 @@ public class BungeeMessage implements IBungeeMessage {
             }
 
             String id = data.get("Id").getAsString();
-            IBungeeMessage[] replaces = new BungeeMessage[data.get("Replaces").getAsJsonArray().size()];
+            Object[] replaces = new Object[data.get("Replaces").getAsJsonArray().size()];
 
             int row = 0;
             for (JsonElement replaceElement : data.get("Replaces").getAsJsonArray()) {
-                replaces[row] = SerializedData.deserialize(replaceElement.getAsJsonObject()).get(null);
+                if (replaceElement.isJsonObject()) {
+                    JsonObject object = replaceElement.getAsJsonObject();
+
+                    if (SerializedData.isSerializedData(object)) {
+                        replaces[row] = SerializedData.deserialize(object).get(null);
+                    } else {
+                        replaces[row] = ComponentSerializer.parse(replaceElement.getAsJsonObject().toString());
+                    }
+                } else if (replaceElement.isJsonArray()) { // Json array, base component array.
+                    replaces[row] = ComponentSerializer.parse(replaceElement.getAsJsonArray().toString());
+                } else { // Json string
+                    replaces[row] = replaceElement.getAsString();
+                }
+
                 row++;
             }
 

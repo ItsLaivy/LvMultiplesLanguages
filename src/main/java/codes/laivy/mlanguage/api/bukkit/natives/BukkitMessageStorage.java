@@ -8,14 +8,14 @@ import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.utils.ComponentUtils;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,12 +33,11 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
 
     private final @NotNull Locale defaultLocale;
 
-    // TODO: 07/04/2023 Parameters order change
-    public BukkitMessageStorage(@NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components, @NotNull String name, @NotNull Plugin plugin) {
+    public BukkitMessageStorage(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
+        this.plugin = plugin;
+        this.name = name;
         this.defaultLocale = defaultLocale;
         this.components = components;
-        this.name = name;
-        this.plugin = plugin;
 
         // Check if the components have the default locale messages
         for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getData().entrySet()) {
@@ -121,10 +120,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                 JsonObject localizedComponents = new JsonObject();
 
                 for (Map.Entry<Locale, @NotNull BaseComponent[]> entry2 : entry.getValue().entrySet()) {
-                    String message = ComponentUtils.serialize(entry2.getValue()).toString();
-                    if (message != null) {
-                        localizedComponents.addProperty(entry2.getKey().name(), message);
-                    }
+                    localizedComponents.addProperty(entry2.getKey().name(), ComponentUtils.serialize(entry2.getValue()));
                 }
 
                 components.add(entry.getKey(), localizedComponents);
@@ -140,6 +136,13 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
         }
     }
 
+    /**
+     * The default deserializator of Multiples Language's default API
+     *
+     * @param serializedData the serialized data
+     * @return the storage deserialized
+     */
+    @ApiStatus.Internal
     public static @NotNull BukkitMessageStorage deserialize(@NotNull SerializedData serializedData) {
         if (serializedData.getVersion() == 0) {
             JsonObject data = serializedData.getData().getAsJsonObject();
@@ -154,11 +157,11 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
             }
 
             @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components = new LinkedHashMap<>();
-            for (Map.Entry<String, JsonElement> entry : data.get("Components").getAsJsonObject().asMap().entrySet()) {
+            for (Map.Entry<String, JsonElement> entry : data.get("Components").getAsJsonObject().entrySet()) {
                 String key = entry.getKey();
                 Map<Locale, BaseComponent[]> localizedComponents = new LinkedHashMap<>();
 
-                for (Map.Entry<String, JsonElement> entry2 : entry.getValue().getAsJsonObject().asMap().entrySet()) {
+                for (Map.Entry<String, JsonElement> entry2 : entry.getValue().getAsJsonObject().entrySet()) {
                     Locale locale;
                     try {
                         locale = Locale.valueOf(entry2.getKey().toUpperCase());
@@ -166,13 +169,18 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                         throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
                     }
 
-                    localizedComponents.put(locale, ComponentSerializer.parse(entry2.getValue().getAsString()));
+                    try {
+                        localizedComponents.put(locale, ComponentSerializer.parse(entry2.getValue().getAsString().replace("&", "§")));
+                    } catch (JsonSyntaxException ignore) {
+                        // TODO: 08/04/2023 Non
+                        localizedComponents.put(locale, new BaseComponent[] { new TextComponent(entry2.getValue().getAsString().replace("&", "§")) });
+                    }
                 }
 
                 components.put(key, localizedComponents);
             }
 
-            return new BukkitMessageStorage(defaultLocale, components, name, plugin);
+            return new BukkitMessageStorage(plugin, name, defaultLocale, components);
         } else {
             throw new IllegalArgumentException("This SerializedData version '" + serializedData.getVersion() + "' isn't compatible with this deserializator");
         }

@@ -179,7 +179,7 @@ public class BungeeMultiplesLanguagesAPI implements IMultiplesLanguagesAPI<Plugi
     }
 
     @Override
-    public @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Message... replaces) {
+    public @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
         if (!(messageStorage instanceof BungeeMessageStorage)) {
             throw new UnsupportedOperationException("The message storage needs to be an instance of the bungee message storage");
         } else if (!(replaces instanceof BungeeMessage[])) {

@@ -234,7 +234,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
             if (fs.getPlugin().equals(plugin) && fs.getName().equals(name)) {
                 storage = fs;
 
-                BukkitMessageStorage temp = new BukkitMessageStorage(defaultLocale, components, name, plugin);
+                BukkitMessageStorage temp = new BukkitMessageStorage(plugin, name, defaultLocale, components);
                 if (storage.merge(temp)) {
                     getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + getPlugin().getName() + "'."));
                 }
@@ -242,7 +242,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
         }
 
         if (storage == null) {
-            storage = new BukkitMessageStorage(defaultLocale, components, name, plugin);
+            storage = new BukkitMessageStorage(plugin, name, defaultLocale, components);
         }
 
         return storage;
@@ -254,14 +254,12 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     }
 
     @Override
-    public @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Message... replaces) {
+    public @NotNull IBukkitMessage get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
         if (!(messageStorage instanceof BukkitMessageStorage)) {
             throw new UnsupportedOperationException("The message storage needs to be an instance of the bukkit message storage");
-        } else if (!(replaces instanceof BukkitMessage[])) {
-            throw new UnsupportedOperationException("The messages replaces array needs to be an instance of the bukkit message array");
         }
 
-        return new BukkitMessage((BukkitMessageStorage) messageStorage, id, (BukkitMessage[]) replaces);
+        return new BukkitMessage((BukkitMessageStorage) messageStorage, id, replaces);
     }
 
     @Override

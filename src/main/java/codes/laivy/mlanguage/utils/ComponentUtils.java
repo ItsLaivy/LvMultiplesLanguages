@@ -1,9 +1,6 @@
 package codes.laivy.mlanguage.utils;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -25,17 +22,20 @@ public class ComponentUtils {
         return new TextComponent(BaseComponent.toLegacyText(components));
     }
 
-    public static @NotNull JsonElement serialize(BaseComponent[] components) {
+    public static @NotNull String serialize(BaseComponent[] components) {
         if (components.length == 1) {
-            //noinspection deprecation
-            return new JsonParser().parse(ComponentSerializer.toString(components[0]));
+            return ComponentSerializer.toString(components[0]);
         } else {
             JsonArray array = new JsonArray();
             for (BaseComponent component : components) {
-                //noinspection deprecation
-                array.add(new JsonParser().parse(ComponentSerializer.toString(component)));
+                try {
+                    //noinspection deprecation
+                    array.add(new JsonParser().parse(ComponentSerializer.toString(component)));
+                } catch (JsonSyntaxException ignore) {
+                    array.add(ComponentSerializer.toString(component));
+                }
             }
-            return array;
+            return array.toString();
         }
     }
 

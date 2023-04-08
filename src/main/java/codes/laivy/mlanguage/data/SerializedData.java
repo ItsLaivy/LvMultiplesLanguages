@@ -62,6 +62,14 @@ public class SerializedData {
         }
     }
 
+    public static boolean isSerializedData(@NotNull JsonElement element) {
+        if (element.isJsonObject()) {
+            JsonObject object = element.getAsJsonObject();
+            return object.has("Data") && object.has("Version") && object.has("Deserializator");
+        }
+        return false;
+    }
+
     /**
      * Deserializes the object using the deserializator method supplier
      * @return the object

@@ -66,7 +66,7 @@ public interface IMultiplesLanguagesAPI<P> {
     }
     @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 
-    @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Message... replaces);
+    @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 
     @Nullable Locale getLocale(@NotNull UUID user);
     void setLocale(@NotNull UUID user, @Nullable Locale locale);

@@ -56,7 +56,7 @@ public class V1_16_R3 extends V1_16_R2 {
     @Override
     public void setCraftItemMetaDisplayName(@NotNull CraftMetaItem item, @NotNull BaseComponent[] name) {
         if (name != null) {
-            getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, ComponentUtils.serialize(name).toString());
+            getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, ComponentUtils.serialize(name));
         } else {
             getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
         }

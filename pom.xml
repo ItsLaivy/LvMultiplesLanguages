@@ -108,13 +108,6 @@
                             <finalName>${project.artifactId}</finalName>
                             <outputDirectory>.</outputDirectory>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-
-                            <relocations>
-                                <relocation>
-                                    <pattern>com.google.gson</pattern>
-                                    <shadedPattern>codes.laivy.mlanguage.shaded.gson</shadedPattern>
-                                </relocation>
-                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
