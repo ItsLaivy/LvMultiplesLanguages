@@ -5,8 +5,6 @@ import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.xml.crypto.Data;
-
 public class SerializedData {
 
     private final @NotNull JsonElement data;

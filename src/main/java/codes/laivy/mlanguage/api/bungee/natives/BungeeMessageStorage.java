@@ -1,68 +1,85 @@
-package codes.laivy.mlanguage.api.bukkit;
+package codes.laivy.mlanguage.api.bungee.natives;
 
+import codes.laivy.mlanguage.api.bungee.IBungeeMessage;
+import codes.laivy.mlanguage.api.bungee.IBungeeMessageStorage;
 import codes.laivy.mlanguage.data.MethodSupplier;
 import codes.laivy.mlanguage.data.SerializedData;
+import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
-import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
-public class BukkitMessageStorage implements MessageStorage {
+public class BungeeMessageStorage implements IBungeeMessageStorage {
 
-    private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components;
-    private final @NotNull String name;
     private final @NotNull Plugin plugin;
-
+    private final @NotNull String name;
     private final @NotNull Locale defaultLocale;
+    private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components;
 
-    public BukkitMessageStorage(@NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components, @NotNull String name, @NotNull Plugin plugin) {
+    public BungeeMessageStorage(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
+        this.plugin = plugin;
+        this.name = name;
         this.defaultLocale = defaultLocale;
         this.components = components;
-        this.name = name;
-        this.plugin = plugin;
+    }
 
-        for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getComponents().entrySet()) {
-            if (!entry.getValue().containsKey(getDefaultLocale())) {
-                throw new IllegalStateException("Couldn't find the default locale (" + getDefaultLocale().name() + ") translation for code '" + entry.getKey() + "'");
-            }
+    @Override
+    public @NotNull IBungeeMessage[] getMessages() {
+        Set<IBungeeMessage> bungeeMessages = new LinkedHashSet<>();
+        for (String id : getData().keySet()) {
+            bungeeMessages.add(new BungeeMessage(this, id));
         }
+        return bungeeMessages.toArray(new IBungeeMessage[0]);
+    }
+
+    @Override
+    public @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull BaseComponent[]>> getData() {
+        return components;
     }
 
     @Override
     public @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
         locale = (locale == null ? getDefaultLocale() : locale);
 
-        if (getComponents().containsKey(id)) {
+        if (getData().containsKey(id)) {
             BaseComponent[] components;
-            if (getComponents().get(id).containsKey(locale)) {
-                components = getComponents().get(id).get(locale);
-            } else if (getComponents().get(id).containsKey(getDefaultLocale())) {
-                components = getComponents().get(id).get(getDefaultLocale());
+            if (getData().get(id).containsKey(locale)) {
+                components = getData().get(id).get(locale);
+            } else if (getData().get(id).containsKey(getDefaultLocale())) {
+                components = getData().get(id).get(getDefaultLocale());
             } else {
-                throw new NullPointerException("This message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
+                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
             for (BaseComponent component : components) {
                 if (component instanceof TextComponent) {
+                    component.duplicate();
+
                     TextComponent text = (TextComponent) component;
-                    text.setText(replace(locale, text.getText(), replaces));
+                    text.setText(replace(locale, ComponentUtils.getText(text), replaces));
                 }
                 if (component.getExtra() != null) {
                     for (BaseComponent extra : component.getExtra()) {
+                        extra = extra.duplicate();
+
                         if (extra instanceof TextComponent) {
                             TextComponent text = (TextComponent) extra;
-                            text.setText(replace(locale, text.getText(), replaces));
+                            text.setText(replace(locale, ComponentUtils.getText(text), replaces));
                         }
                     }
                 }
@@ -70,38 +87,13 @@ public class BukkitMessageStorage implements MessageStorage {
 
             return components;
         } else {
-            throw new NullPointerException("Couldn't find the message id '" + id + "' at language named '" + getName() + "' from plugin '" + getPlugin() + "'");
+            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "'");
         }
-    }
-
-    private @NotNull String replace(@NotNull Locale locale, @NotNull String string, @NotNull Object... replaces) {
-        for (Object replace : replaces) {
-            if (!string.contains("%s")) {
-                break;
-            }
-
-            String index;
-
-            if (replace instanceof Message) {
-                index = BukkitMessageStorage.mergeBaseComponents(((Message) replace).get(locale)).toLegacyText();
-            } else if (replace instanceof BaseComponent) {
-                index = ((BaseComponent) replace).toLegacyText();
-            } else {
-                index = String.valueOf(replace);
-            }
-
-            string = string.replaceFirst("%s", index);
-        }
-        return string;
     }
 
     @Override
-    public @NotNull Locale getDefaultLocale() {
-        return defaultLocale;
-    }
-
-    public @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> getComponents() {
-        return components;
+    public @NotNull IBungeeMessage get(@NotNull String id, @NotNull Message... replaces) {
+        return new BungeeMessage(this, id, replaces);
     }
 
     @Override
@@ -115,7 +107,8 @@ public class BukkitMessageStorage implements MessageStorage {
     }
 
     @Override
-    public void unload() {
+    public @NotNull Locale getDefaultLocale() {
+        return defaultLocale;
     }
 
     @Override
@@ -124,18 +117,20 @@ public class BukkitMessageStorage implements MessageStorage {
             // Data
             JsonObject data = new JsonObject();
             data.addProperty("Default locale", getDefaultLocale().getCode());
-            data.addProperty("Plugin", getPlugin().getName());
+            data.addProperty("Plugin", getPlugin().getDescription().getName());
             data.addProperty("Name", getName());
             // Components
             JsonObject components = new JsonObject();
-            for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getComponents().entrySet()) {
+            for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getData().entrySet()) {
                 JsonObject localizedComponents = new JsonObject();
+
                 for (Map.Entry<Locale, @NotNull BaseComponent[]> entry2 : entry.getValue().entrySet()) {
-                    String message = ComponentSerializer.toString(entry2.getValue());
+                    String message = ComponentUtils.serialize(entry2.getValue()).toString();
                     if (message != null) {
                         localizedComponents.addProperty(entry2.getKey().name(), message);
                     }
                 }
+
                 components.add(entry.getKey(), localizedComponents);
             }
             data.add("Components", components);
@@ -145,11 +140,11 @@ public class BukkitMessageStorage implements MessageStorage {
             // Serialized Data
             return new SerializedData(data, 0, new MethodSupplier(method));
         } catch (Throwable e) {
-            throw new RuntimeException("BukkitMessage serialization", e);
+            throw new RuntimeException("BungeeMessageStorage serialization", e);
         }
     }
 
-    public static @NotNull BukkitMessageStorage deserialize(@NotNull SerializedData serializedData) {
+    public static @NotNull BungeeMessageStorage deserialize(@NotNull SerializedData serializedData) {
         if (serializedData.getVersion() == 0) {
             JsonObject data = serializedData.getData().getAsJsonObject();
 
@@ -157,7 +152,7 @@ public class BukkitMessageStorage implements MessageStorage {
             String name = data.get("Name").getAsString();
             String pluginName = data.get("Plugin").getAsString();
 
-            Plugin plugin = Bukkit.getPluginManager().getPlugin(pluginName);
+            Plugin plugin = ProxyServer.getInstance().getPluginManager().getPlugin(pluginName);
             if (plugin == null) {
                 throw new NullPointerException("Couldn't find the plugin '" + pluginName + "'");
             }
@@ -181,18 +176,39 @@ public class BukkitMessageStorage implements MessageStorage {
                 components.put(key, localizedComponents);
             }
 
-            return new BukkitMessageStorage(defaultLocale, components, name, plugin);
+            return new BungeeMessageStorage(plugin, name, defaultLocale, components);
         } else {
             throw new IllegalArgumentException("This SerializedData version '" + serializedData.getVersion() + "' isn't compatible with this deserializator");
         }
     }
 
-    public static @NotNull TextComponent mergeBaseComponents(BaseComponent[] components) {
-        TextComponent mergedComponent = new TextComponent("");
-        for (BaseComponent component : components) {
-            mergedComponent.addExtra(component);
-        }
-        return mergedComponent;
+    @Override
+    public void load() {
     }
 
+    @Override
+    public void unload() {
+        getData().clear();
+    }
+
+    @Override
+    public boolean merge(@NotNull MessageStorage from) {
+        boolean changes = false;
+
+        f1:
+        for (Message fromMessage : from.getMessages()) {
+            for (Message toMessage : this.getMessages()) {
+                if (toMessage.getId().equals(fromMessage.getId())) {
+                    continue f1;
+                }
+            }
+
+            this.getData().put(fromMessage.getId(), new LinkedHashMap<Locale, BaseComponent[]>() {{
+                putAll(fromMessage.getData());
+            }});
+            changes = true;
+        }
+
+        return changes;
+    }
 }

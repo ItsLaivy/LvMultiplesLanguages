@@ -1,10 +1,12 @@
-package codes.laivy.mlanguage.api.bukkit;
+package codes.laivy.mlanguage.api.bukkit.natives;
 
+import codes.laivy.mlanguage.api.bukkit.IBukkitMessage;
+import codes.laivy.mlanguage.api.bukkit.IBukkitMessageStorage;
 import codes.laivy.mlanguage.data.MethodSupplier;
 import codes.laivy.mlanguage.data.SerializedData;
-import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
+import codes.laivy.mlanguage.lang.MessageStorage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,27 +14,32 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
-public class BukkitMessage implements Message {
+public class BukkitMessage implements IBukkitMessage {
 
-    private final @NotNull BukkitMessageStorage messageStorage;
+    private final @NotNull IBukkitMessageStorage messageStorage;
     private final @NotNull String id;
-    private final @NotNull BukkitMessage[] replaces;
+    private final @NotNull Message[] replaces;
 
-    public BukkitMessage(@NotNull BukkitMessageStorage messageStorage, @NotNull String id, @NotNull BukkitMessage... replaces) {
+    public BukkitMessage(@NotNull IBukkitMessageStorage messageStorage, @NotNull String id, @NotNull Message... replaces) {
         this.messageStorage = messageStorage;
         this.id = id;
         this.replaces = replaces;
     }
 
     @Override
-    public @NotNull BukkitMessageStorage getStorage() {
+    public @NotNull IBukkitMessageStorage getStorage() {
         return messageStorage;
+    }
+
+    @Override
+    public @NotNull Map<@NotNull Locale, @NotNull BaseComponent[]> getData() {
+        return getStorage().getData().get(getId());
     }
 
     @Override
@@ -41,7 +48,7 @@ public class BukkitMessage implements Message {
     }
 
     @Override
-    public @NotNull BukkitMessage[] getReplaces() {
+    public @NotNull Message[] getReplacements() {
         return replaces;
     }
 
@@ -50,7 +57,7 @@ public class BukkitMessage implements Message {
         try {
             // Data
             JsonArray replaces = new JsonArray();
-            for (@NotNull BukkitMessage replace : getReplaces()) {
+            for (@NotNull Message replace : this.getReplacements()) {
                 replaces.add(replace.serialize().serialize());
             }
 
@@ -85,10 +92,10 @@ public class BukkitMessage implements Message {
                 throw new NullPointerException("Couldn't find the plugin '" + langPlugin + "'");
             }
 
-            MessageStorage messageStorage = multiplesLanguagesBukkit().getApi().getLanguage(langName, plugin);
+            MessageStorage messageStorage = multiplesLanguagesBukkit().getApi().getStorage(plugin, langName);
             if (messageStorage == null) {
                 throw new NullPointerException("Couldn't found the language named '" + langName + "' from plugin '" + langPlugin + "'");
-            } else if (!(messageStorage instanceof BukkitMessageStorage)) {
+            } else if (!(messageStorage instanceof IBukkitMessageStorage)) {
                 throw new IllegalArgumentException("This message storage isn't a bukkit message storage!");
             }
 
@@ -101,7 +108,7 @@ public class BukkitMessage implements Message {
                 row++;
             }
 
-            return new BukkitMessage((BukkitMessageStorage) messageStorage, id, replaces);
+            return new BukkitMessage((IBukkitMessageStorage) messageStorage, id, replaces);
         } else {
             throw new IllegalArgumentException("This SerializedData version '" + serializedData.getVersion() + "' isn't compatible with this deserializator");
         }

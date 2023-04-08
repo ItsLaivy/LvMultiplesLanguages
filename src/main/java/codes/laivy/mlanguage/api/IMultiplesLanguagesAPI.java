@@ -4,18 +4,19 @@ import codes.laivy.mlanguage.api.item.ItemTranslator;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
-import codes.laivy.mlanguage.utils.Platform;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 /**
- * The multiples languages main API
+ * The LvMultiplesLanguages API
+ * @param <P> the plugin class
  */
-public interface IMultiplesLanguagesAPI {
+public interface IMultiplesLanguagesAPI<P> {
 
     /**
      * Loads all languages into the RAM
@@ -37,11 +38,11 @@ public interface IMultiplesLanguagesAPI {
      * The platform running this API
      * @return the platform
      */
-    @NotNull Platform getPlatform();
+    @NotNull P getPlugin();
 
     @NotNull Set<MessageStorage> getStorages();
 
-    default @Nullable MessageStorage getLanguage(@NotNull String name, @NotNull Object plugin) {
+    default @Nullable MessageStorage getStorage(@NotNull P plugin, @NotNull String name) {
         for (MessageStorage messageStorage : getStorages()) {
             if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
                 return messageStorage;
@@ -49,6 +50,16 @@ public interface IMultiplesLanguagesAPI {
         }
         return null;
     }
+
+    /**
+     * Get the language with the values or creates a new one storage with the parameter details if not exists
+     * @param plugin the plugin
+     * @param name the storage name
+     * @param defaultLocale the default storage locale
+     * @param components the components
+     * @return if the message storage with that details doesn't exist it will create a new one. return the existent otherwise
+     */
+    @NotNull MessageStorage create(@NotNull P plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components);
 
     default @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull BaseComponent... replaces) {
         return get(locale, messageStorage, id, (Object[]) replaces);
@@ -59,8 +70,6 @@ public interface IMultiplesLanguagesAPI {
 
     @Nullable Locale getLocale(@NotNull UUID user);
     void setLocale(@NotNull UUID user, @Nullable Locale locale);
-
-    @NotNull Locale getDefaultLocale();
 
     @Nullable ItemTranslator<?, ?> getItemTranslator();
 

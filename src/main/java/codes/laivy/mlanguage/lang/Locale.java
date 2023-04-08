@@ -70,4 +70,16 @@ public enum Locale {
         throw new IllegalArgumentException("Couldn't find a locale with code '" + code + "'");
     }
 
+    public static @NotNull Locale fromJavaLocale(@NotNull java.util.Locale javaLocale) {
+        String language = javaLocale.getLanguage();
+        String country = javaLocale.getCountry();
+        String code = language + "_" + country;
+
+        try {
+            return Locale.valueOf(code.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Couldn't find a locale with code '" + code + "'");
+        }
+    }
+
 }

@@ -19,9 +19,6 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.NetworkManager
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
-import codes.laivy.mlanguage.api.bukkit.reflection.objects.IntegerObjExec;
-import codes.laivy.mlanguage.api.bukkit.reflection.objects.ObjectObjExec;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

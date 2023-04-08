@@ -20,6 +20,7 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.NetworkManager
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +56,7 @@ public class V1_16_R3 extends V1_16_R2 {
     @Override
     public void setCraftItemMetaDisplayName(@NotNull CraftMetaItem item, @NotNull BaseComponent[] name) {
         if (name != null) {
-            getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, ComponentSerializer.toString(name));
+            getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, ComponentUtils.serialize(name).toString());
         } else {
             getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
         }

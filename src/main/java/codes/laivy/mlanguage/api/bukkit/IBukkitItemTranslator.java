@@ -1,4 +1,4 @@
-package codes.laivy.mlanguage.api.bukkit.translator;
+package codes.laivy.mlanguage.api.bukkit;
 
 import codes.laivy.mlanguage.api.item.ItemTranslator;
 import org.bukkit.entity.Player;

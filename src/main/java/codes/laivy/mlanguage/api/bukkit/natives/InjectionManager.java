@@ -1,4 +1,4 @@
-package codes.laivy.mlanguage.api.bukkit;
+package codes.laivy.mlanguage.api.bukkit.natives;
 
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
@@ -7,7 +7,6 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.versions.V1_17_R1;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
 import io.netty.channel.*;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

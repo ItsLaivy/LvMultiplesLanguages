@@ -22,7 +22,9 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnecti
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.utils.ClassUtils;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -116,7 +118,7 @@ public class V1_13_R1 extends V1_12_R1 {
         if (lore != null) {
             List<Object> objects = new LinkedList<>();
             for (BaseComponent component : lore) {
-                objects.add(component.toLegacyText());
+                objects.add(ComponentUtils.getText(component));
             }
 
             getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);

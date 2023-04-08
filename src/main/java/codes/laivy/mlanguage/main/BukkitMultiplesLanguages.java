@@ -1,11 +1,17 @@
 package codes.laivy.mlanguage.main;
 
-import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bukkit.*;
+import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
+import codes.laivy.mlanguage.api.bukkit.IBukkitMultiplesLanguagesAPI;
+import codes.laivy.mlanguage.api.bukkit.events.ItemTranslateEvent;
+import codes.laivy.mlanguage.api.bukkit.natives.BukkitMessage;
+import codes.laivy.mlanguage.api.bukkit.natives.BukkitMessageStorage;
+import codes.laivy.mlanguage.api.bukkit.natives.InjectionManager;
+import codes.laivy.mlanguage.api.bukkit.natives.TranslatableBukkitItem;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagCompound;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.versions.V1_9_R1;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
-import codes.laivy.mlanguage.api.bukkit.InjectionManager;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.Platform;
 import codes.laivy.mlanguage.utils.ReflectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -15,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +32,7 @@ import java.util.Set;
 
 import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
-public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Listener {
+public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Plugin>, Listener {
 
     public static @NotNull BukkitMultiplesLanguages multiplesLanguagesBukkit() {
         return JavaPlugin.getPlugin(BukkitMultiplesLanguages.class);
@@ -39,7 +46,7 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
         getDataFolder().mkdirs();
 
         BukkitItemTranslator translator = new BukkitItemTranslator();
-        this.api = new BukkitMultiplesLanguagesAPI(new InjectionManager(translator), this, translator);
+        this.api = new BukkitMultiplesLanguagesAPI(this, translator, new InjectionManager(translator));
     }
 
     @Override
@@ -47,15 +54,16 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
         return api;
     }
 
-    @Override
-    public void setApi(@NotNull IMultiplesLanguagesAPI api) {
-        if (api instanceof IBukkitMultiplesLanguagesAPI) {
-            if (getApi().isLoaded()) getApi().unload();
-            this.api = (IBukkitMultiplesLanguagesAPI) api;
-            if (isServerLoaded()) api.load();
-        } else {
-            throw new IllegalArgumentException("This API isn't a bukkit API!");
-        }
+    public void setApi(@NotNull IBukkitMultiplesLanguagesAPI api) {
+        if (getApi().isLoaded()) getApi().unload();
+        this.api = api;
+        if (isServerLoaded()) api.load();
+    }
+
+    @EventHandler
+    private void itemChange(@NotNull ItemTranslateEvent e) {
+        e.setName(Objects.requireNonNull(getApi().getStorage(this, "Nome teste")).get("Teste3"));
+        e.setLore(Objects.requireNonNull(getApi().getStorage(this, "Nome teste")).get("Teste3"));
     }
 
     @EventHandler
@@ -65,8 +73,11 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
                 int slot = Integer.parseInt(e.getMessage());
                 EntityPlayer.getEntityPlayer(e.getPlayer()).getConnection().sendPacket(getDefApi().getVersion().createSetSlotPacket(0, slot, -1, codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(new ItemStack(Material.DIAMOND))));
             } catch (NumberFormatException ignore) {
-                if (e.getMessage().equals("get")) {
-                    BukkitMessageStorage storage = (BukkitMessageStorage) Objects.requireNonNull(getApi().getLanguage("Nome teste", this));
+                if (e.getMessage().equals("a")) {
+                    NBTTagCompound compound = codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(e.getPlayer().getItemInHand()).getTag();
+                    Bukkit.broadcastMessage(compound.getValue().toString());
+                } else if (e.getMessage().equals("get")) {
+                    BukkitMessageStorage storage = (BukkitMessageStorage) Objects.requireNonNull(getApi().getStorage(this, "Nome teste"));
 
                     if (ReflectionUtils.isCompatible(V1_9_R1.class)) {
                         e.getPlayer().getInventory().setItem(45, new TranslatableBukkitItem(new org.bukkit.inventory.ItemStack(Material.DIAMOND_PICKAXE), new BukkitMessage(storage, "Teste1"), new BukkitMessage(storage, "Teste2")).getItem());
@@ -102,18 +113,24 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform, Li
 
     @Override
     public void log(@NotNull BaseComponent component) {
-        getServer().getConsoleSender().sendMessage("§8[§6" + getDescription().getName() + "§8]§7" + " " + component.toLegacyText());
+        getServer().getConsoleSender().sendMessage("§8[§6" + getDescription().getName() + "§8]§7" + " " + ComponentUtils.getText(component));
     }
 
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
 
+        // TODO: 07/04/2023 Remake this, reload not supported!
         // On server loads, load the API too
         Bukkit.getScheduler().runTaskLater(this, () -> {
             serverLoaded = true;
             getApi().load();
         }, 1);
+    }
+
+    @Override
+    public void onDisable() {
+        getApi().unload();
     }
 
     private boolean isServerLoaded() {

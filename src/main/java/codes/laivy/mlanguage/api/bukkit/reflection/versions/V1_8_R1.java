@@ -20,10 +20,13 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonElement;
 import io.netty.channel.Channel;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
@@ -573,7 +576,8 @@ public class V1_8_R1 implements Version {
         }
 
         if (name != null) {
-            display.set("Name", new NBTTagString(name.toLegacyText()));
+            // TODO: 07/04/2023 Check
+            display.set("Name", new NBTTagString(ComponentUtils.getText(name)));
         } else {
             display.remove("Name");
         }
@@ -603,7 +607,7 @@ public class V1_8_R1 implements Version {
         if (lore != null) {
             List<NBTBase> loreBase = new LinkedList<>();
             for (BaseComponent line : lore) {
-                loreBase.add(nbtTag(NBTTag.STRING, line.toLegacyText()));
+                loreBase.add(nbtTag(NBTTag.STRING, ComponentUtils.getText(line)));
             }
             display.set("Lore", new NBTTagList(loreBase));
         } else {
@@ -616,7 +620,7 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @NotNull IChatBaseComponent baseComponentToIChatComponent(@NotNull BaseComponent... components) {
-        return new IChatBaseComponent(getMethodExec("ChatSerializer:convertToComponent").invokeStatic(new StringObjExec(ComponentSerializer.toString(components))));
+        return new IChatBaseComponent(getMethodExec("ChatSerializer:convertToComponent").invokeStatic(new StringObjExec(ComponentUtils.serialize(components).toString())));
     }
 
     @Override
@@ -632,7 +636,7 @@ public class V1_8_R1 implements Version {
             ItemMeta meta = itemStack.getItemMeta();
 
             if (name != null) {
-                meta.setDisplayName(name.toLegacyText());
+                meta.setDisplayName(ComponentUtils.getText(name));
             } else {
                 meta.setDisplayName(null);
             }
@@ -650,7 +654,7 @@ public class V1_8_R1 implements Version {
                 if (lore != null) {
                     List<String> loreStr = new LinkedList<>();
                     for (BaseComponent component : lore) {
-                        loreStr.add(component.toLegacyText());
+                        loreStr.add(ComponentUtils.getText(component));
                     }
 
                     meta.setLore(loreStr);

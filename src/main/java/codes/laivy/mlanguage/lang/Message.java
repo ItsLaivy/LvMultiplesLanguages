@@ -5,9 +5,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * The Message class represents a message in a specific language, with a unique ID that allows
@@ -25,6 +23,8 @@ public interface Message {
      */
     @NotNull MessageStorage getStorage();
 
+    @NotNull Map<@NotNull Locale, @NotNull BaseComponent[]> getData();
+
     /**
      * The language message ID of this Message
      * @return the id
@@ -32,25 +32,13 @@ public interface Message {
     @NotNull String getId();
 
     /**
-     * The default replaces of this message
-     * @return the default replaces
-     * @param locale the locale
-     */
-    default @NotNull BaseComponent[] getReplaces(@Nullable Locale locale) {
-        Set<BaseComponent> componentSet = new LinkedHashSet<>();
-        for (Message message : getReplaces()) {
-            componentSet.addAll(Arrays.asList(message.get(locale)));
-        }
-        return componentSet.toArray(new BaseComponent[0]);
-    }
-
-    /**
+     * Note: If the replacement is an instance of Message of BaseComponent it will be automatically translated
      * @return the untranslated version of the replaces
      */
-    @NotNull Message[] getReplaces();
+    @NotNull Object[] getReplacements();
 
     default @NotNull BaseComponent[] get(@Nullable Locale locale, @Nullable Object... replaces) {
-        BaseComponent[] mReplaces = getReplaces(locale);
+        Object[] mReplaces = getReplacements();
         final Object[] finalReplaces = new Object[mReplaces.length + replaces.length];
 
         int row = 0;
@@ -71,5 +59,4 @@ public interface Message {
     }
 
     @NotNull SerializedData serialize();
-
 }

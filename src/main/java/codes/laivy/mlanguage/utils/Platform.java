@@ -7,7 +7,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
-public interface Platform {
+/**
+ * The platform system
+ * @param <P> the plugin class
+ */
+public interface Platform<P> {
 
     /**
      * Returns the plugin data folder (e.g.: "/plugins")
@@ -21,8 +25,7 @@ public interface Platform {
      */
     @NotNull Type getType();
 
-    @NotNull IMultiplesLanguagesAPI getApi();
-    void setApi(@NotNull IMultiplesLanguagesAPI api);
+    @NotNull IMultiplesLanguagesAPI<P> getApi();
 
     void log(@NotNull BaseComponent component);
 
