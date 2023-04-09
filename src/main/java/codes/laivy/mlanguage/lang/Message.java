@@ -51,7 +51,7 @@ public interface Message {
             row++;
         }
 
-        return getStorage().get(locale, getId(), finalReplaces);
+        return getStorage().getText(locale, getId(), finalReplaces);
     }
 
     default @NotNull BaseComponent[] get(@Nullable Locale locale) {

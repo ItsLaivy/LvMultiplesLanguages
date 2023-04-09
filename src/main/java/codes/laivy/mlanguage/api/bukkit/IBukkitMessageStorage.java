@@ -9,6 +9,6 @@ public interface IBukkitMessageStorage extends MessageStorage {
     @NotNull IBukkitMessage[] getMessages();
 
     @Override
-    @NotNull IBukkitMessage get(@NotNull String id, @NotNull Object... replaces);
+    @NotNull IBukkitMessage getMessage(@NotNull String id, @NotNull Object... replaces);
 
 }

@@ -9,7 +9,7 @@ public interface IBungeeMessageStorage extends MessageStorage {
     @NotNull IBungeeMessage[] getMessages();
 
     @Override
-    @NotNull IBungeeMessage get(@NotNull String id, @NotNull Object... replaces);
+    @NotNull IBungeeMessage getMessage(@NotNull String id, @NotNull Object... replaces);
 
 
 

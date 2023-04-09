@@ -48,7 +48,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
     }
 
     @Override
-    public @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
         locale = (locale == null ? getDefaultLocale() : locale);
 
         if (getData().containsKey(id)) {
@@ -87,7 +87,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
     }
 
     @Override
-    public @NotNull IBukkitMessage get(@NotNull String id, @NotNull Object... replaces) {
+    public @NotNull IBukkitMessage getMessage(@NotNull String id, @NotNull Object... replaces) {
         return new BukkitMessage(this, id, replaces);
     }
 

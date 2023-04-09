@@ -10,13 +10,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-public interface IBukkitMultiplesLanguagesAPI extends IMultiplesLanguagesAPI<Plugin> {
+public interface IBukkitMultiplesLanguagesAPI extends IMultiplesLanguagesAPI<Plugin, BaseComponent[]> {
 
     @Override
     @Nullable IBukkitItemTranslator getItemTranslator();
 
     @Override
-    @NotNull IBukkitMessage get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull IBukkitMessage getMessage(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 
     @Override
     @Nullable IBukkitMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name);

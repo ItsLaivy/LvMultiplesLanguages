@@ -4,7 +4,6 @@ import codes.laivy.mlanguage.api.item.ItemTranslator;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +14,9 @@ import java.util.UUID;
 /**
  * The LvMultiplesLanguages API
  * @param <P> the plugin class
+ * @param <C> The component class
  */
-public interface IMultiplesLanguagesAPI<P> {
+public interface IMultiplesLanguagesAPI<P, C> {
 
     /**
      * Loads all languages into the RAM
@@ -52,14 +52,14 @@ public interface IMultiplesLanguagesAPI<P> {
      * @param components the components
      * @return if the message storage with that details doesn't exist it will create a new one. return the existent otherwise
      */
-    @NotNull MessageStorage create(@NotNull P plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components);
+    @NotNull MessageStorage create(@NotNull P plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull C>> components);
 
-    default @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull BaseComponent... replaces) {
-        return get(locale, messageStorage, id, (Object[]) replaces);
+    default @NotNull C get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull C replaces) {
+        return getText(locale, messageStorage, id, (Object[]) replaces);
     }
-    @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull C getText(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 
-    @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull Message getMessage(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 
     @Nullable Locale getLocale(@NotNull UUID user);
     void setLocale(@NotNull UUID user, @Nullable Locale locale);

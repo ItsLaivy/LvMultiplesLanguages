@@ -10,7 +10,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin> {
+public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin, BaseComponent[]> {
 
     public static @NotNull BungeeMultiplesLanguages multiplesLanguagesBungee() {
         return (BungeeMultiplesLanguages) ProxyServer.getInstance().getPluginManager().getPlugin("LvMultiplesLanguages");

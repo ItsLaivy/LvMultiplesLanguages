@@ -54,7 +54,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
     }
 
     @Override
-    public @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
         locale = (locale == null ? getDefaultLocale() : locale);
 
         if (getData().containsKey(id)) {
@@ -93,7 +93,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
     }
 
     @Override
-    public @NotNull IBungeeMessage get(@NotNull String id, @NotNull Object... replaces) {
+    public @NotNull IBungeeMessage getMessage(@NotNull String id, @NotNull Object... replaces) {
         return new BungeeMessage(this, id, replaces);
     }
 

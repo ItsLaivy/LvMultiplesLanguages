@@ -250,12 +250,12 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     }
 
     @Override
-    public @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
-        return messageStorage.get(locale, id, replaces);
+    public @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return messageStorage.getText(locale, id, replaces);
     }
 
     @Override
-    public @NotNull IBukkitMessage get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull IBukkitMessage getMessage(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
         if (!(messageStorage instanceof BukkitMessageStorage)) {
             throw new UnsupportedOperationException("The message storage needs to be an instance of the bukkit message storage");
         }

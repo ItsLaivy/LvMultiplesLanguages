@@ -10,8 +10,9 @@ import java.io.File;
 /**
  * The platform system
  * @param <P> the plugin class
+ * @param <C> The component class
  */
-public interface Platform<P> {
+public interface Platform<P, C> {
 
     /**
      * Returns the plugin data folder (e.g.: "/plugins")
@@ -25,7 +26,7 @@ public interface Platform<P> {
      */
     @NotNull Type getType();
 
-    @NotNull IMultiplesLanguagesAPI<P> getApi();
+    @NotNull IMultiplesLanguagesAPI<P, C> getApi();
 
     void log(@NotNull BaseComponent component);
 

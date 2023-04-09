@@ -32,7 +32,7 @@ import java.util.Set;
 
 import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
 
-public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Plugin>, Listener {
+public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Plugin, BaseComponent[]>, Listener {
 
     public static @NotNull BukkitMultiplesLanguages multiplesLanguagesBukkit() {
         return JavaPlugin.getPlugin(BukkitMultiplesLanguages.class);

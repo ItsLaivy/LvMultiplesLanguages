@@ -10,10 +10,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-public interface IBungeeMultiplesLanguagesAPI extends IMultiplesLanguagesAPI<Plugin> {
+public interface IBungeeMultiplesLanguagesAPI extends IMultiplesLanguagesAPI<Plugin, BaseComponent[]> {
 
     @Override
-    @NotNull IBungeeMessage get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull IBungeeMessage getMessage(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
 
     @Override
     @Nullable IBungeeMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name);
