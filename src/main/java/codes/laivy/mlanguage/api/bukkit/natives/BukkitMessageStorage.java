@@ -2,7 +2,6 @@ package codes.laivy.mlanguage.api.bukkit.natives;
 
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessageStorage;
-import codes.laivy.mlanguage.data.MethodSupplier;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.Locale;
@@ -88,7 +87,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
     }
 
     @Override
-    public @NotNull IBukkitMessage get(@NotNull String id, @NotNull Message... replaces) {
+    public @NotNull IBukkitMessage get(@NotNull String id, @NotNull Object... replaces) {
         return new BukkitMessage(this, id, replaces);
     }
 
@@ -131,7 +130,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
             Method method = getClass().getDeclaredMethod("deserialize", SerializedData.class);
             method.setAccessible(true);
             // Serialized Data
-            return new SerializedData(data, 0, new MethodSupplier(method));
+            return new SerializedData(data, 0, method);
         } catch (Throwable e) {
             throw new RuntimeException("BukkitMessageStorage serialization", e);
         }

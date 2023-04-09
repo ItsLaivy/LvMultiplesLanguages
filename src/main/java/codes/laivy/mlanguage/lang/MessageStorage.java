@@ -1,10 +1,8 @@
 package codes.laivy.mlanguage.lang;
 
-import codes.laivy.mlanguage.api.bukkit.natives.BukkitMessageStorage;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +19,7 @@ public interface MessageStorage {
     }
     @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
 
-    @NotNull Message get(@NotNull String id, @NotNull Message... replaces);
+    @NotNull Message get(@NotNull String id, @NotNull Object... replaces);
 
     @NotNull String getName();
     @NotNull Object getPlugin();

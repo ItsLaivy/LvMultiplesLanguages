@@ -4,6 +4,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class ClassUtils {
 
+    public static boolean isPresent(@NotNull String name) {
+        try {
+            Class.forName(name);
+            return true;
+        } catch (ClassNotFoundException ignore) {
+            return false;
+        }
+    }
+
     public static boolean isInstanceOf(@NotNull Class<?> c1, @NotNull Class<?> c2) {
         if (c1.equals(c2)) {
             return true;

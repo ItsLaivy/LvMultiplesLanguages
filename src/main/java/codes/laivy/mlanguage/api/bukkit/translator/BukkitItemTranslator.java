@@ -95,7 +95,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
             if (tag.contains("NameTranslation")) {
                 JsonObject serializedJson = JsonParser.parseString(Objects.requireNonNull(new NBTTagString(tag.get("NameTranslation").getValue()).getData())).getAsJsonObject();
                 SerializedData data = SerializedData.deserialize(serializedJson);
-                name = data.get(null);
+                name = data.get();
             } else {
                 name = null;
             }
@@ -113,7 +113,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
             if (tag.contains("LoreTranslation")) {
                 JsonObject serializedJson = JsonParser.parseString(Objects.requireNonNull(new NBTTagString(tag.get("LoreTranslation").getValue()).getData())).getAsJsonObject();
                 SerializedData data = SerializedData.deserialize(serializedJson);
-                lore = data.get(null);
+                lore = data.get();
             } else {
                 lore = null;
             }

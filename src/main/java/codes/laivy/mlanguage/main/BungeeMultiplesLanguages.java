@@ -1,7 +1,6 @@
 package codes.laivy.mlanguage.main;
 
 import codes.laivy.mlanguage.api.bungee.BungeeMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bungee.IBungeeMessageStorage;
 import codes.laivy.mlanguage.api.bungee.IBungeeMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.Platform;
@@ -10,8 +9,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin> {
 

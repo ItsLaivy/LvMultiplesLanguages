@@ -2,11 +2,9 @@ package codes.laivy.mlanguage.api.bukkit.natives;
 
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessageStorage;
-import codes.laivy.mlanguage.data.MethodSupplier;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
-import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -83,7 +81,7 @@ public class BukkitMessage implements IBukkitMessage {
             Method method = getClass().getDeclaredMethod("deserialize", SerializedData.class);
             method.setAccessible(true);
             // Serialized Data
-            return new SerializedData(data, 0, new MethodSupplier(method));
+            return new SerializedData(data, 0, method);
         } catch (Throwable e) {
             throw new RuntimeException("BukkitMessage serialization", e);
         }
@@ -102,11 +100,9 @@ public class BukkitMessage implements IBukkitMessage {
                 throw new NullPointerException("Couldn't find the plugin '" + langPlugin + "'");
             }
 
-            MessageStorage messageStorage = multiplesLanguagesBukkit().getApi().getStorage(plugin, langName);
+            IBukkitMessageStorage messageStorage = multiplesLanguagesBukkit().getApi().getStorage(plugin, langName);
             if (messageStorage == null) {
                 throw new NullPointerException("Couldn't found the language named '" + langName + "' from plugin '" + langPlugin + "'");
-            } else if (!(messageStorage instanceof IBukkitMessageStorage)) {
-                throw new IllegalArgumentException("This message storage isn't a bukkit message storage!");
             }
 
             String id = data.get("Id").getAsString();
@@ -118,7 +114,7 @@ public class BukkitMessage implements IBukkitMessage {
                     JsonObject object = replaceElement.getAsJsonObject();
 
                     if (SerializedData.isSerializedData(object)) {
-                        replaces[row] = SerializedData.deserialize(object).get(null);
+                        replaces[row] = SerializedData.deserialize(object).get();
                     } else {
                         replaces[row] = ComponentSerializer.parse(replaceElement.getAsJsonObject().toString());
                     }
@@ -131,7 +127,7 @@ public class BukkitMessage implements IBukkitMessage {
                 row++;
             }
 
-            return new BukkitMessage((IBukkitMessageStorage) messageStorage, id, replaces);
+            return new BukkitMessage(messageStorage, id, replaces);
         } else {
             throw new IllegalArgumentException("This SerializedData version '" + serializedData.getVersion() + "' isn't compatible with this deserializator");
         }

@@ -2,7 +2,6 @@ package codes.laivy.mlanguage.api.bungee.natives;
 
 import codes.laivy.mlanguage.api.bungee.IBungeeMessage;
 import codes.laivy.mlanguage.api.bungee.IBungeeMessageStorage;
-import codes.laivy.mlanguage.data.MethodSupplier;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
@@ -94,7 +93,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
     }
 
     @Override
-    public @NotNull IBungeeMessage get(@NotNull String id, @NotNull Message... replaces) {
+    public @NotNull IBungeeMessage get(@NotNull String id, @NotNull Object... replaces) {
         return new BungeeMessage(this, id, replaces);
     }
 
@@ -137,7 +136,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
             Method method = getClass().getDeclaredMethod("deserialize", SerializedData.class);
             method.setAccessible(true);
             // Serialized Data
-            return new SerializedData(data, 0, new MethodSupplier(method));
+            return new SerializedData(data, 0, method);
         } catch (Throwable e) {
             throw new RuntimeException("BungeeMessageStorage serialization", e);
         }

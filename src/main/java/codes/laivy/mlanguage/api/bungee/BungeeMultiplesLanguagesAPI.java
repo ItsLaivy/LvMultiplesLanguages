@@ -66,7 +66,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                         //noinspection deprecation
                         JsonElement json = new JsonParser().parse(content.toString());
                         if (json.isJsonObject()) {
-                            MessageStorage storage = SerializedData.deserialize(json.getAsJsonObject()).get(null);
+                            MessageStorage storage = SerializedData.deserialize(json.getAsJsonObject()).get();
                             storage.load();
 
                             messageStorages.add(storage);

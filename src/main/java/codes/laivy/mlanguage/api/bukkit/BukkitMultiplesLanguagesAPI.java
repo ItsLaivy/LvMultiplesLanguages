@@ -133,7 +133,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
                         //noinspection deprecation
                         JsonElement json = new JsonParser().parse(content.toString());
                         if (json.isJsonObject()) {
-                            MessageStorage storage = SerializedData.deserialize(json.getAsJsonObject()).get(null);
+                            MessageStorage storage = SerializedData.deserialize(json.getAsJsonObject()).get();
                             storage.load();
 
                             messageStorages.add(storage);
