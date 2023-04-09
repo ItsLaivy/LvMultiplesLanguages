@@ -14,9 +14,6 @@ public interface MessageStorage {
 
     @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull BaseComponent[]>> getData();
 
-    default @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull BaseComponent... replaces) {
-        return get(locale, id, (Object[]) replaces);
-    }
     @NotNull BaseComponent[] get(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
 
     @NotNull Message get(@NotNull String id, @NotNull Object... replaces);
