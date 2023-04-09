@@ -6,7 +6,6 @@ import codes.laivy.mlanguage.api.bukkit.natives.InjectionManager;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
-import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
@@ -227,16 +226,18 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     }
 
     @Override
-    public @NotNull MessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
-        MessageStorage storage = null;
+    public @NotNull IBukkitMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
+        IBukkitMessageStorage storage = null;
 
         for (MessageStorage fs : getStorages()) {
             if (fs.getPlugin().equals(plugin) && fs.getName().equals(name)) {
-                storage = fs;
+                if (fs instanceof IBukkitMessageStorage) {
+                    storage = (IBukkitMessageStorage) fs;
 
-                BukkitMessageStorage temp = new BukkitMessageStorage(plugin, name, defaultLocale, components);
-                if (storage.merge(temp)) {
-                    getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + getPlugin().getName() + "'."));
+                    BukkitMessageStorage temp = new BukkitMessageStorage(plugin, name, defaultLocale, components);
+                    if (storage.merge(temp)) {
+                        getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + getPlugin().getName() + "'."));
+                    }
                 }
             }
         }
@@ -260,6 +261,18 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
         }
 
         return new BukkitMessage((BukkitMessageStorage) messageStorage, id, replaces);
+    }
+
+    @Override
+    public @Nullable IBukkitMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name) {
+        for (MessageStorage messageStorage : getStorages()) {
+            if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
+                if (messageStorage instanceof IBukkitMessageStorage) {
+                    return (IBukkitMessageStorage) messageStorage;
+                }
+            }
+        }
+        return null;
     }
 
     @Override

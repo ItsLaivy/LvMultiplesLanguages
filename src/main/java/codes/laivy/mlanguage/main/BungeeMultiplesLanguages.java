@@ -1,6 +1,8 @@
 package codes.laivy.mlanguage.main;
 
 import codes.laivy.mlanguage.api.bungee.BungeeMultiplesLanguagesAPI;
+import codes.laivy.mlanguage.api.bungee.IBungeeMessageStorage;
+import codes.laivy.mlanguage.api.bungee.IBungeeMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.Platform;
 import net.md_5.bungee.api.ProxyServer;
@@ -17,7 +19,7 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin>
         return (BungeeMultiplesLanguages) ProxyServer.getInstance().getPluginManager().getPlugin("LvMultiplesLanguages");
     }
 
-    private @NotNull BungeeMultiplesLanguagesAPI api;
+    private @NotNull IBungeeMultiplesLanguagesAPI api;
     private boolean serverLoaded = false;
 
     public BungeeMultiplesLanguages() {
@@ -40,10 +42,10 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin>
     }
 
     @Override
-    public @NotNull BungeeMultiplesLanguagesAPI getApi() {
+    public @NotNull IBungeeMultiplesLanguagesAPI getApi() {
         return api;
     }
-    public void setApi(@NotNull BungeeMultiplesLanguagesAPI api) {
+    public void setApi(@NotNull IBungeeMultiplesLanguagesAPI api) {
         if (getApi().isLoaded()) getApi().unload();
         this.api = api;
         if (isServerLoaded()) api.load();

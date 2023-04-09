@@ -12,4 +12,6 @@ public interface IBungeeMessageStorage extends MessageStorage {
     @Override
     @NotNull IBungeeMessage get(@NotNull String id, @NotNull Message... replaces);
 
+
+
 }

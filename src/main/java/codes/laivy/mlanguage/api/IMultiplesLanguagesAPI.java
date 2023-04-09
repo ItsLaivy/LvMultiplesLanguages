@@ -42,14 +42,7 @@ public interface IMultiplesLanguagesAPI<P> {
 
     @NotNull Set<MessageStorage> getStorages();
 
-    default @Nullable MessageStorage getStorage(@NotNull P plugin, @NotNull String name) {
-        for (MessageStorage messageStorage : getStorages()) {
-            if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
-                return messageStorage;
-            }
-        }
-        return null;
-    }
+    @Nullable MessageStorage getStorage(@NotNull P plugin, @NotNull String name);
 
     /**
      * Get the language with the values or creates a new one storage with the parameter details if not exists

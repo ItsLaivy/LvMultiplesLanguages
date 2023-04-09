@@ -11,6 +11,7 @@ import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
@@ -170,9 +171,9 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                     }
 
                     try {
-                        localizedComponents.put(locale, ComponentSerializer.parse(entry2.getValue().getAsString().replace("&", "§")));
+                        localizedComponents.put(locale, ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', entry2.getValue().getAsString())));
                     } catch (JsonSyntaxException ignore) {
-                        // TODO: 08/04/2023 Non
+                        // TODO: 08/04/2023 Non component messages
                         localizedComponents.put(locale, new BaseComponent[] { new TextComponent(entry2.getValue().getAsString().replace("&", "§")) });
                     }
                 }

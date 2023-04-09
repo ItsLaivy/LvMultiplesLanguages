@@ -1,12 +1,10 @@
 package codes.laivy.mlanguage.api.bungee;
 
-import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.bungee.natives.BungeeMessage;
 import codes.laivy.mlanguage.api.bungee.natives.BungeeMessageStorage;
 import codes.laivy.mlanguage.api.item.ItemTranslator;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
-import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.main.BungeeMultiplesLanguages;
 import codes.laivy.mlanguage.utils.FileUtils;
@@ -33,7 +31,7 @@ import java.util.UUID;
 /**
  * The default api of the Bungee LvMultiplesLanguages
  */
-public class BungeeMultiplesLanguagesAPI implements IMultiplesLanguagesAPI<Plugin> {
+public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI {
 
     private final @NotNull BungeeMultiplesLanguages plugin;
     private @Nullable Set<MessageStorage> messageStorages;
@@ -152,16 +150,30 @@ public class BungeeMultiplesLanguagesAPI implements IMultiplesLanguagesAPI<Plugi
     }
 
     @Override
-    public @NotNull MessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
-        MessageStorage storage = null;
+    public @Nullable IBungeeMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name) {
+        for (MessageStorage messageStorage : getStorages()) {
+            if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
+                if (messageStorage instanceof IBungeeMessageStorage) {
+                    return (IBungeeMessageStorage) messageStorage;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public @NotNull IBungeeMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
+        IBungeeMessageStorage storage = null;
 
         for (MessageStorage fs : getStorages()) {
             if (fs.getPlugin().equals(plugin) && fs.getName().equals(name)) {
-                storage = fs;
+                if (fs instanceof IBungeeMessageStorage) {
+                    storage = (IBungeeMessageStorage) fs;
 
-                IBungeeMessageStorage temp = new BungeeMessageStorage(plugin, name, defaultLocale, components);
-                if (storage.merge(temp)) {
-                    getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + getPlugin().getDescription().getName() + "'."));
+                    IBungeeMessageStorage temp = new BungeeMessageStorage(plugin, name, defaultLocale, components);
+                    if (storage.merge(temp)) {
+                        getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + getPlugin().getDescription().getName() + "'."));
+                    }
                 }
             }
         }
@@ -179,14 +191,12 @@ public class BungeeMultiplesLanguagesAPI implements IMultiplesLanguagesAPI<Plugi
     }
 
     @Override
-    public @NotNull Message get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull IBungeeMessage get(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
         if (!(messageStorage instanceof BungeeMessageStorage)) {
             throw new UnsupportedOperationException("The message storage needs to be an instance of the bungee message storage");
-        } else if (!(replaces instanceof BungeeMessage[])) {
-            throw new UnsupportedOperationException("The messages replaces array needs to be an instance of the bungee message array");
         }
 
-        return new BungeeMessage((BungeeMessageStorage) messageStorage, id, (BungeeMessage[]) replaces);
+        return new BungeeMessage((BungeeMessageStorage) messageStorage, id, replaces);
     }
 
     @Override
