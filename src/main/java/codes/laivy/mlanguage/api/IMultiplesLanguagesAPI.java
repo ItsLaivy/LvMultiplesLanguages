@@ -54,7 +54,7 @@ public interface IMultiplesLanguagesAPI<P, C> {
      */
     @NotNull MessageStorage create(@NotNull P plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull C>> components);
 
-    default @NotNull C get(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull C replaces) {
+    default @NotNull C getText(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull C replaces) {
         return getText(locale, messageStorage, id, (Object[]) replaces);
     }
     @NotNull C getText(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
