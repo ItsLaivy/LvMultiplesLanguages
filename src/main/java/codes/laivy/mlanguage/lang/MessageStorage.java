@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * The message storage stores all the messages and translations
@@ -18,6 +19,7 @@ public interface MessageStorage<C> {
     @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull C[]>> getData();
 
     @NotNull C[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
+    @NotNull C[] getText(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces);
 
     @NotNull Message<C> getMessage(@NotNull String id, @NotNull Object... replaces);
 

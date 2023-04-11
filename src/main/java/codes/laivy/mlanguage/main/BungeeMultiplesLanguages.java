@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.main;
 
+import codes.laivy.mlanguage.LvMultiplesLanguages;
 import codes.laivy.mlanguage.api.bungee.BungeeMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.bungee.IBungeeMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.utils.ComponentUtils;
@@ -18,14 +19,13 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, P
         return (BungeeMultiplesLanguages) ProxyServer.getInstance().getPluginManager().getPlugin("LvMultiplesLanguages");
     }
 
-    private @NotNull IBungeeMultiplesLanguagesAPI api;
     private boolean serverLoaded = false;
 
     public BungeeMultiplesLanguages() {
         //noinspection ResultOfMethodCallIgnored
         getDataFolder().mkdirs();
 
-        this.api = new BungeeMultiplesLanguagesAPI(this);
+        LvMultiplesLanguages.setApi(new BungeeMultiplesLanguagesAPI(this));
     }
 
     @Override
@@ -42,12 +42,18 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, P
 
     @Override
     public @NotNull IBungeeMultiplesLanguagesAPI getApi() {
-        return api;
+        if (LvMultiplesLanguages.getApi() == null) {
+            throw new UnsupportedOperationException("The API isn't inicialized yet");
+        } else if (!(LvMultiplesLanguages.getApi() instanceof IBungeeMultiplesLanguagesAPI)) {
+            throw new UnsupportedOperationException("This API type isn't valid");
+        }
+        return (IBungeeMultiplesLanguagesAPI) LvMultiplesLanguages.getApi();
     }
+
     public void setApi(@NotNull IBungeeMultiplesLanguagesAPI api) {
         if (api != getApi()) {
             if (getApi().isLoaded()) getApi().unload();
-            this.api = api;
+            LvMultiplesLanguages.setApi(api);
             if (!getApi().isLoaded() && isServerLoaded()) api.load();
         }
     }

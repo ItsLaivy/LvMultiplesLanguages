@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.main;
 
+import codes.laivy.mlanguage.LvMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.bukkit.natives.InjectionManager;
@@ -22,7 +23,6 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Ite
         return JavaPlugin.getPlugin(BukkitMultiplesLanguages.class);
     }
 
-    private @NotNull IBukkitMultiplesLanguagesAPI api;
     private boolean serverLoaded = false;
 
     public BukkitMultiplesLanguages() {
@@ -30,18 +30,23 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Ite
         getDataFolder().mkdirs();
 
         BukkitItemTranslator translator = new BukkitItemTranslator();
-        this.api = new BukkitMultiplesLanguagesAPI(this, translator, new InjectionManager(translator));
+        LvMultiplesLanguages.setApi(new BukkitMultiplesLanguagesAPI(this, translator, new InjectionManager(translator)));
     }
 
     @Override
     public @NotNull IBukkitMultiplesLanguagesAPI getApi() {
-        return api;
+        if (LvMultiplesLanguages.getApi() == null) {
+            throw new UnsupportedOperationException("The API isn't inicialized yet");
+        } else if (!(LvMultiplesLanguages.getApi() instanceof IBukkitMultiplesLanguagesAPI)) {
+            throw new UnsupportedOperationException("This API type isn't valid");
+        }
+        return (IBukkitMultiplesLanguagesAPI) LvMultiplesLanguages.getApi();
     }
 
     public void setApi(@NotNull IBukkitMultiplesLanguagesAPI api) {
         if (api != getApi()) {
             if (getApi().isLoaded()) getApi().unload();
-            this.api = api;
+            LvMultiplesLanguages.setApi(api);
             if (!getApi().isLoaded() && isServerLoaded()) api.load();
         }
     }

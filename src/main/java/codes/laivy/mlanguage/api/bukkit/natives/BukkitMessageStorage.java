@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.api.bukkit.natives;
 
+import codes.laivy.mlanguage.LvMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessageStorage;
 import codes.laivy.mlanguage.data.SerializedData;
@@ -20,10 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BukkitMessageStorage implements IBukkitMessageStorage {
 
@@ -84,6 +82,14 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
         } else {
             throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "'");
         }
+    }
+
+    @Override
+    public @NotNull BaseComponent[] getText(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces) {
+        if (LvMultiplesLanguages.getApi() != null) {
+            return this.getText(LvMultiplesLanguages.getApi().getLocale(uuid), id, replaces);
+        }
+        throw new NullPointerException("Couldn't find the multiples languages API");
     }
 
     @Override

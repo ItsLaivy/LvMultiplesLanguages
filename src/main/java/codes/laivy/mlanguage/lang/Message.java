@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * The Message class represents a message in a specific language, with a unique ID that allows
@@ -44,6 +45,26 @@ public interface Message<C> {
     @Contract(pure = true)
     @NotNull Object[] getReplacements();
 
+    default @NotNull C[] get(@NotNull UUID uuid, @Nullable Object... replaces) {
+        Object[] mReplaces = getReplacements();
+        final Object[] finalReplaces = new Object[mReplaces.length + replaces.length];
+
+        int row = 0;
+        for (Object replace : mReplaces) {
+            finalReplaces[row] = replace;
+            row++;
+        }
+        for (Object replace : replaces) {
+            finalReplaces[row] = replace;
+            row++;
+        }
+
+        return getStorage().getText(uuid, getId(), finalReplaces);
+    }
+    default @NotNull C[] get(@NotNull UUID uuid) {
+        return this.get(uuid, new Object[0]);
+    }
+
     default @NotNull C[] get(@Nullable Locale locale, @Nullable Object... replaces) {
         Object[] mReplaces = getReplacements();
         final Object[] finalReplaces = new Object[mReplaces.length + replaces.length];
@@ -61,7 +82,6 @@ public interface Message<C> {
         return getStorage().getText(locale, getId(), finalReplaces);
     }
 
-    @Contract(pure = true)
     default @NotNull C[] get(@Nullable Locale locale) {
         return this.get(locale, new Object[0]);
     }

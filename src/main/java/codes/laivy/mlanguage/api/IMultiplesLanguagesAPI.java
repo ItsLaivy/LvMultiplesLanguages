@@ -57,6 +57,10 @@ public interface IMultiplesLanguagesAPI<I, PLUGIN, PLAYER, C> {
 
     @NotNull C[] getText(@Nullable Locale locale, @NotNull MessageStorage<C> messageStorage, @NotNull String id, @NotNull Object... replaces);
 
+    default @NotNull C[] getText(@NotNull UUID uuid, @NotNull MessageStorage<C> messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return getText(getLocale(uuid), messageStorage, id, replaces);
+    }
+
     @NotNull Message<C> getMessage(@NotNull MessageStorage<C> messageStorage, @NotNull String id, @NotNull Object... replaces);
     @NotNull Message<C> getMessage(@NotNull MessageStorage<C> messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces);
 

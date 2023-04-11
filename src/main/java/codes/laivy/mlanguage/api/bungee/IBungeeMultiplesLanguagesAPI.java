@@ -26,4 +26,11 @@ public interface IBungeeMultiplesLanguagesAPI extends IMultiplesLanguagesAPI<Voi
     @Override
     @NotNull IBungeeMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components);
 
+    @Override
+    @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces);
+
+    default @NotNull BaseComponent[] getText(@NotNull ProxiedPlayer player, @NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return getText(player.getUniqueId(), messageStorage, id, replaces);
+    }
+
 }

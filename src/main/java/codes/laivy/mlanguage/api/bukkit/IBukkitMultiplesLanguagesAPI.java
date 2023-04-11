@@ -4,6 +4,7 @@ import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -29,4 +30,8 @@ public interface IBukkitMultiplesLanguagesAPI extends IMultiplesLanguagesAPI<Ite
 
     @Override
     @NotNull IBukkitMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components);
+
+    default @NotNull BaseComponent[] getText(@NotNull OfflinePlayer player, @NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return getText(player.getUniqueId(), messageStorage, id, replaces);
+    }
 }
