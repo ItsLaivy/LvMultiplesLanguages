@@ -9,6 +9,7 @@ import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -175,7 +176,12 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
                         throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
                     }
 
-                    localizedComponents.put(locale, ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', entry2.getValue().getAsString())));
+                    try {
+                        localizedComponents.put(locale, ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', entry2.getValue().getAsString())));
+                    } catch (JsonSyntaxException ignore) {
+                        // TODO: 08/04/2023 Non component messages
+                        localizedComponents.put(locale, new BaseComponent[] { new TextComponent(entry2.getValue().getAsString().replace("&", "§")) });
+                    }
                 }
 
                 components.put(key, localizedComponents);
