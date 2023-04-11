@@ -13,6 +13,7 @@ import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +44,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
     }
 
     @Override
-    public @NotNull ItemStack setTranslatable(@NotNull ItemStack item, @Nullable Message name, @Nullable Message lore) {
+    public @NotNull ItemStack setTranslatable(@NotNull ItemStack item, @Nullable Message<BaseComponent> name, @Nullable Message<BaseComponent> lore) {
         codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack nmsItem = codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(item);
         NBTTagCompound compound = nmsItem.getTag();
 
@@ -87,10 +88,10 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
     }
 
     @Override
-    public @Nullable Message getName(@NotNull ItemStack item) {
+    public @Nullable Message<BaseComponent> getName(@NotNull ItemStack item) {
         if (isTranslatable(item)) {
             @NotNull NBTTagCompound tag = Objects.requireNonNull(getNMSItemStack(item).getTag());
-            final Message name;
+            final Message<BaseComponent> name;
 
             if (tag.contains("NameTranslation")) {
                 JsonObject serializedJson = JsonParser.parseString(Objects.requireNonNull(new NBTTagString(tag.get("NameTranslation").getValue()).getData())).getAsJsonObject();
@@ -105,10 +106,10 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
     }
 
     @Override
-    public @Nullable Message getLore(@NotNull ItemStack item) {
+    public @Nullable Message<BaseComponent> getLore(@NotNull ItemStack item) {
         if (isTranslatable(item)) {
             @NotNull NBTTagCompound tag = Objects.requireNonNull(getNMSItemStack(item).getTag());
-            final Message lore;
+            final Message<BaseComponent> lore;
 
             if (tag.contains("LoreTranslation")) {
                 JsonObject serializedJson = JsonParser.parseString(Objects.requireNonNull(new NBTTagString(tag.get("LoreTranslation").getValue()).getData())).getAsJsonObject();
@@ -127,8 +128,8 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
         if (isTranslatable(item)) {
             @Nullable Locale locale = multiplesLanguagesBukkit().getApi().getLocale(player.getUniqueId());
 
-            @Nullable Message name = getName(item);
-            @Nullable Message lore = getLore(item);
+            @Nullable Message<BaseComponent> name = getName(item);
+            @Nullable Message<BaseComponent> lore = getLore(item);
 
             @Nullable Object[] nameReplaces = new Object[0];
             @Nullable Object[] loreReplaces = new Object[0];
@@ -180,8 +181,8 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
      * @param item the item
      */
     public void reset(@NotNull ItemStack item) {
-        final @Nullable Message name = getName(item);
-        final @Nullable Message lore = getLore(item);
+        final @Nullable Message<BaseComponent> name = getName(item);
+        final @Nullable Message<BaseComponent> lore = getLore(item);
 
         if (name != null) {
             getDefApi().getVersion().setItemBukkitDisplayName(item, ComponentUtils.merge(name.get(name.getStorage().getDefaultLocale())));

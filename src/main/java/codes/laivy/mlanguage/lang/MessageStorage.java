@@ -1,27 +1,30 @@
 package codes.laivy.mlanguage.lang;
 
 import codes.laivy.mlanguage.data.SerializedData;
-import codes.laivy.mlanguage.utils.ComponentUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-public interface MessageStorage {
+/**
+ * The message storage stores all the messages and translations
+ * @param <C> the component type class
+ */
+public interface MessageStorage<C> {
 
-    @NotNull Message[] getMessages();
+    @NotNull Message<C>[] getMessages();
 
-    @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull BaseComponent[]>> getData();
+    @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull C[]>> getData();
 
-    default @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull String id, @NotNull BaseComponent... replaces) {
-        return getText(locale, id, (Object[]) replaces);
-    }
-    @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
+    @NotNull C[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
 
-    @NotNull Message getMessage(@NotNull String id, @NotNull Object... replaces);
+    @NotNull Message<C> getMessage(@NotNull String id, @NotNull Object... replaces);
 
+    @Contract(pure = true)
     @NotNull String getName();
+
+    @Contract(pure = true)
     @NotNull Object getPlugin();
 
     @NotNull Locale getDefaultLocale();
@@ -33,7 +36,7 @@ public interface MessageStorage {
      * @param from the message that will be merged with this
      * @return true if the merge has changes, false otherwise
      */
-    default boolean merge(@NotNull MessageStorage from) {
+    default boolean merge(@NotNull MessageStorage<C> from) {
         throw new UnsupportedOperationException("This message storage doesn't supports merges");
     }
 
@@ -47,25 +50,6 @@ public interface MessageStorage {
      */
     void unload();
 
-    default @NotNull String replace(@NotNull Locale locale, @NotNull String string, @NotNull Object... replaces) {
-        for (Object replace : replaces) {
-            if (!string.contains("%s")) {
-                break;
-            }
-
-            String index;
-
-            if (replace instanceof Message) {
-                index = ComponentUtils.getText(ComponentUtils.merge(((Message) replace).get(locale)));
-            } else if (replace instanceof BaseComponent) {
-                index = ComponentUtils.getText((BaseComponent) replace);
-            } else {
-                index = String.valueOf(replace);
-            }
-
-            string = string.replaceFirst("%s", index);
-        }
-        return string;
-    }
+    @NotNull String replace(@NotNull Locale locale, @NotNull String string, @NotNull Object... replaces);
 
 }

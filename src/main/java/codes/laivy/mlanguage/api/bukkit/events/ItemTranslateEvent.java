@@ -2,6 +2,7 @@ package codes.laivy.mlanguage.api.bukkit.events;
 
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -16,13 +17,13 @@ public class ItemTranslateEvent extends ItemEvent implements Cancellable {
     private final @NotNull Player player;
 
     private @Nullable Locale locale;
-    private @Nullable Message name;
-    private @Nullable Message lore;
+    private @Nullable Message<BaseComponent> name;
+    private @Nullable Message<BaseComponent> lore;
 
     private @Nullable Object[] nameReplaces;
     private @Nullable Object[] loreReplaces;
 
-    public ItemTranslateEvent(boolean async, @NotNull ItemStack item, @NotNull Player player, @Nullable Locale locale, @Nullable Message name, @Nullable Message lore, @Nullable Object[] nameReplaces, @Nullable Object[] loreReplaces) {
+    public ItemTranslateEvent(boolean async, @NotNull ItemStack item, @NotNull Player player, @Nullable Locale locale, @Nullable Message<BaseComponent> name, @Nullable Message<BaseComponent> lore, @Nullable Object[] nameReplaces, @Nullable Object[] loreReplaces) {
         super(async, item);
 
         this.nameReplaces = nameReplaces;
@@ -61,17 +62,17 @@ public class ItemTranslateEvent extends ItemEvent implements Cancellable {
         }
     }
 
-    public @Nullable Message getName() {
+    public @Nullable Message<BaseComponent> getName() {
         return name;
     }
-    public void setName(@Nullable Message name) {
+    public void setName(@Nullable Message<BaseComponent> name) {
         this.name = name;
     }
 
-    public @Nullable Message getLore() {
+    public @Nullable Message<BaseComponent> getLore() {
         return lore;
     }
-    public void setLore(@Nullable Message lore) {
+    public void setLore(@Nullable Message<BaseComponent> lore) {
         this.lore = lore;
     }
 

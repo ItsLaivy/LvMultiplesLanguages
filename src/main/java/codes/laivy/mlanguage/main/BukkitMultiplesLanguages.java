@@ -2,37 +2,21 @@ package codes.laivy.mlanguage.main;
 
 import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bukkit.events.ItemTranslateEvent;
-import codes.laivy.mlanguage.api.bukkit.natives.BukkitMessage;
-import codes.laivy.mlanguage.api.bukkit.natives.BukkitMessageStorage;
 import codes.laivy.mlanguage.api.bukkit.natives.InjectionManager;
-import codes.laivy.mlanguage.api.bukkit.natives.TranslatableBukkitItem;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagCompound;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
-import codes.laivy.mlanguage.api.bukkit.reflection.versions.V1_9_R1;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.Platform;
-import codes.laivy.mlanguage.utils.ReflectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
-
-public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Plugin, BaseComponent[]>, Listener {
+public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<ItemStack, Plugin, Player, BaseComponent>, Listener {
 
     public static @NotNull BukkitMultiplesLanguages multiplesLanguagesBukkit() {
         return JavaPlugin.getPlugin(BukkitMultiplesLanguages.class);
@@ -115,7 +99,7 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Plu
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
 
-        // TODO: 07/04/2023 Remake this, reload not supported!
+        // TODO: 07/04/2023 Improve this, reload not supported!
         // On server loads, load the API too
         Bukkit.getScheduler().runTaskLater(this, () -> {
             serverLoaded = true;
@@ -133,6 +117,7 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Plu
     }
 
     @Override
+    @Contract(pure = true)
     public final @NotNull Type getType() {
         return Type.BUKKIT;
     }

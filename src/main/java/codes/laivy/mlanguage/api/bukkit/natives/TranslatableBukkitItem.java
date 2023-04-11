@@ -3,13 +3,14 @@ package codes.laivy.mlanguage.api.bukkit.natives;
 import codes.laivy.mlanguage.api.bukkit.IBukkitItemTranslator;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessage;
 import codes.laivy.mlanguage.lang.TranslatableItem;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
-public class TranslatableBukkitItem implements TranslatableItem<ItemStack> {
+public class TranslatableBukkitItem implements TranslatableItem<ItemStack, BaseComponent> {
 
     private final @NotNull ItemStack item;
     private final @Nullable IBukkitMessage name;

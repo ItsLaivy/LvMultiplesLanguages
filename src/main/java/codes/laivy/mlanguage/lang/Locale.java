@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.lang;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public enum Locale {
@@ -53,14 +54,17 @@ public enum Locale {
         this.name = name;
     }
 
+    @Contract(pure = true)
     public @NotNull String getCode() {
         return code;
     }
 
+    @Contract(pure = true)
     public @NotNull String getName() {
         return name;
     }
 
+    @Contract(pure = true)
     public static @NotNull Locale getByCode(@NotNull String code) {
         for (Locale locale : values()) {
             if (locale.getCode().equalsIgnoreCase(code)) {
@@ -70,6 +74,7 @@ public enum Locale {
         throw new IllegalArgumentException("Couldn't find a locale with code '" + code + "'");
     }
 
+    @Contract(pure = true)
     public static @NotNull Locale fromJavaLocale(@NotNull java.util.Locale javaLocale) {
         String language = javaLocale.getLanguage();
         String country = javaLocale.getCountry();

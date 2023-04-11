@@ -7,16 +7,17 @@ import codes.laivy.mlanguage.lang.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 /**
  * The LvMultiplesLanguages API
- * @param <P> the plugin class
+ * @param <PLUGIN> the plugin class
  * @param <C> The component class
  */
-public interface IMultiplesLanguagesAPI<P, C> {
+public interface IMultiplesLanguagesAPI<I, PLUGIN, PLAYER, C> {
 
     /**
      * Loads all languages into the RAM
@@ -38,11 +39,11 @@ public interface IMultiplesLanguagesAPI<P, C> {
      * The platform running this API
      * @return the platform
      */
-    @NotNull P getPlugin();
+    @NotNull PLUGIN getPlugin();
 
-    @NotNull Set<MessageStorage> getStorages();
+    @NotNull Set<MessageStorage<C>> getStorages();
 
-    @Nullable MessageStorage getStorage(@NotNull P plugin, @NotNull String name);
+    @Nullable MessageStorage<C> getStorage(@NotNull PLUGIN plugin, @NotNull String name);
 
     /**
      * Get the language with the values or creates a new one storage with the parameter details if not exists
@@ -52,18 +53,16 @@ public interface IMultiplesLanguagesAPI<P, C> {
      * @param components the components
      * @return if the message storage with that details doesn't exist it will create a new one. return the existent otherwise
      */
-    @NotNull MessageStorage create(@NotNull P plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull C>> components);
+    @NotNull MessageStorage<C> create(@NotNull PLUGIN plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull C[]>> components);
 
-    default @NotNull C getText(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull C replaces) {
-        return getText(locale, messageStorage, id, (Object[]) replaces);
-    }
-    @NotNull C getText(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull C[] getText(@Nullable Locale locale, @NotNull MessageStorage<C> messageStorage, @NotNull String id, @NotNull Object... replaces);
 
-    @NotNull Message getMessage(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull Message<C> getMessage(@NotNull MessageStorage<C> messageStorage, @NotNull String id, @NotNull Object... replaces);
+    @NotNull Message<C> getMessage(@NotNull MessageStorage<C> messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces);
 
     @Nullable Locale getLocale(@NotNull UUID user);
     void setLocale(@NotNull UUID user, @Nullable Locale locale);
 
-    @Nullable ItemTranslator<?, ?> getItemTranslator();
+    @Nullable ItemTranslator<I, PLAYER, C> getItemTranslator();
 
 }

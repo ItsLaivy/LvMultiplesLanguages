@@ -14,8 +14,12 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
@@ -26,10 +30,19 @@ public class BukkitMessage implements IBukkitMessage {
     private final @NotNull String id;
     private final @NotNull Object[] replaces;
 
+    private final @NotNull List<Object> prefixes;
+    private final @NotNull List<Object> suffixes;
+
     public BukkitMessage(@NotNull IBukkitMessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        this(messageStorage, id, new LinkedList<>(), new LinkedList<>(), replaces);
+    }
+    public BukkitMessage(@NotNull IBukkitMessageStorage messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces) {
         this.messageStorage = messageStorage;
         this.id = id;
         this.replaces = replaces;
+
+        this.prefixes = prefixes;
+        this.suffixes = suffixes;
     }
 
     @Override
@@ -53,13 +66,26 @@ public class BukkitMessage implements IBukkitMessage {
     }
 
     @Override
+    @Unmodifiable
+    public @NotNull List<@NotNull Object> getPrefixes() {
+        return Collections.unmodifiableList(prefixes);
+    }
+
+    @Override
+    @Unmodifiable
+    public @NotNull List<@NotNull Object> getSufixes() {
+        return Collections.unmodifiableList(suffixes);
+    }
+
+    @Override
     public @NotNull SerializedData serialize() {
         try {
             // Data
             JsonArray replaces = new JsonArray();
             for (@NotNull Object replace : this.getReplacements()) {
                 if (replace instanceof Message) {
-                    replaces.add(((Message) replace).serialize().serialize());
+                    //noinspection unchecked
+                    replaces.add(((Message<BaseComponent>) replace).serialize().serialize());
                 } else if (replace instanceof BaseComponent) {
                     replaces.add(ComponentUtils.serialize(new BaseComponent[] { (BaseComponent) replace }));
                 } else if (replace instanceof BaseComponent[]) {

@@ -6,6 +6,7 @@ import codes.laivy.mlanguage.api.bukkit.natives.InjectionManager;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
@@ -65,7 +66,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     private final @NotNull BukkitMultiplesLanguages plugin;
 
     private final @NotNull BukkitItemTranslator itemTranslator;
-    private @Nullable Set<MessageStorage> messageStorages;
+    private @Nullable Set<MessageStorage<BaseComponent>> messageStorages;
 
     private boolean loaded = false;
 
@@ -133,7 +134,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
                         //noinspection deprecation
                         JsonElement json = new JsonParser().parse(content.toString());
                         if (json.isJsonObject()) {
-                            MessageStorage storage = SerializedData.deserialize(json.getAsJsonObject()).get();
+                            MessageStorage<BaseComponent> storage = SerializedData.deserialize(json.getAsJsonObject()).get();
                             storage.load();
 
                             messageStorages.add(storage);
@@ -171,7 +172,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
         PlayerQuitEvent.getHandlerList().unregister(this);
 
         // Unloading storages
-        for (MessageStorage storage : getStorages()) {
+        for (MessageStorage<BaseComponent> storage : getStorages()) {
             try {
                 File rootFile = new File(getPlugin().getDataFolder(), getPlugin().getName() + File.separator);
                 // Create storage path (if not exists)
@@ -218,7 +219,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     }
 
     @Override
-    public @NotNull Set<MessageStorage> getStorages() {
+    public @NotNull Set<MessageStorage<BaseComponent>> getStorages() {
         if (messageStorages == null) {
             throw new NullPointerException("The API isn't loaded yet");
         }
@@ -229,7 +230,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     public @NotNull IBukkitMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
         IBukkitMessageStorage storage = null;
 
-        for (MessageStorage fs : getStorages()) {
+        for (MessageStorage<BaseComponent> fs : getStorages()) {
             if (fs.getPlugin().equals(plugin) && fs.getName().equals(name)) {
                 if (fs instanceof IBukkitMessageStorage) {
                     storage = (IBukkitMessageStorage) fs;
@@ -250,22 +251,27 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     }
 
     @Override
-    public @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
         return messageStorage.getText(locale, id, replaces);
     }
 
     @Override
-    public @NotNull IBukkitMessage getMessage(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull IBukkitMessage getMessage(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return this.getMessage(messageStorage, id, new LinkedList<>(), new LinkedList<>(), replaces);
+    }
+
+    @Override
+    public @NotNull IBukkitMessage getMessage(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces) {
         if (!(messageStorage instanceof BukkitMessageStorage)) {
             throw new UnsupportedOperationException("The message storage needs to be an instance of the bukkit message storage");
         }
 
-        return new BukkitMessage((BukkitMessageStorage) messageStorage, id, replaces);
+        return new BukkitMessage((BukkitMessageStorage) messageStorage, id, prefixes, suffixes, replaces);
     }
 
     @Override
     public @Nullable IBukkitMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name) {
-        for (MessageStorage messageStorage : getStorages()) {
+        for (MessageStorage<BaseComponent> messageStorage : getStorages()) {
             if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
                 if (messageStorage instanceof IBukkitMessageStorage) {
                     return (IBukkitMessageStorage) messageStorage;

@@ -3,6 +3,7 @@ package codes.laivy.mlanguage.data;
 import codes.laivy.mlanguage.utils.ClassUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -39,6 +40,7 @@ public class SerializedData {
      * The version that this serialized data has created
      * @return the version
      */
+    @Contract(pure = true)
     public int getVersion() {
         return version;
     }
@@ -47,6 +49,7 @@ public class SerializedData {
      * The deserializator method supplier
      * @return the deserializator
      */
+    @Contract(pure = true)
     public @NotNull Method getDeserializator() {
         return deserializator;
     }
@@ -60,6 +63,7 @@ public class SerializedData {
 
         return object;
     }
+    @Contract(pure = true)
     public static @NotNull SerializedData deserialize(@NotNull JsonObject object) {
         try {
             JsonElement data = object.get("Data");
@@ -75,6 +79,7 @@ public class SerializedData {
     /**
      * Converts a "example.package.Class#Method" into a method
      */
+    @Contract(pure = true)
     private static @NotNull Method stringToMethod(@NotNull String str) throws ClassNotFoundException {
         if (str.contains("#")) {
             String className = str.split("#")[0];
@@ -96,6 +101,7 @@ public class SerializedData {
         }
     }
 
+    @Contract(pure = true)
     public static boolean isSerializedData(@NotNull JsonElement element) {
         if (element.isJsonObject()) {
             JsonObject object = element.getAsJsonObject();

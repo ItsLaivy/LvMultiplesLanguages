@@ -1,9 +1,9 @@
 package codes.laivy.mlanguage.api.bukkit;
 
-import codes.laivy.mlanguage.lang.MessageStorage;
+import codes.laivy.mlanguage.api.craftbukkit.CraftBukkitMessageStorage;
 import org.jetbrains.annotations.NotNull;
 
-public interface IBukkitMessageStorage extends MessageStorage {
+public interface IBukkitMessageStorage extends CraftBukkitMessageStorage {
 
     @Override
     @NotNull IBukkitMessage[] getMessages();

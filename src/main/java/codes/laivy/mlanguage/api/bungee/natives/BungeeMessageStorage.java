@@ -196,12 +196,12 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
     }
 
     @Override
-    public boolean merge(@NotNull MessageStorage from) {
+    public boolean merge(@NotNull MessageStorage<BaseComponent> from) {
         boolean changes = false;
 
         f1:
-        for (Message fromMessage : from.getMessages()) {
-            for (Message toMessage : this.getMessages()) {
+        for (Message<BaseComponent> fromMessage : from.getMessages()) {
+            for (Message<BaseComponent> toMessage : this.getMessages()) {
                 if (toMessage.getId().equals(fromMessage.getId())) {
                     continue f1;
                 }

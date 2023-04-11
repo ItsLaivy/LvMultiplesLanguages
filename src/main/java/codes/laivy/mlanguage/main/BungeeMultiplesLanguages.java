@@ -7,10 +7,12 @@ import codes.laivy.mlanguage.utils.Platform;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin, BaseComponent[]> {
+public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, Plugin, ProxiedPlayer, BaseComponent> {
 
     public static @NotNull BungeeMultiplesLanguages multiplesLanguagesBungee() {
         return (BungeeMultiplesLanguages) ProxyServer.getInstance().getPluginManager().getPlugin("LvMultiplesLanguages");
@@ -58,6 +60,7 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin,
     }
 
     @Override
+    @Contract(pure = true)
     public @NotNull Type getType() {
         return Type.BUNGEE;
     }

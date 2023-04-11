@@ -5,6 +5,7 @@ import codes.laivy.mlanguage.api.bungee.natives.BungeeMessageStorage;
 import codes.laivy.mlanguage.api.item.ItemTranslator;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.main.BungeeMultiplesLanguages;
 import codes.laivy.mlanguage.utils.FileUtils;
@@ -23,10 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * The default api of the Bungee LvMultiplesLanguages
@@ -34,7 +32,7 @@ import java.util.UUID;
 public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI {
 
     private final @NotNull BungeeMultiplesLanguages plugin;
-    private @Nullable Set<MessageStorage> messageStorages;
+    private @Nullable Set<MessageStorage<BaseComponent>> messageStorages;
     private boolean loaded = false;
 
     public BungeeMultiplesLanguagesAPI(@NotNull BungeeMultiplesLanguages plugin) {
@@ -66,7 +64,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                         //noinspection deprecation
                         JsonElement json = new JsonParser().parse(content.toString());
                         if (json.isJsonObject()) {
-                            MessageStorage storage = SerializedData.deserialize(json.getAsJsonObject()).get();
+                            MessageStorage<BaseComponent> storage = SerializedData.deserialize(json.getAsJsonObject()).get();
                             storage.load();
 
                             messageStorages.add(storage);
@@ -96,7 +94,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     @Override
     public void unload() {
         // Unloading storages
-        for (MessageStorage storage : getStorages()) {
+        for (MessageStorage<BaseComponent> storage : getStorages()) {
             try {
                 File rootFile = new File(getPlugin().getDataFolder(), getPlugin().getDescription().getName() + File.separator);
                 // Create storage path (if not exists)
@@ -142,7 +140,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     }
 
     @Override
-    public @NotNull Set<MessageStorage> getStorages() {
+    public @NotNull Set<MessageStorage<BaseComponent>> getStorages() {
         if (messageStorages == null) {
             throw new NullPointerException("The API isn't loaded yet");
         }
@@ -151,7 +149,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
     @Override
     public @Nullable IBungeeMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name) {
-        for (MessageStorage messageStorage : getStorages()) {
+        for (MessageStorage<BaseComponent> messageStorage : getStorages()) {
             if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
                 if (messageStorage instanceof IBungeeMessageStorage) {
                     return (IBungeeMessageStorage) messageStorage;
@@ -165,7 +163,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     public @NotNull IBungeeMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
         IBungeeMessageStorage storage = null;
 
-        for (MessageStorage fs : getStorages()) {
+        for (MessageStorage<BaseComponent> fs : getStorages()) {
             if (fs.getPlugin().equals(plugin) && fs.getName().equals(name)) {
                 if (fs instanceof IBungeeMessageStorage) {
                     storage = (IBungeeMessageStorage) fs;
@@ -186,17 +184,22 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     }
 
     @Override
-    public @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
         return messageStorage.getText(locale, id, replaces);
     }
 
     @Override
-    public @NotNull IBungeeMessage getMessage(@NotNull MessageStorage messageStorage, @NotNull String id, @NotNull Object... replaces) {
+    public @NotNull IBungeeMessage getMessage(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return this.getMessage(messageStorage, id, new LinkedList<>(), new LinkedList<>(), replaces);
+    }
+
+    @Override
+    public @NotNull IBungeeMessage getMessage(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces) {
         if (!(messageStorage instanceof BungeeMessageStorage)) {
             throw new UnsupportedOperationException("The message storage needs to be an instance of the bungee message storage");
         }
 
-        return new BungeeMessage((BungeeMessageStorage) messageStorage, id, replaces);
+        return new BungeeMessage((BungeeMessageStorage) messageStorage, id, prefixes, suffixes, replaces);
     }
 
     @Override
@@ -214,7 +217,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     }
 
     @Override
-    public @Nullable ItemTranslator<?, ?> getItemTranslator() {
+    public @Nullable ItemTranslator<Void, ProxiedPlayer, BaseComponent> getItemTranslator() {
         throw new UnsupportedOperationException("This bungee API doesn't support item translations");
     }
 }
