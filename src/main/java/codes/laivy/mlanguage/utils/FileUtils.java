@@ -32,7 +32,7 @@ public class FileUtils {
      */
     public static @NotNull Set<File> listFiles(@NotNull String path) throws IOException {
         Set<File> archives = new LinkedHashSet<>();
-        Path diretorioBase = Paths.get(path);
+        Path baseDir = Paths.get(path);
 
         FileVisitor<Path> fileVisitor = new SimpleFileVisitor<Path>() {
             @Override
@@ -42,7 +42,7 @@ public class FileUtils {
             }
         };
 
-        Files.walkFileTree(diretorioBase, fileVisitor);
+        Files.walkFileTree(baseDir, fileVisitor);
         return archives;
     }
 

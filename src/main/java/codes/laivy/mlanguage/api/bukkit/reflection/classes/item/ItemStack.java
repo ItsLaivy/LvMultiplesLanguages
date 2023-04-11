@@ -41,7 +41,7 @@ public class ItemStack extends ObjectExecutor {
         getDefApi().getVersion().setItemDisplayName(this, name);
     }
 
-    public void setLore(@Nullable BaseComponent[] lore) {
+    public void setLore(@NotNull BaseComponent... lore) {
         getDefApi().getVersion().setItemLore(this, lore);
     }
 

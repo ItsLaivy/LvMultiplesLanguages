@@ -80,7 +80,7 @@ public interface Message<C> {
      * @return the suffixes list
      */
     @Unmodifiable
-    @NotNull List<@NotNull Object> getSufixes();
+    @NotNull List<@NotNull Object> getSuffixes();
 
     @NotNull SerializedData serialize();
 }

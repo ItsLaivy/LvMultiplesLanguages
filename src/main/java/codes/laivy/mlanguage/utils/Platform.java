@@ -25,7 +25,7 @@ public interface Platform<I, PLUGIN, PLAYER, C> {
     @Nullable File getDataFolder();
 
     /**
-     * The plataform {@link Type} of this plugin
+     * The platform {@link Type} of this plugin
      * @return the platform type
      */
     @Contract(pure = true)

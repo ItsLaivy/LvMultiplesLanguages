@@ -5,7 +5,6 @@ import codes.laivy.mlanguage.api.bungee.natives.BungeeMessageStorage;
 import codes.laivy.mlanguage.api.item.ItemTranslator;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Locale;
-import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.main.BungeeMultiplesLanguages;
 import codes.laivy.mlanguage.utils.FileUtils;

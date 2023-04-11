@@ -73,7 +73,7 @@ public class BukkitMessage implements IBukkitMessage {
 
     @Override
     @Unmodifiable
-    public @NotNull List<@NotNull Object> getSufixes() {
+    public @NotNull List<@NotNull Object> getSuffixes() {
         return Collections.unmodifiableList(suffixes);
     }
 

@@ -24,9 +24,7 @@ import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonElement;
 import io.netty.channel.Channel;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
@@ -554,7 +552,7 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @NotNull String getName() {
-        return "V1_8_R1";
+        return getClass().getSimpleName();
     }
 
     @Override
