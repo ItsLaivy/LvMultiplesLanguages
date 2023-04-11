@@ -45,9 +45,11 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, P
         return api;
     }
     public void setApi(@NotNull IBungeeMultiplesLanguagesAPI api) {
-        if (getApi().isLoaded()) getApi().unload();
-        this.api = api;
-        if (isServerLoaded()) api.load();
+        if (api != getApi()) {
+            if (getApi().isLoaded()) getApi().unload();
+            this.api = api;
+            if (!getApi().isLoaded() && isServerLoaded()) api.load();
+        }
     }
 
     private boolean isServerLoaded() {

@@ -39,9 +39,11 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Ite
     }
 
     public void setApi(@NotNull IBukkitMultiplesLanguagesAPI api) {
-        if (getApi().isLoaded()) getApi().unload();
-        this.api = api;
-        if (isServerLoaded()) api.load();
+        if (api != getApi()) {
+            if (getApi().isLoaded()) getApi().unload();
+            this.api = api;
+            if (!getApi().isLoaded() && isServerLoaded()) api.load();
+        }
     }
 
     // TODO: 08/04/2023 Debug only
@@ -103,7 +105,7 @@ public class BukkitMultiplesLanguages extends JavaPlugin implements Platform<Ite
         // On server loads, load the API too
         Bukkit.getScheduler().runTaskLater(this, () -> {
             serverLoaded = true;
-            getApi().load();
+            if (!getApi().isLoaded()) getApi().load();
         }, 1);
     }
 
