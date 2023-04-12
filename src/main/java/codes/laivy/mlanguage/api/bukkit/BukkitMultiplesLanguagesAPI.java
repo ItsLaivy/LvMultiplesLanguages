@@ -81,6 +81,10 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
 
     @Override
     public void load() {
+        if (isLoaded()) {
+            return;
+        }
+
         messageStorages = new LinkedHashSet<>();
         getPlugin().log(new TextComponent("§7Loading default LvMultiplesLanguages API"));
 
@@ -164,6 +168,10 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
 
     @Override
     public void unload() {
+        if (!isLoaded()) {
+            return;
+        }
+
         // Unregistering events
         PlayerGameModeChangeEvent.getHandlerList().unregister(this);
         InventoryOpenEvent.getHandlerList().unregister(this);

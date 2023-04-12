@@ -17,7 +17,6 @@ public class ComponentUtils {
     private ComponentUtils() {
     }
 
-    @ApiStatus.Experimental
     public static @NotNull TextComponent merge(BaseComponent[] components) {
         return new TextComponent(BaseComponent.toLegacyText(components));
     }

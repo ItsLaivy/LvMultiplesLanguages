@@ -40,6 +40,10 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
     @Override
     public void load() {
+        if (isLoaded()) {
+            return;
+        }
+
         messageStorages = new LinkedHashSet<>();
         getPlugin().log(new TextComponent("§7Loading default LvMultiplesLanguages API"));
 
@@ -92,6 +96,10 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
     @Override
     public void unload() {
+        if (!isLoaded()) {
+            return;
+        }
+
         // Unloading storages
         for (MessageStorage<BaseComponent> storage : getStorages()) {
             try {
@@ -205,7 +213,10 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     public @NotNull Locale getLocale(@NotNull UUID user) {
         ProxiedPlayer player = ProxyServer.getInstance().getPlayer(user);
         if (player != null) {
-            return Locale.fromJavaLocale(ProxyServer.getInstance().getPlayer(user).getLocale());
+            java.util.Locale javaLocale = ProxyServer.getInstance().getPlayer(user).getLocale();
+            if (javaLocale != null) {
+                return Locale.fromJavaLocale(ProxyServer.getInstance().getPlayer(user).getLocale());
+            }
         }
         throw new UnsupportedOperationException("This user isn't online");
     }
