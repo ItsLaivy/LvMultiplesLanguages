@@ -65,13 +65,13 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
 
     @Override
     public boolean isArray(@NotNull String id, @Nullable Locale locale) {
-        if (getData().containsKey(id)) {
+        if (components.containsKey(id)) {
             if (locale == null) {
                 locale = getDefaultLocale();
             }
 
-            if (getData().get(id).containsKey(locale)) {
-                return getData().get(id).get(locale).length != 1;
+            if (components.get(id).containsKey(locale)) {
+                return components.get(id).get(locale).length != 1;
             }
         }
         throw new NullPointerException("Couldn't find a component with this id '" + id + "' at this message storage '" + getName() + "' of plugin '" + getPlugin().getDescription().getName() + "'");

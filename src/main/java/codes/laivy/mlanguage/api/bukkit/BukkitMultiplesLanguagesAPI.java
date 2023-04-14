@@ -182,18 +182,19 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
         // Unloading storages
         for (MessageStorage<BaseComponent> storage : getStorages()) {
             try {
-                File rootFile = new File(getPlugin().getDataFolder(), getPlugin().getName() + File.separator);
+                File rootFile = getPlugin().getDataFolder();
                 // Create storage path (if not exists)
                 if (!rootFile.exists() && !rootFile.mkdirs()) {
-                    throw new IllegalStateException("Cannot create storage '" + storage.getName() + "' of the plugin '" + getPlugin().getName() + "' path");
+                    throw new IllegalStateException("Cannot create storage '" + storage.getName() + "' of the plugin '" + getPlugin().getDescription().getName() + "' path");
                 }
+
                 // Create storage file (if not exists)
-                @NotNull File file = new File(rootFile, FileUtils.fileNameTranslate(storage.getName()) + ".json");
+                @NotNull File file = new File(rootFile, ((Plugin) storage.getPlugin()).getDescription().getName() + File.separator + FileUtils.fileNameTranslate(storage.getName()) + ".json");
                 if (!file.exists() && !file.createNewFile()) {
-                    throw new IllegalStateException("Cannot create storage file data '" + getPlugin().getName() + File.separator + rootFile.getParentFile().getName() + "' file of the storage '" + getPlugin().getName() + "' at the plugin '" + storage.getName() + "'");
+                    throw new IllegalStateException("Cannot create storage file data '" + getPlugin().getDescription().getName() + File.separator + rootFile.getParentFile().getName() + "' file of the storage '" + getPlugin().getDescription().getName() + "' at the plugin '" + storage.getName() + "'");
                 }
                 if (!file.exists()) {
-                    throw new NoSuchFileException("Couldn't get the message storage file '" + getPlugin().getName() + File.separator + rootFile.getParentFile().getName() + "'");
+                    throw new NoSuchFileException("Couldn't get the message storage file '" + getPlugin().getDescription().getName() + File.separator + rootFile.getParentFile().getName() + "'");
                 }
                 // Write the serialized data into
                 JsonElement data = storage.serialize().serialize();
@@ -207,7 +208,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
                 storage.unload();
             } catch (Throwable e) {
                 e.printStackTrace();
-                getPlugin().log(new TextComponent("§cCouldn't save message storage called '" + storage.getName() + "' of the plugin '" + getPlugin().getName() + "'"));
+                getPlugin().log(new TextComponent("§cCouldn't save message storage called '" + storage.getName() + "' of the plugin '" + getPlugin().getDescription().getName() + "'"));
             }
         }
         //

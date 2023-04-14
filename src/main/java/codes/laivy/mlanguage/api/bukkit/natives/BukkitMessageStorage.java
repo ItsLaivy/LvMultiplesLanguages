@@ -7,7 +7,6 @@ import codes.laivy.mlanguage.api.bukkit.IBukkitMessageStorage;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.Locale;
-import codes.laivy.mlanguage.lang.MessageArray;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonArray;
@@ -160,16 +159,16 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
 
     @Override
     public boolean isArray(@NotNull String id, @Nullable Locale locale) {
-        if (getData().containsKey(id)) {
+        if (components.containsKey(id)) {
             if (locale == null) {
                 locale = getDefaultLocale();
             }
 
-            if (getData().get(id).containsKey(locale)) {
-                return getData().get(id).get(locale).length != 1;
+            if (components.get(id).containsKey(locale)) {
+                return components.get(id).get(locale).length != 1;
             }
         }
-        throw new NullPointerException("Couldn't find a component with this id '" + id + "' at this message storage '" + getName() + "' of plugin '" + getPlugin().getName() + "'");
+        throw new NullPointerException("Couldn't find a component with this id '" + id + "' at this message storage '" + getName() + "' of plugin '" + getPlugin().getDescription().getName() + "'");
     }
 
     @Override
