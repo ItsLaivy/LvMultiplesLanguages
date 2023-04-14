@@ -5,6 +5,7 @@ import codes.laivy.mlanguage.api.bungee.IBungeeArrayMessage;
 import codes.laivy.mlanguage.api.bungee.IBungeeMessage;
 import codes.laivy.mlanguage.api.bungee.IBungeeMessageStorage;
 import codes.laivy.mlanguage.data.SerializedData;
+import codes.laivy.mlanguage.data.plugin.BungeePluginProperty;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
@@ -29,7 +30,7 @@ import java.util.*;
 
 public class BungeeMessageStorage implements IBungeeMessageStorage {
 
-    private final @NotNull Plugin plugin;
+    private final @NotNull BungeePluginProperty plugin;
     private final @NotNull String name;
     private final @NotNull Locale defaultLocale;
     private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components;
@@ -38,7 +39,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
 
     public BungeeMessageStorage(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components, @NotNull Set<@NotNull String> legaciesTexts) {
         this.legaciesTexts = legaciesTexts;
-        this.plugin = plugin;
+        this.plugin = new BungeePluginProperty(plugin);
         this.name = name;
         this.defaultLocale = defaultLocale;
         this.components = components;
@@ -74,7 +75,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
                 return components.get(id).get(locale).length != 1;
             }
         }
-        throw new NullPointerException("Couldn't find a component with this id '" + id + "' at this message storage '" + getName() + "' of plugin '" + getPlugin().getDescription().getName() + "'");
+        throw new NullPointerException("Couldn't find a component with this id '" + id + "' at this message storage '" + getName() + "' of plugin '" + getPluginProperty().getName() + "'");
     }
 
     @Override
@@ -88,7 +89,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
             } else if (getData().get(id).containsKey(getDefaultLocale())) {
                 components = getData().get(id).get(getDefaultLocale());
             } else {
-                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
+                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
             for (BaseComponent component : components) {
@@ -112,7 +113,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
 
             return components;
         } else {
-            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "'");
+            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty() + "'");
         }
     }
 
@@ -140,7 +141,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
     }
 
     @Override
-    public @NotNull Plugin getPlugin() {
+    public @NotNull BungeePluginProperty getPluginProperty() {
         return plugin;
     }
 
@@ -155,7 +156,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
             // Data
             JsonObject data = new JsonObject();
             data.addProperty("Default locale", getDefaultLocale().getCode());
-            data.addProperty("Plugin", getPlugin().getDescription().getName());
+            data.addProperty("Plugin", getPluginProperty().getName());
             data.addProperty("Name", getName());
             // Components
             JsonObject components = new JsonObject();
@@ -368,7 +369,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
             } else if (getData().get(id).containsKey(getDefaultLocale())) {
                 componentArray = getData().get(id).get(getDefaultLocale());
             } else {
-                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
+                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
             if (!isArray(id, locale)) {
@@ -383,7 +384,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
 
             return components;
         } else {
-            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "'");
+            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty() + "'");
         }
     }
 

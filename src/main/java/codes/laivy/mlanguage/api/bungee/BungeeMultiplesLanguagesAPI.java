@@ -107,16 +107,16 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                 File rootFile = getPlugin().getDataFolder();
                 // Create storage path (if not exists)
                 if (!rootFile.exists() && !rootFile.mkdirs()) {
-                    throw new IllegalStateException("Cannot create storage '" + storage.getName() + "' of the plugin '" + getPlugin().getDescription().getName() + "' path");
+                    throw new IllegalStateException("Cannot create storage '" + storage.getName() + "' of the plugin '" + storage.getPluginProperty().getName() + "' path");
                 }
 
                 // Create storage file (if not exists)
-                @NotNull File file = new File(rootFile, ((Plugin) storage.getPlugin()).getDescription().getName() + File.separator + FileUtils.fileNameTranslate(storage.getName()) + ".json");
+                @NotNull File file = new File(rootFile, storage.getPluginProperty().getName() + File.separator + FileUtils.fileNameTranslate(storage.getName()) + ".json");
                 if (!file.exists() && !file.createNewFile()) {
-                    throw new IllegalStateException("Cannot create storage file data '" + getPlugin().getDescription().getName() + File.separator + rootFile.getParentFile().getName() + "' file of the storage '" + getPlugin().getDescription().getName() + "' at the plugin '" + storage.getName() + "'");
+                    throw new IllegalStateException("Cannot create storage file data '" + storage.getPluginProperty().getName() + File.separator + rootFile.getParentFile().getName() + "' file of the storage '" + storage.getPluginProperty().getName() + "' at the plugin '" + storage.getName() + "'");
                 }
                 if (!file.exists()) {
-                    throw new NoSuchFileException("Couldn't get the message storage file '" + getPlugin().getDescription().getName() + File.separator + rootFile.getParentFile().getName() + "'");
+                    throw new NoSuchFileException("Couldn't get the message storage file '" + storage.getPluginProperty().getName() + File.separator + rootFile.getParentFile().getName() + "'");
                 }
                 // Write the serialized data into
                 JsonElement data = storage.serialize().serialize();
@@ -130,7 +130,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                 storage.unload();
             } catch (Throwable e) {
                 e.printStackTrace();
-                getPlugin().log(new TextComponent("§cCouldn't save message storage called '" + storage.getName() + "' of the plugin '" + getPlugin().getDescription().getName() + "'"));
+                getPlugin().log(new TextComponent("§cCouldn't save message storage called '" + storage.getName() + "' of the plugin '" + storage.getPluginProperty().getName() + "'"));
             }
         }
         // Unload variables
@@ -159,7 +159,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     @Override
     public @Nullable IBungeeMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name) {
         for (MessageStorage<BaseComponent> messageStorage : getStorages()) {
-            if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
+            if (messageStorage.getName().equals(name) && messageStorage.getPluginProperty().getPlugin().equals(plugin)) {
                 if (messageStorage instanceof IBungeeMessageStorage) {
                     return (IBungeeMessageStorage) messageStorage;
                 }
@@ -173,13 +173,13 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
         IBungeeMessageStorage storage = null;
 
         for (MessageStorage<BaseComponent> fs : getStorages()) {
-            if (fs.getPlugin().equals(plugin) && fs.getName().equals(name)) {
+            if (fs.getPluginProperty().getPlugin().equals(plugin) && fs.getName().equals(name)) {
                 if (fs instanceof IBungeeMessageStorage) {
                     storage = (IBungeeMessageStorage) fs;
 
                     IBungeeMessageStorage temp = new BungeeMessageStorage(plugin, name, defaultLocale, components);
                     if (storage.merge(temp)) {
-                        getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + getPlugin().getDescription().getName() + "'."));
+                        getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + storage.getPluginProperty() + "'."));
                     }
                 }
             }

@@ -189,7 +189,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
                 }
 
                 // Create storage file (if not exists)
-                @NotNull File file = new File(rootFile, ((Plugin) storage.getPlugin()).getDescription().getName() + File.separator + FileUtils.fileNameTranslate(storage.getName()) + ".json");
+                @NotNull File file = new File(rootFile, ((Plugin) storage.getPluginProperty()).getDescription().getName() + File.separator + FileUtils.fileNameTranslate(storage.getName()) + ".json");
                 if (!file.exists() && !file.createNewFile()) {
                     throw new IllegalStateException("Cannot create storage file data '" + getPlugin().getDescription().getName() + File.separator + rootFile.getParentFile().getName() + "' file of the storage '" + getPlugin().getDescription().getName() + "' at the plugin '" + storage.getName() + "'");
                 }
@@ -240,7 +240,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
         IBukkitMessageStorage storage = null;
 
         for (MessageStorage<BaseComponent> fs : getStorages()) {
-            if (fs.getPlugin().equals(plugin) && fs.getName().equals(name)) {
+            if (fs.getPluginProperty().getPlugin().equals(plugin) && fs.getName().equals(name)) {
                 if (fs instanceof IBukkitMessageStorage) {
                     storage = (IBukkitMessageStorage) fs;
 
@@ -295,7 +295,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     @Override
     public @Nullable IBukkitMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name) {
         for (MessageStorage<BaseComponent> messageStorage : getStorages()) {
-            if (messageStorage.getName().equals(name) && messageStorage.getPlugin().equals(plugin)) {
+            if (messageStorage.getName().equals(name) && messageStorage.getPluginProperty().getPlugin().equals(plugin)) {
                 if (messageStorage instanceof IBukkitMessageStorage) {
                     return (IBukkitMessageStorage) messageStorage;
                 }

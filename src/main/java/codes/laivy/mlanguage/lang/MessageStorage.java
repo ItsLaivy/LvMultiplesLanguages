@@ -1,6 +1,7 @@
 package codes.laivy.mlanguage.lang;
 
 import codes.laivy.mlanguage.data.SerializedData;
+import codes.laivy.mlanguage.data.plugin.PluginProperty;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +34,7 @@ public interface MessageStorage<C> {
     @NotNull String getName();
 
     @Contract(pure = true)
-    @NotNull Object getPlugin();
+    @NotNull PluginProperty getPluginProperty();
 
     @NotNull Locale getDefaultLocale();
 

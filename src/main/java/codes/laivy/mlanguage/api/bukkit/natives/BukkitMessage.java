@@ -97,7 +97,7 @@ public class BukkitMessage implements IBukkitMessage {
 
             JsonObject language = new JsonObject();
             language.addProperty("Name", getStorage().getName());
-            language.addProperty("Plugin", ((Plugin) getStorage().getPlugin()).getName());
+            language.addProperty("Plugin", ((Plugin) getStorage().getPluginProperty()).getName());
 
             JsonObject data = new JsonObject();
             data.add("Language", language);

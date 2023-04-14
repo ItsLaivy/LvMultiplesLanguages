@@ -5,6 +5,7 @@ import codes.laivy.mlanguage.api.bukkit.IBukkitArrayMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessageStorage;
 import codes.laivy.mlanguage.data.SerializedData;
+import codes.laivy.mlanguage.data.plugin.BukkitPluginProperty;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.MessageStorage;
@@ -31,7 +32,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
     @ApiStatus.Internal
     private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components;
     private final @NotNull String name;
-    private final @NotNull Plugin plugin;
+    private final @NotNull BukkitPluginProperty plugin;
 
     private final @NotNull Locale defaultLocale;
 
@@ -39,7 +40,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
 
     protected BukkitMessageStorage(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components, @NotNull Set<String> legaciesTexts) {
         this.legaciesTexts = legaciesTexts;
-        this.plugin = plugin;
+        this.plugin = new BukkitPluginProperty(plugin);
         this.name = name;
         this.defaultLocale = defaultLocale;
         this.components = components;
@@ -66,7 +67,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
             } else if (getData().get(id).containsKey(getDefaultLocale())) {
                 components = getData().get(id).get(getDefaultLocale());
             } else {
-                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
+                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
             for (BaseComponent component : components) {
@@ -90,7 +91,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
 
             return components;
         } else {
-            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "'");
+            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty() + "'");
         }
     }
 
@@ -115,7 +116,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
             } else if (getData().get(id).containsKey(getDefaultLocale())) {
                 componentArray = getData().get(id).get(getDefaultLocale());
             } else {
-                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
+                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
             if (!isArray(id, locale)) {
@@ -130,7 +131,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
 
             return components;
         } else {
-            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "'");
+            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty() + "'");
         }
     }
 
@@ -168,7 +169,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                 return components.get(id).get(locale).length != 1;
             }
         }
-        throw new NullPointerException("Couldn't find a component with this id '" + id + "' at this message storage '" + getName() + "' of plugin '" + getPlugin().getDescription().getName() + "'");
+        throw new NullPointerException("Couldn't find a component with this id '" + id + "' at this message storage '" + getName() + "' of plugin '" + getPluginProperty().getName() + "'");
     }
 
     @Override
@@ -177,7 +178,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
     }
 
     @Override
-    public @NotNull Plugin getPlugin() {
+    public @NotNull BukkitPluginProperty getPluginProperty() {
         return plugin;
     }
 
@@ -187,7 +188,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
             // Data
             JsonObject data = new JsonObject();
             data.addProperty("Default locale", getDefaultLocale().getCode());
-            data.addProperty("Plugin", getPlugin().getName());
+            data.addProperty("Plugin", getPluginProperty().getName());
             data.addProperty("Name", getName());
             // Components
             JsonObject components = new JsonObject();
