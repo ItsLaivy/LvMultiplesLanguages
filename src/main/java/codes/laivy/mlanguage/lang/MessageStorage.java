@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,10 +19,15 @@ public interface MessageStorage<C> {
 
     @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull C[]>> getData();
 
+    @NotNull List<@NotNull C[]> getTextArray(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
+    @NotNull List<@NotNull C[]> getTextArray(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces);
+
     @NotNull C[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
     @NotNull C[] getText(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces);
 
     @NotNull Message<C> getMessage(@NotNull String id, @NotNull Object... replaces);
+
+    @NotNull MessageArray<C> getMessageArray(@NotNull String id, @NotNull Object... replaces);
 
     @Contract(pure = true)
     @NotNull String getName();
@@ -30,6 +36,12 @@ public interface MessageStorage<C> {
     @NotNull Object getPlugin();
 
     @NotNull Locale getDefaultLocale();
+
+    boolean isArray(@NotNull String id, @Nullable Locale locale);
+
+    default boolean isArray(@NotNull Message<C> message, @Nullable Locale locale) {
+        return isArray(message.getId(), locale);
+    }
 
     @NotNull SerializedData serialize();
 

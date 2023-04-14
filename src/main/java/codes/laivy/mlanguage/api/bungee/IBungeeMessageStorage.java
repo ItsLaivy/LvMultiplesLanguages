@@ -13,6 +13,9 @@ public interface IBungeeMessageStorage extends CraftBukkitMessageStorage {
     @Override
     @NotNull IBungeeMessage getMessage(@NotNull String id, @NotNull Object... replaces);
 
+    @Override
+    @NotNull IBungeeArrayMessage getMessageArray(@NotNull String id, @NotNull Object... replaces);
+
     default @NotNull BaseComponent[] getText(@NotNull ProxiedPlayer player, @NotNull String id, @NotNull Object... replaces) {
         return this.getText(player.getUniqueId(), id, replaces);
     }

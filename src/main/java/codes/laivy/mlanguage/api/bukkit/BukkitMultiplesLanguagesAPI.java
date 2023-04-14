@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.api.bukkit;
 
+import codes.laivy.mlanguage.api.bukkit.natives.BukkitArrayMessage;
 import codes.laivy.mlanguage.api.bukkit.natives.BukkitMessage;
 import codes.laivy.mlanguage.api.bukkit.natives.BukkitMessageStorage;
 import codes.laivy.mlanguage.api.bukkit.natives.InjectionManager;
@@ -234,7 +235,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
     }
 
     @Override
-    public @NotNull IBukkitMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
+    public @NotNull IBukkitMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components) {
         IBukkitMessageStorage storage = null;
 
         for (MessageStorage<BaseComponent> fs : getStorages()) {
@@ -274,6 +275,20 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
         }
 
         return new BukkitMessage((BukkitMessageStorage) messageStorage, id, prefixes, suffixes, replaces);
+    }
+
+    @Override
+    public @NotNull IBukkitArrayMessage getMessageArray(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return this.getMessageArray(messageStorage, id, new LinkedList<>(), new LinkedList<>(), replaces);
+    }
+
+    @Override
+    public @NotNull IBukkitArrayMessage getMessageArray(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces) {
+        if (!(messageStorage instanceof BukkitMessageStorage)) {
+            throw new UnsupportedOperationException("The message storage needs to be an instance of the bukkit message storage");
+        }
+
+        return new BukkitArrayMessage((BukkitMessageStorage) messageStorage, id, prefixes, suffixes, replaces);
     }
 
     @Override

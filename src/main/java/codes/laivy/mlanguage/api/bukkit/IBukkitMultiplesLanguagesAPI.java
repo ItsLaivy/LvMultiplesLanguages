@@ -26,10 +26,15 @@ public interface IBukkitMultiplesLanguagesAPI extends IMultiplesLanguagesAPI<Ite
     @NotNull IBukkitMessage getMessage(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces);
 
     @Override
-    @Nullable IBukkitMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name);
+    @NotNull IBukkitArrayMessage getMessageArray(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces);
 
     @Override
-    @NotNull IBukkitMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components);
+    @NotNull IBukkitArrayMessage getMessageArray(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces);
+
+    @Override
+    @Nullable IBukkitMessageStorage getStorage(@NotNull Plugin plugin, @NotNull String name);
+
+    @NotNull IBukkitMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components);
 
     default @NotNull BaseComponent[] getText(@NotNull OfflinePlayer player, @NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
         return getText(player.getUniqueId(), messageStorage, id, replaces);

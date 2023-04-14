@@ -4,7 +4,6 @@ import com.google.gson.*;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -21,6 +20,9 @@ public class ComponentUtils {
         return new TextComponent(BaseComponent.toLegacyText(components));
     }
 
+    public static @NotNull String serialize(BaseComponent components) {
+        return serialize(new BaseComponent[] { components });
+    }
     public static @NotNull String serialize(BaseComponent[] components) {
         if (components.length == 1) {
             return ComponentSerializer.toString(components[0]);

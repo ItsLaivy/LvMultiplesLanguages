@@ -1,13 +1,16 @@
 package codes.laivy.mlanguage.api.bukkit.natives;
 
 import codes.laivy.mlanguage.LvMultiplesLanguages;
+import codes.laivy.mlanguage.api.bukkit.IBukkitArrayMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessageStorage;
 import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.lang.MessageArray;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.utils.ComponentUtils;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -19,19 +22,24 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.Method;
 import java.util.*;
 
 public class BukkitMessageStorage implements IBukkitMessageStorage {
 
-    private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components;
+    @ApiStatus.Internal
+    private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components;
     private final @NotNull String name;
     private final @NotNull Plugin plugin;
 
     private final @NotNull Locale defaultLocale;
 
-    public BukkitMessageStorage(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
+    private final @NotNull Set<String> legaciesTexts;
+
+    protected BukkitMessageStorage(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components, @NotNull Set<String> legaciesTexts) {
+        this.legaciesTexts = legaciesTexts;
         this.plugin = plugin;
         this.name = name;
         this.defaultLocale = defaultLocale;
@@ -43,6 +51,9 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                 throw new IllegalStateException("Couldn't find the default locale (" + getDefaultLocale().name() + ") translation for message id '" + entry.getKey() + "'");
             }
         }
+    }
+    public BukkitMessageStorage(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components) {
+        this(plugin, name, defaultLocale, components, new LinkedHashSet<>());
     }
 
     @Override
@@ -93,15 +104,74 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
     }
 
     @Override
+    public @NotNull List<@NotNull BaseComponent[]> getTextArray(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+        locale = (locale == null ? getDefaultLocale() : locale);
+
+        if (getData().containsKey(id)) {
+            List<BaseComponent[]> components = new LinkedList<>();
+            BaseComponent[] componentArray;
+
+            if (getData().get(id).containsKey(locale)) {
+                componentArray = getData().get(id).get(locale);
+            } else if (getData().get(id).containsKey(getDefaultLocale())) {
+                componentArray = getData().get(id).get(getDefaultLocale());
+            } else {
+                throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
+            }
+
+            if (!isArray(id, locale)) {
+                throw new UnsupportedOperationException("This text with id '" + id + "' and locale '" + locale.name() + "' isn't an array text, use #getText instead.");
+            }
+
+            for (BaseComponent component : componentArray) {
+                components.add(new BaseComponent[] {
+                        component
+                });
+            }
+
+            return components;
+        } else {
+            throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPlugin() + "'");
+        }
+    }
+
+    @Override
+    public @NotNull List<@NotNull BaseComponent[]> getTextArray(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces) {
+        if (LvMultiplesLanguages.getApi() != null) {
+            return this.getTextArray(LvMultiplesLanguages.getApi().getLocale(uuid), id, replaces);
+        }
+        throw new NullPointerException("Couldn't find the multiples languages API");
+    }
+
+    @Override
     public @NotNull IBukkitMessage getMessage(@NotNull String id, @NotNull Object... replaces) {
         return new BukkitMessage(this, id, replaces);
+    }
+
+    @Override
+    public @NotNull IBukkitArrayMessage getMessageArray(@NotNull String id, @NotNull Object... replaces) {
+        return new BukkitArrayMessage(this, id, replaces);
     }
 
     @Override
     public @NotNull Locale getDefaultLocale() {
         return defaultLocale;
     }
-    
+
+    @Override
+    public boolean isArray(@NotNull String id, @Nullable Locale locale) {
+        if (getData().containsKey(id)) {
+            if (locale == null) {
+                locale = getDefaultLocale();
+            }
+
+            if (getData().get(id).containsKey(locale)) {
+                return getData().get(id).get(locale).length != 1;
+            }
+        }
+        throw new NullPointerException("Couldn't find a component with this id '" + id + "' at this message storage '" + getName() + "' of plugin '" + getPlugin().getName() + "'");
+    }
+
     @Override
     public @NotNull String getName() {
         return name;
@@ -123,13 +193,34 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
             // Components
             JsonObject components = new JsonObject();
             for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getData().entrySet()) {
-                JsonObject localizedComponents = new JsonObject();
+                JsonObject componentObj = new JsonObject();
 
+                String id = entry.getKey();
                 for (Map.Entry<Locale, @NotNull BaseComponent[]> entry2 : entry.getValue().entrySet()) {
-                    localizedComponents.addProperty(entry2.getKey().name(), ComponentUtils.serialize(entry2.getValue()));
+                    Locale locale = entry2.getKey();
+                    BaseComponent[] component = entry2.getValue();
+
+                    if (isArray(id, locale)) { // Is array
+                        JsonArray array = new JsonArray();
+                        for (BaseComponent line : component) {
+                            if (isLegacyText(id, locale)) {
+                                array.add(line.toLegacyText());
+                            } else {
+                                array.add(ComponentUtils.serialize(line));
+                            }
+                        }
+                        componentObj.add(locale.name(), array);
+                    } else { // Not array
+                        if (isLegacyText(id, locale)) {
+                            componentObj.addProperty(locale.name(), TextComponent.toLegacyText(component));
+                        } else {
+                            componentObj.addProperty(locale.name(), ComponentUtils.serialize(component));
+                        }
+                    }
+
                 }
 
-                components.add(entry.getKey(), localizedComponents);
+                components.add(entry.getKey(), componentObj);
             }
             data.add("Components", components);
             // Method serialization
@@ -162,10 +253,11 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                 throw new NullPointerException("Couldn't find the plugin '" + pluginName + "'");
             }
 
-            @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components = new LinkedHashMap<>();
+            Set<String> legaciesTexts = new LinkedHashSet<>();
+            @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components = new LinkedHashMap<>();
             for (Map.Entry<String, JsonElement> entry : data.get("Components").getAsJsonObject().entrySet()) {
                 String key = entry.getKey();
-                Map<Locale, BaseComponent[]> localizedComponents = new LinkedHashMap<>();
+                Map<Locale, BaseComponent[][]> localizedComponents = new LinkedHashMap<>();
 
                 for (Map.Entry<String, JsonElement> entry2 : entry.getValue().getAsJsonObject().entrySet()) {
                     Locale locale;
@@ -175,18 +267,40 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                         throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
                     }
 
-                    try {
-                        localizedComponents.put(locale, ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', entry2.getValue().getAsString())));
-                    } catch (JsonSyntaxException ignore) {
-                        // TODO: 08/04/2023 Non component messages
-                        localizedComponents.put(locale, new BaseComponent[] { new TextComponent(entry2.getValue().getAsString().replace("&", "§")) });
+                    JsonElement component = entry2.getValue();
+                    if (component.isJsonArray()) { // Is array
+                        BaseComponent[][] array = new BaseComponent[component.getAsJsonArray().size()][];
+
+                        int lineRow = 0;
+                        for (JsonElement line : component.getAsJsonArray()) {
+                            try {
+                                array[lineRow] = ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', line.getAsString()));
+                            } catch (JsonSyntaxException ignore) {
+                                array[lineRow] = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', line.getAsString())) };
+                                legaciesTexts.add(key); // Legacy text
+                            }
+                            lineRow++;
+                        }
+
+                        localizedComponents.put(locale, array);
+                    } else { // Not array
+                        try {
+                            localizedComponents.put(locale, new BaseComponent[][] {
+                                    ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', component.getAsString()))
+                            });
+                        } catch (JsonSyntaxException ignore) {
+                            localizedComponents.put(locale, new BaseComponent[][] {
+                                    new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', component.getAsString())) }
+                            });
+                            legaciesTexts.add(key); // Legacy text
+                        }
                     }
                 }
 
                 components.put(key, localizedComponents);
             }
 
-            return new BukkitMessageStorage(plugin, name, defaultLocale, components);
+            return new BukkitMessageStorage(plugin, name, defaultLocale, components, legaciesTexts);
         } else {
             throw new IllegalArgumentException("This SerializedData version '" + serializedData.getVersion() + "' isn't compatible with this deserializator");
         }
@@ -204,8 +318,32 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                 }
             }
 
-            this.getData().put(fromMessage.getId(), new LinkedHashMap<Locale, BaseComponent[]>() {{
-                putAll(fromMessage.getData());
+            String id = fromMessage.getId();
+
+            components.put(id, new LinkedHashMap<Locale, BaseComponent[][]>() {{
+                for (Locale locale : fromMessage.getLocales()) {
+                    if (fromMessage.isArray(locale)) {
+                        Set<BaseComponent> lines = new LinkedHashSet<>(Arrays.asList(fromMessage.get(locale)));
+
+                        components.put(id, new LinkedHashMap<Locale, BaseComponent[][]>() {{
+                            BaseComponent[][] componentArray = new BaseComponent[lines.size()][lines.size()];
+
+                            int row = 0;
+                            for (BaseComponent component : lines) {
+                                componentArray[row] = new BaseComponent[] { component };
+                                row++;
+                            }
+
+                            put(locale, componentArray);
+                        }});
+                    } else {
+                        components.put(id, new LinkedHashMap<Locale, BaseComponent[][]>() {{
+                            put(locale, new BaseComponent[][] {
+                                    fromMessage.get(locale)
+                            });
+                        }});
+                    }
+                }
             }});
             changes = true;
         }
@@ -230,8 +368,53 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
         return bukkitMessageSet.toArray(new IBukkitMessage[0]);
     }
 
+    /**
+     * Retrieves the data associated with the current object.
+     *
+     * @return The data associated with the current object.
+     */
     @Override
+    @Unmodifiable
     public @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull BaseComponent[]>> getData() {
-        return new LinkedHashMap<>(components);
+        Map<String, Map<Locale, BaseComponent[]>> map = new LinkedHashMap<>();
+
+        for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> entry : components.entrySet()) {
+            for (Map.Entry<Locale, @NotNull BaseComponent[][]> entry2 : entry.getValue().entrySet()) {
+                map.put(entry.getKey(), new LinkedHashMap<Locale, BaseComponent[]>() {{
+                    String id = entry.getKey();
+                    Locale locale = entry2.getKey();
+
+                    if (isArray(id, locale)) {
+                        Set<BaseComponent> components = new LinkedHashSet<>();
+
+                        for (BaseComponent[] componentArray : entry2.getValue()) {
+                            components.add(ComponentUtils.merge(componentArray));
+                        }
+
+                        put(entry2.getKey(), components.toArray(new BaseComponent[0]));
+                    } else {
+                        put(entry2.getKey(), entry2.getValue()[0]);
+                    }
+                }});
+            }
+        }
+
+        return Collections.unmodifiableMap(map);
     }
+
+    @Override
+    public boolean isLegacyText(@NotNull String id, @NotNull Locale locale) {
+        return getLegaciesTexts().contains(id);
+    }
+
+    /**
+     * Retrieves the legacy texts associated with the current object.
+     * A legacy text will be serialized as text, not as a base component json
+     *
+     * @return A list of legacy texts associated with the current object.
+     */
+    public @NotNull Set<@NotNull String> getLegaciesTexts() {
+        return legaciesTexts;
+    }
+
 }

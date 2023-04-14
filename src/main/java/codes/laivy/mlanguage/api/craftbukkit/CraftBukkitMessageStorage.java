@@ -34,4 +34,15 @@ public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent>
         }
         return string;
     }
+
+    /**
+     * Checks if the text is considered as legacy text.
+     * A legacy text will be serialized as text, not as a base component json
+     *
+     * @param id the message id
+     * @param locale the locale
+     * @return {@code true} if the message will be serialized as text, {@code false} otherwise will be serialized as base component
+    **/
+    boolean isLegacyText(@NotNull String id, @NotNull Locale locale);
+
 }

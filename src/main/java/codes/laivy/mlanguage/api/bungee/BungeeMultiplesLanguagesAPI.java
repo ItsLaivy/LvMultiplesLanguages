@@ -1,5 +1,6 @@
 package codes.laivy.mlanguage.api.bungee;
 
+import codes.laivy.mlanguage.api.bungee.natives.BungeeArrayMessage;
 import codes.laivy.mlanguage.api.bungee.natives.BungeeMessage;
 import codes.laivy.mlanguage.api.bungee.natives.BungeeMessageStorage;
 import codes.laivy.mlanguage.api.item.ItemTranslator;
@@ -167,7 +168,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     }
 
     @Override
-    public @NotNull IBungeeMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> components) {
+    public @NotNull IBungeeMessageStorage create(@NotNull Plugin plugin, @NotNull String name, @NotNull Locale defaultLocale, @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components) {
         IBungeeMessageStorage storage = null;
 
         for (MessageStorage<BaseComponent> fs : getStorages()) {
@@ -207,6 +208,19 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
         }
 
         return new BungeeMessage((BungeeMessageStorage) messageStorage, id, prefixes, suffixes, replaces);
+    }
+
+    @Override
+    public @NotNull IBungeeArrayMessage getMessageArray(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull Object... replaces) {
+        return this.getMessageArray(messageStorage, id, new LinkedList<>(), new LinkedList<>(), replaces);
+    }
+
+    @Override
+    public @NotNull IBungeeArrayMessage getMessageArray(@NotNull MessageStorage<BaseComponent> messageStorage, @NotNull String id, @NotNull List<@NotNull Object> prefixes, @NotNull List<@NotNull Object> suffixes, @NotNull Object... replaces) {
+        if (!(messageStorage instanceof BungeeMessageStorage)) {
+            throw new UnsupportedOperationException("The message storage needs to be an instance of the bungee message storage");
+        }
+        return new BungeeArrayMessage((IBungeeMessageStorage) messageStorage, id, prefixes, suffixes, replaces);
     }
 
     @Override
