@@ -104,14 +104,14 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
         // Unloading storages
         for (MessageStorage<BaseComponent> storage : getStorages()) {
             try {
-                File rootFile = getPlugin().getDataFolder();
+                File rootFile = new File(getPlugin().getDataFolder(), storage.getPluginProperty().getName());
                 // Create storage path (if not exists)
                 if (!rootFile.exists() && !rootFile.mkdirs()) {
                     throw new IllegalStateException("Cannot create storage '" + storage.getName() + "' of the plugin '" + storage.getPluginProperty().getName() + "' path");
                 }
 
                 // Create storage file (if not exists)
-                @NotNull File file = new File(rootFile, storage.getPluginProperty().getName() + File.separator + FileUtils.fileNameTranslate(storage.getName()) + ".json");
+                @NotNull File file = new File(rootFile, FileUtils.fileNameTranslate(storage.getName()) + ".json");
                 if (!file.exists() && !file.createNewFile()) {
                     throw new IllegalStateException("Cannot create storage file data '" + storage.getPluginProperty().getName() + File.separator + rootFile.getParentFile().getName() + "' file of the storage '" + storage.getPluginProperty().getName() + "' at the plugin '" + storage.getName() + "'");
                 }

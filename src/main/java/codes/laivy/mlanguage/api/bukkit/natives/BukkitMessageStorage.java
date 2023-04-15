@@ -30,7 +30,7 @@ import java.util.*;
 public class BukkitMessageStorage implements IBukkitMessageStorage {
 
     @ApiStatus.Internal
-    private final @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components;
+    private final @NotNull Map<@NotNull String, @NotNull Map<@NotNull Locale, @NotNull BaseComponent[][]>> components;
     private final @NotNull String name;
     private final @NotNull BukkitPluginProperty plugin;
 
@@ -46,9 +46,9 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
         this.components = components;
 
         // Check if the components have the default locale messages
-        for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[]>> entry : getData().entrySet()) {
-            if (!entry.getValue().containsKey(getDefaultLocale())) {
-                throw new IllegalStateException("Couldn't find the default locale (" + getDefaultLocale().name() + ") translation for message id '" + entry.getKey() + "'");
+        for (String key : getData().keySet()) {
+            if (!getData().get(key).containsKey(getDefaultLocale())) {
+                throw new IllegalStateException("Couldn't find the default locale (" + getDefaultLocale().name() + ") translation for message id '" + key + "'");
             }
         }
     }
@@ -256,8 +256,8 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
             Set<String> legaciesTexts = new LinkedHashSet<>();
             @NotNull Map<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> components = new LinkedHashMap<>();
             for (Map.Entry<String, JsonElement> entry : data.get("Components").getAsJsonObject().entrySet()) {
-                String key = entry.getKey();
                 Map<Locale, BaseComponent[][]> localizedComponents = new LinkedHashMap<>();
+                String key = entry.getKey();
 
                 for (Map.Entry<String, JsonElement> entry2 : entry.getValue().getAsJsonObject().entrySet()) {
                     Locale locale;
@@ -267,33 +267,33 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                         throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
                     }
 
-                    JsonElement component = entry2.getValue();
-                    if (component.isJsonArray()) { // Is array
-                        BaseComponent[][] array = new BaseComponent[component.getAsJsonArray().size()][];
-
-                        int lineRow = 0;
-                        for (JsonElement line : component.getAsJsonArray()) {
-                            try {
-                                array[lineRow] = ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', line.getAsString()));
-                            } catch (JsonSyntaxException ignore) {
-                                array[lineRow] = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', line.getAsString())) };
-                                legaciesTexts.add(key); // Legacy text
+                    JsonElement base = entry2.getValue();
+                    if (base.isJsonArray()) { // Is array
+                        Set<BaseComponent[]> array = new LinkedHashSet<>();
+                        for (JsonElement line : base.getAsJsonArray()) {
+                            if (!(line.getAsString().equals("") || line.isJsonNull())) {
+                                try {
+                                    array.add(ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', line.getAsString())));
+                                    continue;
+                                } catch (JsonSyntaxException ignore) {
+                                }
                             }
-                            lineRow++;
-                        }
 
-                        localizedComponents.put(locale, array);
-                    } else { // Not array
-                        try {
-                            localizedComponents.put(locale, new BaseComponent[][] {
-                                    ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', component.getAsString()))
-                            });
-                        } catch (JsonSyntaxException ignore) {
-                            localizedComponents.put(locale, new BaseComponent[][] {
-                                    new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', component.getAsString())) }
-                            });
+                            String msg = ChatColor.translateAlternateColorCodes('&', line.getAsString());
+
+                            array.add(TextComponent.fromLegacyText(msg));
                             legaciesTexts.add(key); // Legacy text
                         }
+                        localizedComponents.put(locale, array.toArray(new BaseComponent[0][]));
+                    } else { // Not array
+                        Set<BaseComponent[]> array = new LinkedHashSet<>();
+                        try {
+                            array.add(ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', base.getAsString())));
+                        } catch (JsonSyntaxException ignore) {
+                            array.add(new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', base.getAsString())) });
+                            legaciesTexts.add(key); // Legacy text
+                        }
+                        localizedComponents.put(locale, array.toArray(new BaseComponent[0][]));
                     }
                 }
 
@@ -368,35 +368,29 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
         return bukkitMessageSet.toArray(new IBukkitMessage[0]);
     }
 
-    /**
-     * Retrieves the data associated with the current object.
-     *
-     * @return The data associated with the current object.
-     */
     @Override
     @Unmodifiable
     public @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull BaseComponent[]>> getData() {
         Map<String, Map<Locale, BaseComponent[]>> map = new LinkedHashMap<>();
 
-        for (Map.Entry<@NotNull String, Map<Locale, @NotNull BaseComponent[][]>> entry : components.entrySet()) {
-            for (Map.Entry<Locale, @NotNull BaseComponent[][]> entry2 : entry.getValue().entrySet()) {
-                map.put(entry.getKey(), new LinkedHashMap<Locale, BaseComponent[]>() {{
-                    String id = entry.getKey();
-                    Locale locale = entry2.getKey();
+        for (String key : components.keySet()) {
+            map.put(key, new LinkedHashMap<Locale, BaseComponent[]>() {{
+                for (Map.Entry<Locale, @NotNull BaseComponent[][]> entry : components.get(key).entrySet()) {
+                    Locale locale = entry.getKey();
 
-                    if (isArray(id, locale)) {
+                    if (isArray(key, locale)) {
                         Set<BaseComponent> components = new LinkedHashSet<>();
 
-                        for (BaseComponent[] componentArray : entry2.getValue()) {
+                        for (BaseComponent[] componentArray : entry.getValue()) {
                             components.add(ComponentUtils.merge(componentArray));
                         }
 
-                        put(entry2.getKey(), components.toArray(new BaseComponent[0]));
+                        put(entry.getKey(), components.toArray(new BaseComponent[0]));
                     } else {
-                        put(entry2.getKey(), entry2.getValue()[0]);
+                        put(entry.getKey(), entry.getValue()[0]);
                     }
-                }});
-            }
+                }
+            }});
         }
 
         return Collections.unmodifiableMap(map);

@@ -17,7 +17,7 @@ public class ComponentUtils {
     }
 
     public static @NotNull TextComponent merge(BaseComponent[] components) {
-        return new TextComponent(BaseComponent.toLegacyText(components));
+        return new TextComponent(components);
     }
 
     public static @NotNull String serialize(BaseComponent components) {
