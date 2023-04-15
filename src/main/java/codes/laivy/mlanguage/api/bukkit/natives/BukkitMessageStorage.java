@@ -204,7 +204,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                         JsonArray array = new JsonArray();
                         for (BaseComponent line : component) {
                             if (isLegacyText(id, locale)) {
-                                array.add(line.toLegacyText());
+                                array.add(ComponentUtils.getText(line));
                             } else {
                                 array.add(ComponentUtils.serialize(line));
                             }
@@ -212,7 +212,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                         componentObj.add(locale.name(), array);
                     } else { // Not array
                         if (isLegacyText(id, locale)) {
-                            componentObj.addProperty(locale.name(), TextComponent.toLegacyText(component));
+                            componentObj.addProperty(locale.name(), ComponentUtils.getText(component));
                         } else {
                             componentObj.addProperty(locale.name(), ComponentUtils.serialize(component));
                         }

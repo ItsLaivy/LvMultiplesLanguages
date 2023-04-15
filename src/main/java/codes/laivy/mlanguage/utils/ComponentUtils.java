@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 // TODO: 07/04/2023 OOP
@@ -52,7 +53,7 @@ public class ComponentUtils {
             str.append(component.toLegacyText());
         }
 
-        return str.toString();
+        return str.substring(2);
     }
 
     private static @NotNull BaseComponent[] getTextRecursive(@NotNull BaseComponent component) {
