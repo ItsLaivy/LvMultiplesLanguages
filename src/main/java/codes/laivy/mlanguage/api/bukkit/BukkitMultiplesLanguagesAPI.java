@@ -202,7 +202,7 @@ public final class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLangua
                 try (FileOutputStream fileOutputStream = new FileOutputStream(file);
                      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
                      BufferedWriter writer = new BufferedWriter(outputStreamWriter)) {
-                    writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(data));
+                    writer.write(new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(data));
                 }
 
                 storage.unload();
