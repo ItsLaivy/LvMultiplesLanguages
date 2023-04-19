@@ -21,7 +21,7 @@ public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent>
 
             if (replace instanceof Message) {
                 //noinspection unchecked
-                index = ComponentUtils.getText(ComponentUtils.merge(((Message<BaseComponent>) replace).get(locale)));
+                index = ComponentUtils.getText(ComponentUtils.merge(((Message<BaseComponent>) replace).getText(locale)));
             } else if (replace instanceof BaseComponent) {
                 index = ComponentUtils.getText((BaseComponent) replace);
             } else if (replace instanceof BaseComponent[]) {

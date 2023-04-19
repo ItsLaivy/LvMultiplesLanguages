@@ -45,7 +45,7 @@ public interface Message<C> {
     @Contract(pure = true)
     @NotNull Object[] getReplacements();
 
-    default @NotNull C[] get(@NotNull UUID uuid, @NotNull Object... replaces) {
+    default @NotNull C[] getText(@NotNull UUID uuid, @NotNull Object... replaces) {
         Object[] mReplaces = getReplacements();
         final Object[] finalReplaces = new Object[mReplaces.length + replaces.length];
 
@@ -61,11 +61,8 @@ public interface Message<C> {
 
         return getStorage().getText(uuid, getId(), finalReplaces);
     }
-    default @NotNull C[] get(@NotNull UUID uuid) {
-        return this.get(uuid, new Object[0]);
-    }
 
-    default @NotNull C[] get(@Nullable Locale locale, @NotNull Object... replaces) {
+    default @NotNull C[] getText(@Nullable Locale locale, @NotNull Object... replaces) {
         Object[] mReplaces = getReplacements();
         final Object[] finalReplaces = new Object[mReplaces.length + replaces.length];
 
@@ -80,10 +77,6 @@ public interface Message<C> {
         }
 
         return getStorage().getText(locale, getId(), finalReplaces);
-    }
-
-    default @NotNull C[] get(@Nullable Locale locale) {
-        return this.get(locale, new Object[0]);
     }
 
     /**

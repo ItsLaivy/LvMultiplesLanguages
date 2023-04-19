@@ -24,6 +24,7 @@ public interface MessageStorage<C> {
     @NotNull List<@NotNull C[]> getTextArray(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces);
 
     @NotNull C[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
+
     @NotNull C[] getText(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces);
 
     @NotNull Message<C> getMessage(@NotNull String id, @NotNull Object... replaces);

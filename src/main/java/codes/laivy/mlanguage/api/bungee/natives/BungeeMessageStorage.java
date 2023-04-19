@@ -299,7 +299,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
             components.put(id, new LinkedHashMap<Locale, BaseComponent[][]>() {{
                 for (Locale locale : fromMessage.getLocales()) {
                     if (fromMessage.isArray(locale)) {
-                        Set<BaseComponent> lines = new LinkedHashSet<>(Arrays.asList(fromMessage.get(locale)));
+                        Set<BaseComponent> lines = new LinkedHashSet<>(Arrays.asList(fromMessage.getText(locale)));
 
                         components.put(id, new LinkedHashMap<Locale, BaseComponent[][]>() {{
                             BaseComponent[][] componentArray = new BaseComponent[lines.size()][lines.size()];
@@ -315,7 +315,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
                     } else {
                         components.put(id, new LinkedHashMap<Locale, BaseComponent[][]>() {{
                             put(locale, new BaseComponent[][] {
-                                    fromMessage.get(locale)
+                                    fromMessage.getText(locale)
                             });
                         }});
                     }

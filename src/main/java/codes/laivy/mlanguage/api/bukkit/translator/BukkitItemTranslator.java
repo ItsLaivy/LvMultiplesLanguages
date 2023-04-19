@@ -152,7 +152,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getDefApi().getVersion().setItemBukkitDisplayName(
                         item,
-                        ComponentUtils.merge(name.get(
+                        ComponentUtils.merge(name.getText(
                                 nameLocale,
                                 nameReplaces)
                         )
@@ -166,7 +166,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getDefApi().getVersion().setItemBukkitLore(
                         item,
-                        lore.get(loreLocale, loreReplaces)
+                        lore.getText(loreLocale, loreReplaces)
                 );
             } else {
                 getDefApi().getVersion().setItemBukkitLore(item, null);
@@ -185,9 +185,9 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
         final @Nullable Message<BaseComponent> lore = getLore(item);
 
         if (name != null) {
-            getDefApi().getVersion().setItemBukkitDisplayName(item, ComponentUtils.merge(name.get(name.getStorage().getDefaultLocale())));
+            getDefApi().getVersion().setItemBukkitDisplayName(item, ComponentUtils.merge(name.getText(name.getStorage().getDefaultLocale())));
         } if (lore != null) {
-            getDefApi().getVersion().setItemBukkitLore(item, lore.get(lore.getStorage().getDefaultLocale()));
+            getDefApi().getVersion().setItemBukkitLore(item, lore.getText(lore.getStorage().getDefaultLocale()));
         }
     }
 }

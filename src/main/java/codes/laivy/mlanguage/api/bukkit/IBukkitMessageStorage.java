@@ -1,9 +1,14 @@
 package codes.laivy.mlanguage.api.bukkit;
 
 import codes.laivy.mlanguage.api.craftbukkit.CraftBukkitMessageStorage;
+import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public interface IBukkitMessageStorage extends CraftBukkitMessageStorage {
 
@@ -18,5 +23,15 @@ public interface IBukkitMessageStorage extends CraftBukkitMessageStorage {
 
     default @NotNull BaseComponent[] getText(@NotNull OfflinePlayer player, @NotNull String id, @NotNull Object... replaces) {
         return this.getText(player.getUniqueId(), id, replaces);
+    }
+
+    default @NotNull String getLegacyText(@NotNull OfflinePlayer player, @NotNull String id, @NotNull Object... replaces) {
+        return ComponentUtils.getText(this.getText(player.getUniqueId(), id, replaces));
+    }
+    default @NotNull String getLegacyText(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces) {
+        return ComponentUtils.getText(this.getText(uuid, id, replaces));
+    }
+    default @NotNull String getLegacyText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+        return ComponentUtils.getText(this.getText(locale, id, replaces));
     }
 }
