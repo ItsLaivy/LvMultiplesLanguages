@@ -8,6 +8,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface IBungeeMessageStorage extends CraftBukkitMessageStorage {
@@ -20,6 +21,10 @@ public interface IBungeeMessageStorage extends CraftBukkitMessageStorage {
 
     @Override
     @NotNull IBungeeArrayMessage getMessageArray(@NotNull String id, @NotNull Object... replaces);
+
+    default @NotNull List<@NotNull BaseComponent[]> getTextArray(@NotNull ProxiedPlayer player, @NotNull String id, @NotNull Object... replaces) {
+        return this.getTextArray(player.getUniqueId(), id, replaces);
+    }
 
     default @NotNull BaseComponent[] getText(@NotNull ProxiedPlayer player, @NotNull String id, @NotNull Object... replaces) {
         return this.getText(player.getUniqueId(), id, replaces);

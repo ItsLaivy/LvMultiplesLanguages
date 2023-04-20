@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface IBukkitMessageStorage extends CraftBukkitMessageStorage {
@@ -20,6 +21,10 @@ public interface IBukkitMessageStorage extends CraftBukkitMessageStorage {
 
     @Override
     @NotNull IBukkitArrayMessage getMessageArray(@NotNull String id, @NotNull Object... replaces);
+
+    default @NotNull List<@NotNull BaseComponent[]> getTextArray(@NotNull OfflinePlayer player, @NotNull String id, @NotNull Object... replaces) {
+        return this.getTextArray(player.getUniqueId(), id, replaces);
+    }
 
     default @NotNull BaseComponent[] getText(@NotNull OfflinePlayer player, @NotNull String id, @NotNull Object... replaces) {
         return this.getText(player.getUniqueId(), id, replaces);

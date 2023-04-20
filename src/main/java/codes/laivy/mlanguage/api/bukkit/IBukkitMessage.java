@@ -15,10 +15,6 @@ public interface IBukkitMessage extends Message<BaseComponent> {
     @NotNull IBukkitMessageStorage getStorage();
 
     @NotNull
-    default BaseComponent[] getText(@NotNull OfflinePlayer proxiedPlayer) {
-        return this.getText(proxiedPlayer, new Object[0]);
-    }
-    @NotNull
     default BaseComponent[] getText(@NotNull OfflinePlayer proxiedPlayer, @NotNull Object... replaces) {
         return Message.super.getText(proxiedPlayer.getUniqueId(), replaces);
     }
