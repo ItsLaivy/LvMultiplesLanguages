@@ -72,7 +72,7 @@ public class SerializedData {
 
             return new SerializedData(data, version, supplier);
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Cannot deserialize '" + object + "'", e);
         }
     }
 

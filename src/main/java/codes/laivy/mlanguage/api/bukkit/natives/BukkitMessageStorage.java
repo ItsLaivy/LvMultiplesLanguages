@@ -5,15 +5,15 @@ import codes.laivy.mlanguage.api.bukkit.IBukkitArrayMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMessageStorage;
 import codes.laivy.mlanguage.data.SerializedData;
-import codes.laivy.mlanguage.data.plugin.BukkitPluginProperty;
+import codes.laivy.mlanguage.plugin.BukkitPluginProperty;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.utils.ComponentUtils;
+import codes.laivy.mlanguage.utils.JsonUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -269,30 +269,30 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
 
                     JsonElement base = entry2.getValue();
                     if (base.isJsonArray()) { // Is array
-                        Set<BaseComponent[]> array = new LinkedHashSet<>();
+                        List<BaseComponent[]> array = new LinkedList<>();
                         for (JsonElement line : base.getAsJsonArray()) {
-                            if (!(line.getAsString().equals("") || line.isJsonNull())) {
-                                try {
-                                    array.add(ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', line.getAsString())));
-                                    continue;
-                                } catch (JsonSyntaxException ignore) {
-                                }
+                            String jsonStr = ChatColor.translateAlternateColorCodes('&', line.getAsString());
+
+                            if (!(line.isJsonNull() || jsonStr.equals("")) && JsonUtils.isJson(jsonStr)) { // Check if is array text
+                                array.add(ComponentSerializer.parse(jsonStr));
+                                continue;
                             }
 
-                            String msg = ChatColor.translateAlternateColorCodes('&', line.getAsString());
-
-                            array.add(TextComponent.fromLegacyText(msg));
+                            array.add(new BaseComponent[] { new TextComponent(jsonStr) });
                             legaciesTexts.add(key); // Legacy text
                         }
                         localizedComponents.put(locale, array.toArray(new BaseComponent[0][]));
                     } else { // Not array
-                        Set<BaseComponent[]> array = new LinkedHashSet<>();
-                        try {
-                            array.add(ComponentSerializer.parse(ChatColor.translateAlternateColorCodes('&', base.getAsString())));
-                        } catch (JsonSyntaxException ignore) {
-                            array.add(new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', base.getAsString())) });
+                        List<BaseComponent[]> array = new LinkedList<>();
+
+                        String jsonStr = ChatColor.translateAlternateColorCodes('&', base.getAsString());
+                        if (JsonUtils.isJson(jsonStr)) {
+                            array.add(ComponentSerializer.parse(jsonStr));
+                        } else {
+                            array.add(new BaseComponent[] { new TextComponent(base.getAsString()) });
                             legaciesTexts.add(key); // Legacy text
                         }
+
                         localizedComponents.put(locale, array.toArray(new BaseComponent[0][]));
                     }
                 }

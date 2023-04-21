@@ -1,4 +1,4 @@
-package codes.laivy.mlanguage.data.plugin;
+package codes.laivy.mlanguage.plugin;
 
 import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;

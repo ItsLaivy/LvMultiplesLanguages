@@ -1,7 +1,7 @@
 package codes.laivy.mlanguage.lang;
 
 import codes.laivy.mlanguage.data.SerializedData;
-import codes.laivy.mlanguage.data.plugin.PluginProperty;
+import codes.laivy.mlanguage.plugin.PluginProperty;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

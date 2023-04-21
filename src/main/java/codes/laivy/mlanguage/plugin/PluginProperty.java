@@ -1,4 +1,4 @@
-package codes.laivy.mlanguage.data.plugin;
+package codes.laivy.mlanguage.plugin;
 
 import org.jetbrains.annotations.NotNull;
 
