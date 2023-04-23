@@ -65,7 +65,7 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
     @Override
     public boolean isArray(@NotNull String id, @Nullable Locale locale) {
         if (components.containsKey(id)) {
-            if (locale == null) {
+            if (locale == null || !components.get(id).containsKey(locale)) {
                 locale = getDefaultLocale();
             }
 

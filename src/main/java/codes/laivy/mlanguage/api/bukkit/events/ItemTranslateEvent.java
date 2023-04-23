@@ -20,10 +20,10 @@ public class ItemTranslateEvent extends ItemEvent implements Cancellable {
     private @Nullable Message<BaseComponent> name;
     private @Nullable Message<BaseComponent> lore;
 
-    private @Nullable Object[] nameReplaces;
-    private @Nullable Object[] loreReplaces;
+    private @NotNull Object[] nameReplaces;
+    private @NotNull Object[] loreReplaces;
 
-    public ItemTranslateEvent(boolean async, @NotNull ItemStack item, @NotNull Player player, @Nullable Locale locale, @Nullable Message<BaseComponent> name, @Nullable Message<BaseComponent> lore, @Nullable Object[] nameReplaces, @Nullable Object[] loreReplaces) {
+    public ItemTranslateEvent(boolean async, @NotNull ItemStack item, @NotNull Player player, @Nullable Locale locale, @Nullable Message<BaseComponent> name, @Nullable Message<BaseComponent> lore, @NotNull Object[] nameReplaces, @NotNull Object[] loreReplaces) {
         super(async, item);
 
         this.nameReplaces = nameReplaces;
@@ -76,19 +76,19 @@ public class ItemTranslateEvent extends ItemEvent implements Cancellable {
         this.lore = lore;
     }
 
-    public @Nullable Object[] getNameReplaces() {
+    public @NotNull Object[] getNameReplaces() {
         return nameReplaces;
     }
 
-    public void setNameReplaces(@Nullable Object[] nameReplaces) {
+    public void setNameReplaces(@NotNull Object[] nameReplaces) {
         this.nameReplaces = nameReplaces;
     }
 
-    public @Nullable Object[] getLoreReplaces() {
+    public @NotNull Object[] getLoreReplaces() {
         return loreReplaces;
     }
 
-    public void setLoreReplaces(@Nullable Object[] loreReplaces) {
+    public void setLoreReplaces(@NotNull Object[] loreReplaces) {
         this.loreReplaces = loreReplaces;
     }
 

@@ -131,8 +131,8 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
             @Nullable Message<BaseComponent> name = getName(item);
             @Nullable Message<BaseComponent> lore = getLore(item);
 
-            @Nullable Object[] nameReplaces = new Object[0];
-            @Nullable Object[] loreReplaces = new Object[0];
+            @NotNull Object[] nameReplaces = new Object[0];
+            @NotNull Object[] loreReplaces = new Object[0];
 
             // Event calling
             ItemTranslateEvent event = new ItemTranslateEvent(!Bukkit.isPrimaryThread(), item, player, locale, name, lore, nameReplaces, loreReplaces);
@@ -152,10 +152,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getDefApi().getVersion().setItemBukkitDisplayName(
                         item,
-                        ComponentUtils.merge(name.getText(
-                                nameLocale,
-                                nameReplaces)
-                        )
+                        ComponentUtils.merge(name.getText(nameLocale, nameReplaces))
                 );
             } else {
                 getDefApi().getVersion().setItemBukkitDisplayName(item, null);
