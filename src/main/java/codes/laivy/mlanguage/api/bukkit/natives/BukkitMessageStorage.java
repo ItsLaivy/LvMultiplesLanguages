@@ -62,6 +62,7 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
     @Override
     public @NotNull BaseComponent[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
         locale = (locale == null ? getDefaultLocale() : locale);
+        List<BaseComponent> r = new LinkedList<>();
 
         if (getData().containsKey(id)) {
             if (!getData().get(id).containsKey(locale)) {
@@ -75,26 +76,8 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                 throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty().getName() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
-            for (BaseComponent component : components) {
-                component = component.duplicate();
-
-                if (component instanceof TextComponent) {
-                    TextComponent text = (TextComponent) component;
-                    text.setText(replace(locale, ComponentUtils.getText(text), replaces));
-                }
-                if (component.getExtra() != null) {
-                    for (BaseComponent extra : component.getExtra()) {
-                        extra = extra.duplicate();
-
-                        if (extra instanceof TextComponent) {
-                            TextComponent text = (TextComponent) extra;
-                            text.setText(replace(locale, ComponentUtils.getText(text), replaces));
-                        }
-                    }
-                }
-            }
-
-            return components;
+            r.addAll(new LinkedList<>(Arrays.asList(replace(locale, components, replaces))));
+            return r.toArray(new BaseComponent[0]);
         } else {
             throw new NullPointerException("Couldn't find the message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty().getName() + "'");
         }
@@ -118,11 +101,8 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
             }
 
             List<BaseComponent[]> components = new LinkedList<>();
-            BaseComponent[] componentArray;
 
-            if (getData().get(id).containsKey(locale)) {
-                componentArray = getData().get(id).get(locale);
-            } else {
+            if (!getData().get(id).containsKey(locale)) {
                 throw new NullPointerException("This message id '" + id + "' at message storage named '" + getName() + "' from plugin '" + getPluginProperty().getName() + "' doesn't exists at this locale '" + locale.name() + "', and not exists on the default locale too '" + getDefaultLocale().name() + "'");
             }
 
@@ -130,9 +110,9 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
                 throw new UnsupportedOperationException("This text with id '" + id + "' and locale '" + locale.name() + "' isn't an array text, use #getText instead.");
             }
 
-            for (BaseComponent component : componentArray) {
+            for (BaseComponent component : getText(locale, id, replaces)) {
                 components.add(new BaseComponent[] {
-                        component
+                        component.duplicate()
                 });
             }
 

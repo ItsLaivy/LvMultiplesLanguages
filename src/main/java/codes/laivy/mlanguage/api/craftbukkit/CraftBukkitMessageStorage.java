@@ -4,35 +4,61 @@ import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.utils.ComponentUtils;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 /**
  * The storage with Bukkit/Bungee BaseComponent type
  */
 public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent> {
-    default @NotNull String replace(@NotNull Locale locale, @NotNull String string, @NotNull Object... replaces) {
-        for (Object replace : replaces) {
-            if (!string.contains("%s")) {
-                break;
+
+    /**
+     * Clones the components and replaces the %s strings to the replaces parameter
+     * @param locale the locale
+     * @param components the components array
+     * @param replaces the replaces
+     * @return an array with copies of components replaced
+     */
+    default @NotNull BaseComponent[] replace(@NotNull Locale locale, @NotNull BaseComponent[] components, @NotNull Object... replaces) {
+        Set<BaseComponent> componentSet = new LinkedHashSet<>();
+
+        int row = 0;
+        for (final BaseComponent component : ComponentUtils.cloneComponent(components)) {
+            for (BaseComponent recursive : ComponentUtils.getComponents(component)) {
+                if (replaces.length > row) {
+                    Object replace = replaces[row];
+                    BaseComponent index;
+
+                    if (replace instanceof Message) {
+                        //noinspection unchecked
+                        index = ComponentUtils.merge(((Message<BaseComponent>) replace).getText(locale));
+                    } else if (replace instanceof BaseComponent) {
+                        index = (BaseComponent) replace;
+                    } else if (replace instanceof BaseComponent[]) {
+                        index = new TextComponent((BaseComponent[]) replace);
+                    } else {
+                        index = new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace)));
+                    }
+
+                    if (recursive instanceof TextComponent) {
+                        TextComponent text = (TextComponent) recursive;
+
+                        if (text.getText().contains("%s")) {
+                            text.setText(text.getText().replaceFirst("%s", ComponentUtils.getText(index)));
+                            row++;
+                        }
+                    }
+                }
             }
 
-            String index;
-
-            if (replace instanceof Message) {
-                //noinspection unchecked
-                index = ComponentUtils.getText(ComponentUtils.merge(((Message<BaseComponent>) replace).getText(locale)));
-            } else if (replace instanceof BaseComponent) {
-                index = ComponentUtils.getText((BaseComponent) replace);
-            } else if (replace instanceof BaseComponent[]) {
-                index = ComponentUtils.getText((BaseComponent[]) replace);
-            } else {
-                index = String.valueOf(replace);
-            }
-
-            string = string.replaceFirst("%s", index);
+            componentSet.add(component);
         }
-        return string;
+
+        return componentSet.toArray(new BaseComponent[0]);
     }
 
     /**
@@ -42,7 +68,7 @@ public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent>
      * @param id the message id
      * @param locale the locale
      * @return {@code true} if the message will be serialized as text, {@code false} otherwise will be serialized as base component
-    **/
+     **/
     boolean isLegacyText(@NotNull String id, @NotNull Locale locale);
 
 }

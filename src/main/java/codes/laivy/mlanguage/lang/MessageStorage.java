@@ -66,6 +66,4 @@ public interface MessageStorage<C> {
      */
     void unload();
 
-    @NotNull String replace(@NotNull Locale locale, @NotNull String string, @NotNull Object... replaces);
-
 }

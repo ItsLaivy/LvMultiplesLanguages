@@ -6,10 +6,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 // TODO: 07/04/2023 OOP
 public class ComponentUtils {
@@ -44,24 +41,39 @@ public class ComponentUtils {
     public static @NotNull String getText(@NotNull BaseComponent... components) {
         StringBuilder str = new StringBuilder();
 
-        Set<BaseComponent> total = new LinkedHashSet<>();
         for (BaseComponent component : components) {
-            total.addAll(Arrays.asList(getTextRecursive(component)));
-        }
-
-        for (BaseComponent component : total) {
             str.append(component.toLegacyText());
         }
 
         return str.substring(2);
     }
 
-    private static @NotNull BaseComponent[] getTextRecursive(@NotNull BaseComponent component) {
+    /**
+     * Clones the components at the array
+     * @param original the components that will be cloned
+     * @return the component clones (including extras recursively)
+     */
+    public static @NotNull BaseComponent[] cloneComponent(@NotNull BaseComponent[] original) {
+        Set<BaseComponent> componentSet = new LinkedHashSet<>();
+
+        for (BaseComponent component : original) {
+            BaseComponent cloned = component.duplicate();
+            if (component.getExtra() != null) {
+                List<BaseComponent> clonedExtras = new ArrayList<>(new LinkedList<>(Arrays.asList(cloneComponent(component.getExtra().toArray(new BaseComponent[0])))));
+                cloned.setExtra(clonedExtras);
+            }
+            componentSet.add(cloned);
+        }
+
+        return componentSet.toArray(new BaseComponent[0]);
+    }
+
+    public static @NotNull BaseComponent[] getComponents(@NotNull BaseComponent component) {
         Set<BaseComponent> componentSet = new LinkedHashSet<>();
         componentSet.add(component);
         if (component.getExtra() != null) {
             for (BaseComponent extra : component.getExtra()) {
-                componentSet.addAll(Arrays.asList(getTextRecursive(extra)));
+                componentSet.addAll(Arrays.asList(getComponents(extra)));
             }
         }
         return componentSet.toArray(new BaseComponent[0]);
