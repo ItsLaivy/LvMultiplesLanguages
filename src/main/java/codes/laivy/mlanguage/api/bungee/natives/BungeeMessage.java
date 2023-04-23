@@ -97,7 +97,7 @@ public class BungeeMessage implements IBungeeMessage {
 
             JsonObject language = new JsonObject();
             language.addProperty("Name", getStorage().getName());
-            language.addProperty("Plugin", ((Plugin) getStorage().getPluginProperty()).getDescription().getName());
+            language.addProperty("Plugin", getStorage().getPluginProperty().getName());
 
             JsonObject data = new JsonObject();
             data.add("Language", language);

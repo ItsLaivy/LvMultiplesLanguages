@@ -179,7 +179,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
                     IBungeeMessageStorage temp = new BungeeMessageStorage(plugin, name, defaultLocale, components);
                     if (storage.merge(temp)) {
-                        getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + storage.getPluginProperty() + "'."));
+                        getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + storage.getPluginProperty().getName() + "'."));
                     }
                 }
             }
