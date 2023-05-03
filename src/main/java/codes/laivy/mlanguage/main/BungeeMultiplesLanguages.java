@@ -19,8 +19,6 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, P
         return (BungeeMultiplesLanguages) ProxyServer.getInstance().getPluginManager().getPlugin("LvMultiplesLanguages");
     }
 
-    private boolean serverLoaded = false;
-
     public BungeeMultiplesLanguages() {
         //noinspection ResultOfMethodCallIgnored
         getDataFolder().mkdirs();
@@ -31,7 +29,6 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, P
     @Override
     public void onEnable() {
         // On server loads, load the API too
-        serverLoaded = true;
         getApi().load();
     }
 
@@ -54,12 +51,8 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, P
         if (api != getApi()) {
             if (getApi().isLoaded()) getApi().unload();
             LvMultiplesLanguages.setApi(api);
-            if (!getApi().isLoaded() && isServerLoaded()) api.load();
+            api.load();
         }
-    }
-
-    private boolean isServerLoaded() {
-        return serverLoaded;
     }
 
     @Override

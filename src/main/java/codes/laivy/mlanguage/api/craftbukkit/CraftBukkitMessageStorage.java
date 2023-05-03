@@ -48,7 +48,21 @@ public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent>
                         TextComponent text = (TextComponent) recursive;
 
                         if (text.getText().contains("%s")) {
-                            text.setText(text.getText().replaceFirst("%s", ComponentUtils.getText(index)));
+                            String[] split = text.getText().split("%s");
+
+                            if (split.length != 0) {
+                                int splitRow = 0;
+                                text.setText("");
+
+                                for (String splitText : split) {
+                                    text.setText(splitText);
+                                    if (splitRow % 2 == 0) { // Before %s
+                                        componentSet.add(index); // Add the %s replacement
+                                    }
+                                    splitRow++;
+                                }
+                            }
+
                             row++;
                         }
                     }

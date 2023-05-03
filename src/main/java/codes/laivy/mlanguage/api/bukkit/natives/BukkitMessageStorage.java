@@ -394,6 +394,10 @@ public class BukkitMessageStorage implements IBukkitMessageStorage {
         return Collections.unmodifiableMap(map);
     }
 
+    public @NotNull Map<String, Map<Locale, BaseComponent[][]>> getComponents() {
+        return components;
+    }
+
     @Override
     public boolean isLegacyText(@NotNull String id, @NotNull Locale locale) {
         return getLegaciesTexts().containsKey(locale) && getLegaciesTexts().get(locale).contains(id);

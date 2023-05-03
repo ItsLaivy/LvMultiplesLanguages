@@ -383,6 +383,10 @@ public class BungeeMessageStorage implements IBungeeMessageStorage {
         return Collections.unmodifiableMap(map);
     }
 
+    public @NotNull Map<String, Map<Locale, BaseComponent[][]>> getComponents() {
+        return components;
+    }
+
     @Override
     public @NotNull List<@NotNull BaseComponent[]> getTextArray(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces) {
         if (LvMultiplesLanguages.getApi() != null) {
