@@ -22,6 +22,7 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnecti
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import io.netty.channel.Channel;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -622,7 +623,7 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @NotNull BaseComponent[] iChatComponentToBaseComponent(@NotNull IChatBaseComponent iChatBaseComponent) {
-        JsonElement element = (JsonElement) Objects.requireNonNull(getMethodExec("ChatSerializer:convertToBase").invokeInstance(iChatBaseComponent));
+        JsonElement element = new JsonParser().parse((String) Objects.requireNonNull(getMethodExec("ChatSerializer:convertToBase").invokeInstance(iChatBaseComponent)));
         List<BaseComponent> components = Arrays.asList(ComponentSerializer.parse(element.toString()));
         return components.toArray(new BaseComponent[0]);
     }

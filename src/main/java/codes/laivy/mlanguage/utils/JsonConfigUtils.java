@@ -26,7 +26,7 @@ public class JsonConfigUtils {
                     }
                 }
 
-                JsonObject resourceConfig = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+                JsonObject resourceConfig = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
                 try (PrintWriter writer = new PrintWriter(file)) {
@@ -54,7 +54,7 @@ public class JsonConfigUtils {
 
         File file = new File(path.toFile(), resourceName);
         try {
-            return JsonParser.parseReader(new FileReader(file));
+            return new JsonParser().parse(new FileReader(file));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
