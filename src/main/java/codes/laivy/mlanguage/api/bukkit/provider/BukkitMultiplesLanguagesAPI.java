@@ -5,6 +5,7 @@ import codes.laivy.mlanguage.api.bukkit.BukkitMessage;
 import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
 import codes.laivy.mlanguage.api.bukkit.IBukkitItemTranslator;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMultiplesLanguagesAPI;
+import codes.laivy.mlanguage.exceptions.PluginNotFoundException;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.utils.ComponentUtils;
@@ -34,6 +35,7 @@ import java.nio.file.NoSuchFileException;
 import java.util.*;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
+import static org.bukkit.Bukkit.getServer;
 
 public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI, Listener {
 
@@ -146,12 +148,15 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
         }
 
         messageStorages = new LinkedHashSet<>();
+        getServer().getConsoleSender().sendMessage("");
         getPlugin().log(new TextComponent("§7Loading default LvMultiplesLanguages API"));
 
         Bukkit.getPluginManager().registerEvents(this, multiplesLanguagesBukkit());
 
         // Loading languages
         int loaded = 0;
+        List<String> unknown = new ArrayList<>();
+
         getPlugin().log(new TextComponent("§7Loading message storages..."));
         try {
             for (File file : FileUtils.listFiles(getPlugin().getDataFolder().toString())) {
@@ -170,7 +175,14 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
                         //noinspection deprecation
                         JsonElement json = new JsonParser().parse(content.toString());
                         if (json.isJsonObject()) {
-                            BukkitMessageStorage storage = deserializeStorage(json);
+                            BukkitMessageStorage storage;
+                            try {
+                                storage = deserializeStorage(json);
+                            } catch (PluginNotFoundException e) {
+                                unknown.add(e.getPlugin());
+                                continue;
+                            }
+
                             getStorages().add(storage);
 
                             storage.load();
@@ -190,7 +202,18 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
             throw new RuntimeException("Couldn't load the message storages", e);
         }
         getPlugin().log(new TextComponent("§aLoaded " + loaded + " message storages"));
+
+        if (!unknown.isEmpty()) {
+            StringBuilder unknownList = new StringBuilder();
+            for (String plugin : unknown) {
+                if (unknown.indexOf(plugin) != 0) unknownList.append("§c, ");
+                unknownList.append("§6").append(plugin);
+            }
+            getServer().getConsoleSender().sendMessage("");
+            getPlugin().log(new TextComponent("§cSome storages couldn't be loaded because the plugin isn't on the server/enabled anymore, here is a full list of them: §6" + unknownList));
+        }
         //
+        getServer().getConsoleSender().sendMessage("");
 
         this.loaded = true;
     }
@@ -319,7 +342,7 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin(pluginStr);
         if (plugin == null) {
-            throw new NullPointerException("Couldn't find plugin '" + pluginStr + "'");
+            throw new PluginNotFoundException(pluginStr);
         }
 
         return getPlugin().getApi().createStorage(plugin, name, defaultLocale, new LinkedHashSet<BukkitMessage>() {{

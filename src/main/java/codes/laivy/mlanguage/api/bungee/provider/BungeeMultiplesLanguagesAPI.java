@@ -4,16 +4,20 @@ import codes.laivy.mlanguage.api.MessageSerializer;
 import codes.laivy.mlanguage.api.bungee.BungeeMessage;
 import codes.laivy.mlanguage.api.bungee.BungeeMessageStorage;
 import codes.laivy.mlanguage.api.bungee.IBungeeMultiplesLanguagesAPI;
+import codes.laivy.mlanguage.exceptions.PluginNotFoundException;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.main.BungeeMultiplesLanguages;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.FileUtils;
+import codes.laivy.mlanguage.utils.JsonUtils;
 import com.google.gson.*;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,10 +136,13 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
         }
 
         messageStorages = new LinkedHashSet<>();
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(""));
         getPlugin().log(new TextComponent("§7Loading default LvMultiplesLanguages API"));
-        
+
         // Loading languages
         int loaded = 0;
+        List<String> unknown = new ArrayList<>();
+
         getPlugin().log(new TextComponent("§7Loading message storages..."));
         try {
             for (File file : FileUtils.listFiles(getPlugin().getDataFolder().toString())) {
@@ -154,7 +161,14 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                         //noinspection deprecation
                         JsonElement json = new JsonParser().parse(content.toString());
                         if (json.isJsonObject()) {
-                            BungeeMessageStorage storage = deserializeStorage(json);
+                            BungeeMessageStorage storage;
+                            try {
+                                storage = deserializeStorage(json);
+                            } catch (PluginNotFoundException e) {
+                                unknown.add(e.getPlugin());
+                                continue;
+                            }
+
                             getStorages().add(storage);
 
                             storage.load();
@@ -174,7 +188,17 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
             throw new RuntimeException("Couldn't load the message storages", e);
         }
         getPlugin().log(new TextComponent("§aLoaded " + loaded + " message storages"));
+        if (!unknown.isEmpty()) {
+            StringBuilder unknownList = new StringBuilder();
+            for (String plugin : unknown) {
+                if (unknown.indexOf(plugin) != 0) unknownList.append("§c, ");
+                unknownList.append("§6").append(plugin);
+            }
+            ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(""));
+            getPlugin().log(new TextComponent("§cSome storages couldn't be loaded because the plugin isn't on the server/enabled anymore, here is a full list of them: §6" + unknownList));
+        }
         //
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent(""));
 
         this.loaded = true;
     }
@@ -236,6 +260,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
         for (BungeeMessage message : storage.getMessages()) {
             JsonObject messageObj = new JsonObject();
+            JsonObject contentObj = new JsonObject();
 
             JsonArray prefixes = new JsonArray();
             JsonArray suffixes = new JsonArray();
@@ -254,15 +279,17 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                             array.add(ComponentUtils.serialize(line));
                         }
                     }
-                    messageObj.add(locale.name(), array);
+                    contentObj.add(locale.name(), array);
                 } else { // Not array
                     if (message.isLegacyText(locale)) {
-                        messageObj.addProperty(locale.name(), ComponentUtils.getText(component));
+                        contentObj.addProperty(locale.name(), ComponentUtils.getText(component));
                     } else {
-                        messageObj.addProperty(locale.name(), ComponentUtils.serialize(component));
+                        contentObj.addProperty(locale.name(), ComponentUtils.serialize(component));
                     }
                 }
             }
+
+            messageObj.add("content", contentObj);
 
             for (Object prefix : message.getPrefixes()) {
                 prefixes.add(serializer.serializeObject(prefix));
@@ -292,8 +319,8 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
         String name = object.get("name").getAsString();
         String pluginStr = object.get("plugin").getAsString();
-        Locale locale = Locale.valueOf(object.get("default locale").getAsString());
-        JsonArray messages = object.get("messages").getAsJsonArray();
+        Locale defaultLocale = Locale.valueOf(object.get("default locale").getAsString());
+        JsonObject messages = object.getAsJsonObject("messages");
 
         Optional<Plugin> optional = ProxyServer.getInstance().getPluginManager().getPlugins().stream().filter(p -> p.getDescription().getName().equals(pluginStr)).findFirst();
         @Nullable Plugin plugin = optional.orElse(null);
@@ -301,32 +328,77 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
             throw new NullPointerException("Couldn't find plugin '" + pluginStr + "'");
         }
 
-        return getPlugin().getApi().createStorage(plugin, name, locale, new LinkedHashSet<BungeeMessage>() {{
-            for (JsonElement messageElement : messages) {
-                JsonObject messageObj = messageElement.getAsJsonObject();
+        return getPlugin().getApi().createStorage(plugin, name, defaultLocale, new LinkedHashSet<BungeeMessage>() {{
+            for (Map.Entry<String, JsonElement> entry : messages.entrySet()) {
+                String id = entry.getKey();
+                JsonObject messagesObj = entry.getValue().getAsJsonObject();
+                JsonObject contentObj = messagesObj.getAsJsonObject("content");
 
-                String id = messageObj.get("id").getAsString();
-
-                JsonObject dataObj = messageObj.getAsJsonObject("data");
+                Set<Locale> legacies = new LinkedHashSet<>();
+                Set<Locale> arrays = new LinkedHashSet<>();
 
                 Map<Locale, BaseComponent[]> data = new LinkedHashMap<>();
-                for (Map.Entry<String, JsonElement> entry : dataObj.entrySet()) {
-                    data.put(Locale.valueOf(entry.getKey()), serializer.deserializeComponent(entry.getValue()));
+                for (Map.Entry<String, JsonElement> entry2 : contentObj.entrySet()) {
+                    Locale locale;
+                    try {
+                        locale = Locale.valueOf(entry2.getKey().toUpperCase());
+                    } catch (IllegalArgumentException ignore) {
+                        throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
+                    }
+                    JsonElement base = entry2.getValue();
+
+                    if (base.isJsonArray()) { // Is array
+                        BaseComponent[] array = new BaseComponent[0];
+                        for (JsonElement line : base.getAsJsonArray()) {
+                            String jsonStr = ChatColor.translateAlternateColorCodes('&', line.getAsString());
+
+                            if (!(line.isJsonNull() || jsonStr.equals("")) && JsonUtils.isJson(jsonStr)) { // Check if is array text
+                                array = ComponentSerializer.parse(jsonStr);
+                                continue;
+                            }
+
+                            array = new BaseComponent[] { new TextComponent(jsonStr) };
+
+                            // Declare legacy text
+                            legacies.add(locale);
+                        }
+                        data.put(locale, array);
+
+                        // Declare array text
+                        arrays.add(locale);
+                    } else { // Not array
+                        BaseComponent[] text;
+
+                        String jsonStr = ChatColor.translateAlternateColorCodes('&', base.getAsString());
+                        if (JsonUtils.isJson(jsonStr)) {
+                            text = ComponentSerializer.parse(jsonStr);
+                        } else {
+                            text = new BaseComponent[] { new TextComponent(jsonStr) };
+
+                            // Declare legacy text
+                            legacies.add(locale); // Legacy text
+                        }
+
+                        data.put(locale, text);
+                    }
                 }
 
                 BungeeMessage message = getPlugin().getApi().createMessage(id, data);
 
-                if (messageObj.has("prefixes")) {
+                message.getLegacyTexts().addAll(legacies);
+                message.getArrayTexts().addAll(arrays);
+
+                if (messagesObj.has("prefixes")) {
                     Set<Object> prefixes = new LinkedHashSet<>();
-                    JsonArray prefixesObj = messageObj.getAsJsonArray("prefixes");
+                    JsonArray prefixesObj = messagesObj.getAsJsonArray("prefixes");
                     for (JsonElement prefixElement : prefixesObj) {
                         prefixes.add(serializer.deserializeObject(prefixElement));
                     }
                     message.getPrefixes().addAll(prefixes);
                 }
-                if (messageObj.has("suffixes")) {
+                if (messagesObj.has("suffixes")) {
                     Set<Object> suffixes = new LinkedHashSet<>();
-                    JsonArray suffixesObj = messageObj.getAsJsonArray("suffixes");
+                    JsonArray suffixesObj = messagesObj.getAsJsonArray("suffixes");
                     for (JsonElement suffixElement : suffixesObj) {
                         suffixes.add(serializer.deserializeObject(suffixElement));
                     }

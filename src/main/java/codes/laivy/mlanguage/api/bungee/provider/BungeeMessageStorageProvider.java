@@ -51,11 +51,13 @@ public class BungeeMessageStorageProvider implements BungeeMessageStorage {
 
     @Override
     public @NotNull List<String> getLegacyTextArray(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+        if (locale == null) locale = getDefaultLocale();
         return getMessage(id).getLegacyArray(locale, replaces);
     }
 
     @Override
     public @NotNull String getLegacyText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+        if (locale == null) locale = getDefaultLocale();
         return getMessage(id).getLegacyText(locale, replaces);
     }
 
@@ -71,11 +73,13 @@ public class BungeeMessageStorageProvider implements BungeeMessageStorage {
 
     @Override
     public @NotNull List<BaseComponent @NotNull []> getTextArray(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+        if (locale == null) locale = getDefaultLocale();
         return getMessage(id).getArray(locale, replaces);
     }
 
     @Override
     public BaseComponent @NotNull [] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces) {
+        if (locale == null) locale = getDefaultLocale();
         return getMessage(id).getText(locale, replaces);
     }
 
