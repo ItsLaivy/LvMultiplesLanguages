@@ -7,10 +7,14 @@ import codes.laivy.mlanguage.api.bukkit.IBukkitItemTranslator;
 import codes.laivy.mlanguage.api.bukkit.IBukkitMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.FileUtils;
+import codes.laivy.mlanguage.utils.JsonUtils;
 import com.google.gson.*;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -178,18 +182,12 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
                             throw new JsonSyntaxException("The content of this file isn't a json object.");
                         }
                     } catch (JsonSyntaxException e) {
-                        e.printStackTrace();
-                        getPlugin().log(new TextComponent("§cCouldn't load the message storage of file '" + file + "', is the json written correctly?"));
-                        Bukkit.getPluginManager().disablePlugin(getPlugin());
-                        return;
+                        throw new RuntimeException("Couldn't load the message storage of file '" + file + "', is the json written correctly?", e);
                     }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            getPlugin().log(new TextComponent("§cCouldn't load the message storages"));
-            Bukkit.getPluginManager().disablePlugin(getPlugin());
-            return;
+            throw new RuntimeException("Couldn't load the message storages", e);
         }
         getPlugin().log(new TextComponent("§aLoaded " + loaded + " message storages"));
         //
@@ -253,19 +251,40 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
 
     protected @NotNull JsonElement serializeStorage(@NotNull BukkitMessageStorage storage) {
         JsonObject object = new JsonObject();
-        JsonArray messages = new JsonArray();
+        JsonObject messages = new JsonObject();
 
         for (BukkitMessage message : storage.getMessages()) {
             JsonObject messageObj = new JsonObject();
-            JsonObject dataObj = new JsonObject();
+            JsonObject contentObj = new JsonObject();
 
             JsonArray prefixes = new JsonArray();
             JsonArray suffixes = new JsonArray();
 
             MessageSerializer<BaseComponent[], BukkitMessage, BukkitMessageStorage> serializer = getPlugin().getApi().getSerializer();
             for (Map.Entry<@NotNull Locale, BaseComponent @NotNull []> entry : message.getData().entrySet()) {
-                dataObj.add(entry.getKey().name(), serializer.serializeComponent(entry.getValue()));
+                Locale locale = entry.getKey();
+                BaseComponent[] component = entry.getValue();
+
+                if (message.isArrayText(locale)) { // Is array
+                    JsonArray array = new JsonArray();
+                    for (BaseComponent line : component) {
+                        if (message.isLegacyText(locale)) {
+                            array.add(ComponentUtils.getText(line));
+                        } else {
+                            array.add(ComponentUtils.serialize(line));
+                        }
+                    }
+                    contentObj.add(locale.name(), array);
+                } else { // Not array
+                    if (message.isLegacyText(locale)) {
+                        contentObj.addProperty(locale.name(), ComponentUtils.getText(component));
+                    } else {
+                        contentObj.addProperty(locale.name(), ComponentUtils.serialize(component));
+                    }
+                }
             }
+
+            messageObj.add("content", contentObj);
 
             for (Object prefix : message.getPrefixes()) {
                 prefixes.add(serializer.serializeObject(prefix));
@@ -274,16 +293,13 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
                 suffixes.add(serializer.serializeObject(suffix));
             }
 
-            messageObj.addProperty("id", message.getId());
-            messageObj.add("data", dataObj);
-
             if (prefixes.size() > 0) {
                 messageObj.add("prefixes", prefixes);
             } if (suffixes.size() > 0) {
                 messageObj.add("suffixes", suffixes);
             }
 
-            messages.add(messageObj);
+            messages.add(message.getId(), messageObj);
         }
 
         object.addProperty("name", storage.getName());
@@ -298,40 +314,85 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
 
         String name = object.get("name").getAsString();
         String pluginStr = object.get("plugin").getAsString();
-        Locale locale = Locale.valueOf(object.get("default locale").getAsString());
-        JsonArray messages = object.get("messages").getAsJsonArray();
+        Locale defaultLocale = Locale.valueOf(object.get("default locale").getAsString());
+        JsonObject messages = object.getAsJsonObject("messages");
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin(pluginStr);
         if (plugin == null) {
             throw new NullPointerException("Couldn't find plugin '" + pluginStr + "'");
         }
 
-        return getPlugin().getApi().createStorage(plugin, name, locale, new LinkedHashSet<BukkitMessage>() {{
-            for (JsonElement messageElement : messages) {
-                JsonObject messageObj = messageElement.getAsJsonObject();
+        return getPlugin().getApi().createStorage(plugin, name, defaultLocale, new LinkedHashSet<BukkitMessage>() {{
+            for (Map.Entry<String, JsonElement> entry : messages.entrySet()) {
+                String id = entry.getKey();
+                JsonObject messagesObj = entry.getValue().getAsJsonObject();
+                JsonObject contentObj = messagesObj.getAsJsonObject("content");
 
-                String id = messageObj.get("id").getAsString();
-
-                JsonObject dataObj = messageObj.getAsJsonObject("data");
+                Set<Locale> legacies = new LinkedHashSet<>();
+                Set<Locale> arrays = new LinkedHashSet<>();
 
                 Map<Locale, BaseComponent[]> data = new LinkedHashMap<>();
-                for (Map.Entry<String, JsonElement> entry : dataObj.entrySet()) {
-                    data.put(Locale.valueOf(entry.getKey()), serializer.deserializeComponent(entry.getValue()));
+                for (Map.Entry<String, JsonElement> entry2 : contentObj.entrySet()) {
+                    Locale locale;
+                    try {
+                        locale = Locale.valueOf(entry2.getKey().toUpperCase());
+                    } catch (IllegalArgumentException ignore) {
+                        throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
+                    }
+                    JsonElement base = entry2.getValue();
+
+                    if (base.isJsonArray()) { // Is array
+                        BaseComponent[] array = new BaseComponent[0];
+                        for (JsonElement line : base.getAsJsonArray()) {
+                            String jsonStr = ChatColor.translateAlternateColorCodes('&', line.getAsString());
+
+                            if (!(line.isJsonNull() || jsonStr.equals("")) && JsonUtils.isJson(jsonStr)) { // Check if is array text
+                                array = ComponentSerializer.parse(jsonStr);
+                                continue;
+                            }
+
+                            array = new BaseComponent[] { new TextComponent(jsonStr) };
+
+                            // Declare legacy text
+                            legacies.add(locale);
+                        }
+                        data.put(locale, array);
+
+                        // Declare array text
+                        arrays.add(locale);
+                    } else { // Not array
+                        BaseComponent[] text;
+
+                        String jsonStr = ChatColor.translateAlternateColorCodes('&', base.getAsString());
+                        if (JsonUtils.isJson(jsonStr)) {
+                            text = ComponentSerializer.parse(jsonStr);
+                        } else {
+                            text = new BaseComponent[] { new TextComponent(jsonStr) };
+
+                            // Declare legacy text
+                            legacies.add(locale); // Legacy text
+                        }
+
+                        data.put(locale, text);
+                    }
                 }
 
                 BukkitMessage message = getPlugin().getApi().createMessage(id, data);
 
-                if (messageObj.has("prefixes")) {
+                message.getLegacyTexts().addAll(legacies);
+                message.getArrayTexts().addAll(arrays);
+
+                if (messagesObj.has("prefixes")) {
                     Set<Object> prefixes = new LinkedHashSet<>();
-                    JsonArray prefixesObj = messageObj.getAsJsonArray("prefixes");
+                    JsonArray prefixesObj = messagesObj.getAsJsonArray("prefixes");
                     for (JsonElement prefixElement : prefixesObj) {
                         prefixes.add(serializer.deserializeObject(prefixElement));
                     }
                     message.getPrefixes().addAll(prefixes);
                 }
-                if (messageObj.has("suffixes")) {
+                if (messagesObj.has("suffixes")) {
                     Set<Object> suffixes = new LinkedHashSet<>();
-                    JsonArray suffixesObj = messageObj.getAsJsonArray("suffixes");
+                    JsonArray suffixesObj = messagesObj.getAsJsonArray("suffixes");
                     for (JsonElement suffixElement : suffixesObj) {
                         suffixes.add(serializer.deserializeObject(suffixElement));
                     }

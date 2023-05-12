@@ -1,5 +1,7 @@
 package codes.laivy.mlanguage.utils;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
@@ -15,7 +17,10 @@ public class JsonUtils {
             reader.setLenient(false);
             Streams.parse(reader);
 
-            return true;
+            JsonElement element = JsonParser.parseString(json);
+            if (element.isJsonObject() || element.isJsonArray()) {
+                return true;
+            }
         } catch (JsonSyntaxException ignore) {
         }
         return false;

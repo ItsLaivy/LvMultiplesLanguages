@@ -119,7 +119,7 @@ public class BukkitMessageProvider implements BukkitMessage {
             throw new NullPointerException("This message id '" + getId() + "' doesn't contains a locale '" + locale.name() + "'");
         }
 
-        if (!isArray(locale)) {
+        if (!isArrayText(locale)) {
             throw new UnsupportedOperationException("This text with id '" + getId() + "' and locale '" + locale.name() + "' isn't an array text, use #getText instead.");
         }
 
@@ -164,13 +164,13 @@ public class BukkitMessageProvider implements BukkitMessage {
     }
 
     @Override
-    public boolean isArray(@NotNull Locale locale) {
-        return array.contains(locale);
+    public boolean isArrayText(@NotNull Locale locale) {
+        return getArrayTexts().contains(locale);
     }
 
     @Override
-    public boolean isLegacy(@NotNull Locale locale) {
-        return legacies.contains(locale);
+    public boolean isLegacyText(@NotNull Locale locale) {
+        return getLegacyTexts().contains(locale);
     }
 
     @Override

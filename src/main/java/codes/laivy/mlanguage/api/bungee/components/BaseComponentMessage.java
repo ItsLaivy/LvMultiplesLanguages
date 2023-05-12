@@ -8,7 +8,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,7 +24,7 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
     @NotNull List<@NotNull String> getLegacyArray(@NotNull UUID uuid, @NotNull Object... replaces);
     @NotNull List<String> getLegacyArray(@NotNull Locale locale, @NotNull Object... replaces);
 
-    boolean isLegacy(@NotNull Locale locale);
+    boolean isLegacyText(@NotNull Locale locale);
 
     @NotNull Set<@NotNull Locale> getLegacyTexts();
 

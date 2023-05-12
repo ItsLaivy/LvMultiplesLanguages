@@ -110,11 +110,11 @@ public class BukkitMessageStorageProvider implements BukkitMessageStorage {
 
     @Override
     public boolean isArray(@NotNull String id, @NotNull Locale locale) {
-        return getMessage(id).isArray(locale);
+        return getMessage(id).isArrayText(locale);
     }
     @Override
     public boolean isLegacy(@NotNull String id, @NotNull Locale locale) {
-        return getMessage(id).isLegacy(locale);
+        return getMessage(id).isLegacyText(locale);
     }
 
     @Override

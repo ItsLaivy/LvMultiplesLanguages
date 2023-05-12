@@ -6,11 +6,9 @@ import codes.laivy.mlanguage.api.bungee.BungeeMessageStorage;
 import codes.laivy.mlanguage.api.bungee.IBungeeMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.main.BungeeMultiplesLanguages;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.FileUtils;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -135,7 +133,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
         messageStorages = new LinkedHashSet<>();
         getPlugin().log(new TextComponent("§7Loading default LvMultiplesLanguages API"));
-
+        
         // Loading languages
         int loaded = 0;
         getPlugin().log(new TextComponent("§7Loading message storages..."));
@@ -156,7 +154,9 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                         //noinspection deprecation
                         JsonElement json = new JsonParser().parse(content.toString());
                         if (json.isJsonObject()) {
-                            BungeeMessageStorage storage = getPlugin().getApi().getSerializer().deserializeStorage(json);
+                            BungeeMessageStorage storage = deserializeStorage(json);
+                            getStorages().add(storage);
+
                             storage.load();
 
                             messageStorages.add(storage);
@@ -203,7 +203,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                     throw new NoSuchFileException("Couldn't get the message storage file '" + storage.getPluginProperty().getName() + File.separator + rootFile.getParentFile().getName() + "'");
                 }
                 // Write the serialized data into
-                JsonElement data = getPlugin().getApi().getSerializer().serializeStorage(storage);
+                JsonElement data = serializeStorage(storage);
 
                 try (FileOutputStream fileOutputStream = new FileOutputStream(file);
                      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
@@ -226,5 +226,115 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     @Override
     public boolean isLoaded() {
         return loaded;
+    }
+
+    // Serializer
+
+    protected @NotNull JsonElement serializeStorage(@NotNull BungeeMessageStorage storage) {
+        JsonObject object = new JsonObject();
+        JsonObject messages = new JsonObject();
+
+        for (BungeeMessage message : storage.getMessages()) {
+            JsonObject messageObj = new JsonObject();
+
+            JsonArray prefixes = new JsonArray();
+            JsonArray suffixes = new JsonArray();
+
+            MessageSerializer<BaseComponent[], BungeeMessage, BungeeMessageStorage> serializer = getPlugin().getApi().getSerializer();
+            for (Map.Entry<@NotNull Locale, BaseComponent @NotNull []> entry : message.getData().entrySet()) {
+                Locale locale = entry.getKey();
+                BaseComponent[] component = entry.getValue();
+
+                if (message.isArrayText(locale)) { // Is array
+                    JsonArray array = new JsonArray();
+                    for (BaseComponent line : component) {
+                        if (message.isLegacyText(locale)) {
+                            array.add(ComponentUtils.getText(line));
+                        } else {
+                            array.add(ComponentUtils.serialize(line));
+                        }
+                    }
+                    messageObj.add(locale.name(), array);
+                } else { // Not array
+                    if (message.isLegacyText(locale)) {
+                        messageObj.addProperty(locale.name(), ComponentUtils.getText(component));
+                    } else {
+                        messageObj.addProperty(locale.name(), ComponentUtils.serialize(component));
+                    }
+                }
+            }
+
+            for (Object prefix : message.getPrefixes()) {
+                prefixes.add(serializer.serializeObject(prefix));
+            }
+            for (Object suffix : message.getSuffixes()) {
+                suffixes.add(serializer.serializeObject(suffix));
+            }
+
+            if (prefixes.size() > 0) {
+                messageObj.add("prefixes", prefixes);
+            } if (suffixes.size() > 0) {
+                messageObj.add("suffixes", suffixes);
+            }
+
+            messages.add(message.getId(), messageObj);
+        }
+
+        object.addProperty("name", storage.getName());
+        object.addProperty("plugin", storage.getPluginProperty().getName());
+        object.addProperty("default locale", storage.getDefaultLocale().name());
+        object.add("messages", messages);
+
+        return object;
+    }
+    protected @NotNull BungeeMessageStorage deserializeStorage(@NotNull JsonElement storageElement) {
+        JsonObject object = storageElement.getAsJsonObject();
+
+        String name = object.get("name").getAsString();
+        String pluginStr = object.get("plugin").getAsString();
+        Locale locale = Locale.valueOf(object.get("default locale").getAsString());
+        JsonArray messages = object.get("messages").getAsJsonArray();
+
+        Optional<Plugin> optional = ProxyServer.getInstance().getPluginManager().getPlugins().stream().filter(p -> p.getDescription().getName().equals(pluginStr)).findFirst();
+        @Nullable Plugin plugin = optional.orElse(null);
+        if (plugin == null) {
+            throw new NullPointerException("Couldn't find plugin '" + pluginStr + "'");
+        }
+
+        return getPlugin().getApi().createStorage(plugin, name, locale, new LinkedHashSet<BungeeMessage>() {{
+            for (JsonElement messageElement : messages) {
+                JsonObject messageObj = messageElement.getAsJsonObject();
+
+                String id = messageObj.get("id").getAsString();
+
+                JsonObject dataObj = messageObj.getAsJsonObject("data");
+
+                Map<Locale, BaseComponent[]> data = new LinkedHashMap<>();
+                for (Map.Entry<String, JsonElement> entry : dataObj.entrySet()) {
+                    data.put(Locale.valueOf(entry.getKey()), serializer.deserializeComponent(entry.getValue()));
+                }
+
+                BungeeMessage message = getPlugin().getApi().createMessage(id, data);
+
+                if (messageObj.has("prefixes")) {
+                    Set<Object> prefixes = new LinkedHashSet<>();
+                    JsonArray prefixesObj = messageObj.getAsJsonArray("prefixes");
+                    for (JsonElement prefixElement : prefixesObj) {
+                        prefixes.add(serializer.deserializeObject(prefixElement));
+                    }
+                    message.getPrefixes().addAll(prefixes);
+                }
+                if (messageObj.has("suffixes")) {
+                    Set<Object> suffixes = new LinkedHashSet<>();
+                    JsonArray suffixesObj = messageObj.getAsJsonArray("suffixes");
+                    for (JsonElement suffixElement : suffixesObj) {
+                        suffixes.add(serializer.deserializeObject(suffixElement));
+                    }
+                    message.getPrefixes().addAll(suffixes);
+                }
+
+                add(message);
+            }
+        }});
     }
 }

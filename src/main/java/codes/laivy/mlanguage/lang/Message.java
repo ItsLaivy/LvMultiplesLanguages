@@ -56,7 +56,7 @@ public interface Message<C> {
      */
     @NotNull Set<Object> getSuffixes();
 
-    boolean isArray(@NotNull Locale locale);
+    boolean isArrayText(@NotNull Locale locale);
 
     @NotNull Set<@NotNull Locale> getArrayTexts();
 
