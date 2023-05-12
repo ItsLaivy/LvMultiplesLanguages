@@ -1,7 +1,8 @@
 package codes.laivy.mlanguage.utils;
 
 import codes.laivy.mlanguage.api.IMultiplesLanguagesAPI;
-import net.md_5.bungee.api.chat.BaseComponent;
+import codes.laivy.mlanguage.lang.Message;
+import codes.laivy.mlanguage.lang.MessageStorage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,12 +11,12 @@ import java.io.File;
 
 /**
  * The platform system
- * @param <I> the item class
- * @param <PLUGIN> the plugin class
- * @param <PLAYER>> the player class
+ * @param <P> the plugin class
  * @param <C> The component class
+ * @param <M> the message class
+ * @param <S> the message storage class
  */
-public interface Platform<I, PLUGIN, PLAYER, C> {
+public interface Platform<P, C, M extends Message<C>, S extends MessageStorage<C, M>> {
 
     /**
      * Returns the plugin data folder (e.g.: "/plugins")
@@ -31,9 +32,20 @@ public interface Platform<I, PLUGIN, PLAYER, C> {
     @Contract(pure = true)
     @NotNull Type getType();
 
-    @NotNull IMultiplesLanguagesAPI<I, PLUGIN, PLAYER, C> getApi();
+    @NotNull IMultiplesLanguagesAPI<P, C, M, S> getApi();
 
-    void log(@NotNull BaseComponent component);
+    /**
+     * Log a message into the console
+     * @param message the message
+     */
+    void log(@NotNull C message);
+
+    /**
+     * Sends a message to every user at the server
+     * @param message the message
+     * @param replaces the replaces
+     */
+    void broadcast(@NotNull M message, @NotNull Object[] replaces);
 
     enum Type {
         BUKKIT,

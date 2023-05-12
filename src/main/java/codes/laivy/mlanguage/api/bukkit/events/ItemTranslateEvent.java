@@ -1,8 +1,7 @@
 package codes.laivy.mlanguage.api.bukkit.events;
 
+import codes.laivy.mlanguage.api.bukkit.BukkitStoredMessage;
 import codes.laivy.mlanguage.lang.Locale;
-import codes.laivy.mlanguage.lang.Message;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -17,17 +16,11 @@ public class ItemTranslateEvent extends ItemEvent implements Cancellable {
     private final @NotNull Player player;
 
     private @Nullable Locale locale;
-    private @Nullable Message<BaseComponent> name;
-    private @Nullable Message<BaseComponent> lore;
+    private @Nullable BukkitStoredMessage name;
+    private @Nullable BukkitStoredMessage lore;
 
-    private @NotNull Object[] nameReplaces;
-    private @NotNull Object[] loreReplaces;
-
-    public ItemTranslateEvent(boolean async, @NotNull ItemStack item, @NotNull Player player, @Nullable Locale locale, @Nullable Message<BaseComponent> name, @Nullable Message<BaseComponent> lore, @NotNull Object[] nameReplaces, @NotNull Object[] loreReplaces) {
+    public ItemTranslateEvent(boolean async, @NotNull ItemStack item, @NotNull Player player, @Nullable Locale locale, @Nullable BukkitStoredMessage name, @Nullable BukkitStoredMessage lore) {
         super(async, item);
-
-        this.nameReplaces = nameReplaces;
-        this.loreReplaces = loreReplaces;
 
         this.player = player;
         this.locale = locale;
@@ -62,34 +55,18 @@ public class ItemTranslateEvent extends ItemEvent implements Cancellable {
         }
     }
 
-    public @Nullable Message<BaseComponent> getName() {
+    public @Nullable BukkitStoredMessage getName() {
         return name;
     }
-    public void setName(@Nullable Message<BaseComponent> name) {
+    public void setName(@Nullable BukkitStoredMessage name) {
         this.name = name;
     }
 
-    public @Nullable Message<BaseComponent> getLore() {
+    public @Nullable BukkitStoredMessage getLore() {
         return lore;
     }
-    public void setLore(@Nullable Message<BaseComponent> lore) {
+    public void setLore(@Nullable BukkitStoredMessage lore) {
         this.lore = lore;
-    }
-
-    public @NotNull Object[] getNameReplaces() {
-        return nameReplaces;
-    }
-
-    public void setNameReplaces(@NotNull Object[] nameReplaces) {
-        this.nameReplaces = nameReplaces;
-    }
-
-    public @NotNull Object[] getLoreReplaces() {
-        return loreReplaces;
-    }
-
-    public void setLoreReplaces(@NotNull Object[] loreReplaces) {
-        this.loreReplaces = loreReplaces;
     }
 
     @Override

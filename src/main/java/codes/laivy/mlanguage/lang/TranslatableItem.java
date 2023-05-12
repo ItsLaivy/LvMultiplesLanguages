@@ -4,13 +4,13 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface TranslatableItem<T, C> {
+public interface TranslatableItem<I> {
 
     @Contract(pure = true)
-    @NotNull T getItem();
+    @NotNull I getItem();
 
-    @Nullable Message<C> getName();
+    @Nullable StoredMessage getName();
 
-    @Nullable Message<C> getLore();
+    @Nullable StoredMessage getLore();
 
 }

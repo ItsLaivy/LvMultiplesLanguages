@@ -5,11 +5,11 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.NBTBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class NBTTagFloat extends NBTBase {
     public NBTTagFloat(float value) {
-        this(getDefApi().getVersion().nbtTag(Version.NBTTag.FLOAT, value).getValue());
+        this(multiplesLanguagesBukkit().getVersion().nbtTag(Version.NBTTag.FLOAT, value).getValue());
     }
 
     /**
@@ -22,7 +22,7 @@ public class NBTTagFloat extends NBTBase {
 
     @Override
     public @NotNull NBTTagFloatClass getClassExecutor() {
-        return (NBTTagFloatClass) getDefApi().getVersion().getClassExec("NBTBase:NBTTagFloat");
+        return (NBTTagFloatClass) multiplesLanguagesBukkit().getVersion().getClassExec("NBTBase:NBTTagFloat");
     }
 
     public static class NBTTagFloatClass extends NBTBaseClass {

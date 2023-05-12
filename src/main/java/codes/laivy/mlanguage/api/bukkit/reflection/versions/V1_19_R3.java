@@ -1,6 +1,6 @@
 package codes.laivy.mlanguage.api.bukkit.reflection.versions;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
+import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftItemStack;
@@ -29,8 +29,8 @@ import java.util.Set;
 
 public class V1_19_R3 extends V1_19_R2 {
 
-    public V1_19_R3(@NotNull BukkitMultiplesLanguagesAPI api) {
-        super(api);
+    public V1_19_R3(@NotNull BukkitMultiplesLanguages plugin) {
+        super(plugin);
     }
 
     @Override

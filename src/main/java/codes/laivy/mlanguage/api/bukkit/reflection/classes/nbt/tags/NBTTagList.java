@@ -7,14 +7,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class NBTTagList extends NBTBase {
     public NBTTagList(List<NBTBase> value) {
-        this(getDefApi().getVersion().nbtTag(Version.NBTTag.LIST, value).getValue());
+        this(multiplesLanguagesBukkit().getVersion().nbtTag(Version.NBTTag.LIST, value).getValue());
     }
     public NBTTagList(NBTTagList value) {
-        this(getDefApi().getVersion().nbtTag(Version.NBTTag.LIST).getValue());
+        this(multiplesLanguagesBukkit().getVersion().nbtTag(Version.NBTTag.LIST).getValue());
         concatenate(value);
     }
 
@@ -27,17 +27,17 @@ public class NBTTagList extends NBTBase {
     }
 
     public @Nullable List<?> getList() {
-        return (List<?>) getDefApi().getVersion().getFieldExec("NBTTagList:list").invokeInstance(this);
+        return (List<?>) multiplesLanguagesBukkit().getVersion().getFieldExec("NBTTagList:list").invokeInstance(this);
     }
 
     public void concatenate(@NotNull NBTTagList compound) {
-        getDefApi().getVersion().nbtbaseConcatenate(this, compound.getValue());
+        multiplesLanguagesBukkit().getVersion().nbtbaseConcatenate(this, compound.getValue());
     }
 
     @Override
     public @NotNull Object getValue() {
         if (super.getValue() == null) {
-            setValue(getDefApi().getVersion().nbtTag(Version.NBTTag.LIST).getValue());
+            setValue(multiplesLanguagesBukkit().getVersion().nbtTag(Version.NBTTag.LIST).getValue());
         }
 
         return super.getValue();
@@ -45,7 +45,7 @@ public class NBTTagList extends NBTBase {
 
     @Override
     public @NotNull NBTTagListClass getClassExecutor() {
-        return (NBTTagListClass) getDefApi().getVersion().getClassExec("NBTBase:NBTTagList");
+        return (NBTTagListClass) multiplesLanguagesBukkit().getVersion().getClassExec("NBTBase:NBTTagList");
     }
 
     public static class NBTTagListClass extends NBTBaseClass {

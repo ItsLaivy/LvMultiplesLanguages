@@ -9,7 +9,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class CraftMetaItem extends ObjectExecutor {
     public CraftMetaItem(@Nullable Object value) {
@@ -18,7 +18,7 @@ public class CraftMetaItem extends ObjectExecutor {
 
     public void setDisplayName(@NotNull BaseComponent[] displayName) {
         if (ReflectionUtils.isCompatible(V1_13_R1.class)) {
-            V1_13_R1 version = (V1_13_R1) getDefApi().getVersion();
+            V1_13_R1 version = (V1_13_R1) multiplesLanguagesBukkit().getVersion();
             version.setCraftItemMetaDisplayName(this, displayName);
         } else {
             throw new UnsupportedOperationException("This method is only available since 1.14+");
@@ -26,7 +26,7 @@ public class CraftMetaItem extends ObjectExecutor {
     }
     public void setLore(@NotNull BaseComponent[] lore) {
         if (ReflectionUtils.isCompatible(V1_14_R1.class)) {
-            V1_13_R1 version = (V1_13_R1) getDefApi().getVersion();
+            V1_13_R1 version = (V1_13_R1) multiplesLanguagesBukkit().getVersion();
             version.setCraftItemMetaLore(this, lore);
         } else {
             throw new UnsupportedOperationException("This method is only available since 1.14+");
@@ -35,7 +35,7 @@ public class CraftMetaItem extends ObjectExecutor {
 
     @Override
     public @NotNull CraftMetaItemClass getClassExecutor() {
-        return (CraftMetaItemClass) getDefApi().getVersion().getClassExec("CraftMetaItem");
+        return (CraftMetaItemClass) multiplesLanguagesBukkit().getVersion().getClassExec("CraftMetaItem");
     }
 
     public static class CraftMetaItemClass extends ClassExecutor {

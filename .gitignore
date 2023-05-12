@@ -4,3 +4,4 @@ backups
 target
 *.jar
 src/test
+/old/

@@ -1,26 +1,26 @@
 package codes.laivy.mlanguage.api.bukkit.reflection.versions;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.MethodExecutor;
+import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftMetaItem;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.NBTBase;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.Packet;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.CraftPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.MethodExecutor;
 import codes.laivy.mlanguage.utils.ClassUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -30,12 +30,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedList;
 import java.util.List;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_14_R1 extends V1_13_R2 {
 
-    public V1_14_R1(@NotNull BukkitMultiplesLanguagesAPI api) {
-        super(api);
+    public V1_14_R1(@NotNull BukkitMultiplesLanguages plugin) {
+        super(plugin);
     }
 
     @Override
@@ -63,9 +63,9 @@ public class V1_14_R1 extends V1_13_R2 {
                 objects.add(IChatBaseComponent.convert(component).getValue());
             }
 
-            getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
         } else {
-            getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
         }
     }
 
@@ -90,7 +90,7 @@ public class V1_14_R1 extends V1_13_R2 {
         if (lore != null) {
             List<NBTBase> loreBase = new LinkedList<>();
             for (BaseComponent line : lore) {
-                loreBase.add(getDefApi().getVersion().nbtTag(NBTTag.STRING, ComponentSerializer.toString(line)));
+                loreBase.add(multiplesLanguagesBukkit().getVersion().nbtTag(NBTTag.STRING, ComponentSerializer.toString(line)));
             }
             display.set("Lore", new NBTTagList(loreBase));
         } else {

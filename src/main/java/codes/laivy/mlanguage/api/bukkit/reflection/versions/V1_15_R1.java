@@ -1,25 +1,25 @@
 package codes.laivy.mlanguage.api.bukkit.reflection.versions;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftMetaItem;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
-import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftItemStack;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftMetaItem;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.NBTBase;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.Packet;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.CraftPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
+import codes.laivy.mlanguage.lang.Locale;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,8 +28,8 @@ import java.lang.reflect.Method;
 
 public class V1_15_R1 extends V1_14_R1 {
 
-    public V1_15_R1(@NotNull BukkitMultiplesLanguagesAPI api) {
-        super(api);
+    public V1_15_R1(@NotNull BukkitMultiplesLanguages plugin) {
+        super(plugin);
     }
 
     @Override

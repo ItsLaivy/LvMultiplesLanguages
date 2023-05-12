@@ -1,28 +1,34 @@
-package codes.laivy.mlanguage.api.craftbukkit;
+package codes.laivy.mlanguage.api.bungee.components;
 
+import codes.laivy.mlanguage.api.bukkit.BukkitMessage;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
-import codes.laivy.mlanguage.lang.MessageStorage;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
-/**
- * The storage with Bukkit/Bungee BaseComponent type
- */
-public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent> {
+public interface BaseComponentMessage extends Message<BaseComponent[]> {
+    @NotNull BaseComponent[] getText(@NotNull UUID uuid, @NotNull Object... replaces);
+    @NotNull List<@NotNull BaseComponent[]> getArray(@NotNull UUID uuid, @NotNull Object... replaces);
 
-    /**
-     * Clones the components and replaces the %s strings to the replaces parameter
-     * @param locale the locale
-     * @param components the components array
-     * @param replaces the replaces
-     * @return an array with copies of components replaced
-     */
+    @NotNull String getLegacyText(@NotNull UUID uuid, @NotNull Object... replaces);
+    @NotNull String getLegacyText(@NotNull Locale locale, @NotNull Object... replaces);
+
+    @NotNull List<@NotNull String> getLegacyArray(@NotNull UUID uuid, @NotNull Object... replaces);
+    @NotNull List<String> getLegacyArray(@NotNull Locale locale, @NotNull Object... replaces);
+
+    boolean isLegacy(@NotNull Locale locale);
+
+    @NotNull Set<@NotNull Locale> getLegacyTexts();
+
     default @NotNull BaseComponent[] replace(@NotNull Locale locale, @NotNull BaseComponent[] components, @NotNull Object... replaces) {
         Set<BaseComponent> componentSet = new LinkedHashSet<>();
 
@@ -33,9 +39,8 @@ public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent>
                     Object replace = replaces[row];
                     BaseComponent index;
 
-                    if (replace instanceof Message) {
-                        //noinspection unchecked
-                        index = ComponentUtils.merge(((Message<BaseComponent>) replace).getText(locale));
+                    if (replace instanceof BukkitMessage) {
+                        index = ComponentUtils.merge(((BukkitMessage) replace).getText(locale));
                     } else if (replace instanceof BaseComponent) {
                         index = (BaseComponent) replace;
                     } else if (replace instanceof BaseComponent[]) {
@@ -47,6 +52,7 @@ public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent>
                     if (recursive instanceof TextComponent) {
                         TextComponent text = (TextComponent) recursive;
 
+                        // TODO: 11/05/2023 Component-based replace
                         if (text.getText().contains("%s")) {
                             text.setText(text.getText().replaceFirst("%s", ComponentUtils.getText(index)));
                             row++;
@@ -60,15 +66,4 @@ public interface CraftBukkitMessageStorage extends MessageStorage<BaseComponent>
 
         return componentSet.toArray(new BaseComponent[0]);
     }
-
-    /**
-     * Checks if the text is considered as legacy text.
-     * A legacy text will be serialized as text, not as a base component json
-     *
-     * @param id the message id
-     * @param locale the locale
-     * @return {@code true} if the message will be serialized as text, {@code false} otherwise will be serialized as base component
-     **/
-    boolean isLegacyText(@NotNull String id, @NotNull Locale locale);
-
 }

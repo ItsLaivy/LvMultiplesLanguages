@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class Container extends ObjectExecutor {
     public Container(@Nullable Object value) {
@@ -20,12 +20,12 @@ public class Container extends ObjectExecutor {
 
     public int getId() {
         //noinspection DataFlowIssue
-        return (int) getDefApi().getVersion().getFieldExec("Container:windowId").invokeInstance(this);
+        return (int) multiplesLanguagesBukkit().getVersion().getFieldExec("Container:windowId").invokeInstance(this);
     }
 
     public int getStateId() {
         if (!ReflectionUtils.isCompatible(V1_17_R1.class)) {
-            V1_17_R1 v = (V1_17_R1) getDefApi().getVersion();
+            V1_17_R1 v = (V1_17_R1) multiplesLanguagesBukkit().getVersion();
 
             if (!v.isStateEnabled()) {
                 throw new UnsupportedOperationException("This method is only available since 1.17.1");
@@ -33,24 +33,24 @@ public class Container extends ObjectExecutor {
         }
 
         //noinspection DataFlowIssue
-        return (int) getDefApi().getVersion().getFieldExec("Container:stateId").invokeInstance(this);
+        return (int) multiplesLanguagesBukkit().getVersion().getFieldExec("Container:stateId").invokeInstance(this);
     }
     public void setStateId(int stateId) {
         if (!ReflectionUtils.isCompatible(V1_17_R1.class)) {
-            V1_17_R1 v = (V1_17_R1) getDefApi().getVersion();
+            V1_17_R1 v = (V1_17_R1) multiplesLanguagesBukkit().getVersion();
 
             if (!v.isStateEnabled()) {
                 throw new UnsupportedOperationException("This method is only available since 1.17.1");
             }
         }
 
-        getDefApi().getVersion().getFieldExec("Container:stateId").set(this, stateId);
+        multiplesLanguagesBukkit().getVersion().getFieldExec("Container:stateId").set(this, stateId);
     }
 
     public @NotNull List<Slot> getSlots() {
         List<Slot> slots = new LinkedList<>();
         //noinspection unchecked
-        for (Object slot : (List<Object>) Objects.requireNonNull(getDefApi().getVersion().getFieldExec("Container:slots").invokeInstance(this))) {
+        for (Object slot : (List<Object>) Objects.requireNonNull(multiplesLanguagesBukkit().getVersion().getFieldExec("Container:slots").invokeInstance(this))) {
             slots.add(new Slot(slot));
         }
         return slots;
@@ -62,7 +62,7 @@ public class Container extends ObjectExecutor {
 
     @Override
     public @NotNull ContainerClass getClassExecutor() {
-        return (ContainerClass) getDefApi().getVersion().getClassExec("Container");
+        return (ContainerClass) multiplesLanguagesBukkit().getVersion().getClassExec("Container");
     }
 
     public static class ContainerClass extends ClassExecutor {

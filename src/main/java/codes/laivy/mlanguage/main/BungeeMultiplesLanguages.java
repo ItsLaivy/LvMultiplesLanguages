@@ -1,8 +1,11 @@
 package codes.laivy.mlanguage.main;
 
 import codes.laivy.mlanguage.LvMultiplesLanguages;
-import codes.laivy.mlanguage.api.bungee.BungeeMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.bungee.IBungeeMultiplesLanguagesAPI;
+import codes.laivy.mlanguage.api.bungee.BungeeMessage;
+import codes.laivy.mlanguage.api.bungee.BungeeMessageStorage;
+import codes.laivy.mlanguage.api.bungee.provider.BungeeMessageSerializerProvider;
+import codes.laivy.mlanguage.api.bungee.provider.BungeeMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.Platform;
 import net.md_5.bungee.api.ProxyServer;
@@ -13,7 +16,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, Plugin, ProxiedPlayer, BaseComponent> {
+public class BungeeMultiplesLanguages extends Plugin implements Platform<Plugin, BaseComponent[], BungeeMessage, BungeeMessageStorage> {
 
     public static @NotNull BungeeMultiplesLanguages multiplesLanguagesBungee() {
         return (BungeeMultiplesLanguages) ProxyServer.getInstance().getPluginManager().getPlugin("LvMultiplesLanguages");
@@ -23,12 +26,11 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, P
         //noinspection ResultOfMethodCallIgnored
         getDataFolder().mkdirs();
 
-        LvMultiplesLanguages.setApi(new BungeeMultiplesLanguagesAPI(this));
+        LvMultiplesLanguages.setApi(new BungeeMultiplesLanguagesAPI(this, new BungeeMessageSerializerProvider()));
     }
 
     @Override
     public void onEnable() {
-        // On server loads, load the API too
         getApi().load();
     }
 
@@ -47,17 +49,24 @@ public class BungeeMultiplesLanguages extends Plugin implements Platform<Void, P
         return (IBungeeMultiplesLanguagesAPI) LvMultiplesLanguages.getApi();
     }
 
+    @Override
+    public void log(@NotNull BaseComponent @NotNull ... components) {
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§8[§6" + getDescription().getName() + "§8]§7" + " " + ComponentUtils.getText(components)));
+    }
+
+    @Override
+    public void broadcast(@NotNull BungeeMessage message, @NotNull Object[] replaces) {
+        for (@NotNull ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+            player.sendMessage(message.getText(player, replaces));
+        }
+    }
+
     public void setApi(@NotNull IBungeeMultiplesLanguagesAPI api) {
         if (api != getApi()) {
             if (getApi().isLoaded()) getApi().unload();
             LvMultiplesLanguages.setApi(api);
             api.load();
         }
-    }
-
-    @Override
-    public void log(@NotNull BaseComponent component) {
-        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§8[§6" + getDescription().getName() + "§8]§7" + " " + ComponentUtils.getText(component)));
     }
 
     @Override

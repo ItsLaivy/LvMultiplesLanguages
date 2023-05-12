@@ -1,4 +1,4 @@
-package codes.laivy.mlanguage.api.bukkit.natives;
+package codes.laivy.mlanguage.api.bukkit.provider;
 
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
@@ -10,21 +10,22 @@ import io.netty.channel.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 /**
  * The injection of the default api of LvMultiplesLanguages
  */
 public class InjectionManager {
 
-    private final @NotNull BukkitItemTranslator translator;
+    private final @Nullable BukkitItemTranslator translator;
 
-    public InjectionManager(@NotNull BukkitItemTranslator translator) {
+    public InjectionManager(@Nullable BukkitItemTranslator translator) {
         this.translator = translator;
     }
 
-    public @NotNull BukkitItemTranslator getTranslator() {
+    public @Nullable BukkitItemTranslator getTranslator() {
         return translator;
     }
 
@@ -54,27 +55,29 @@ public class InjectionManager {
             @Override
             public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
                 try {
-                    if (packet.getClass().equals(getDefApi().getVersion().getClassExec("PacketPlayOutSetSlot").getReflectionClass())) {
-                        PacketPlayOutSetSlot current = new PacketPlayOutSetSlot(packet);
+                    if (getTranslator() != null) {
+                        if (packet.getClass().equals(multiplesLanguagesBukkit().getVersion().getClassExec("PacketPlayOutSetSlot").getReflectionClass())) {
+                            PacketPlayOutSetSlot current = new PacketPlayOutSetSlot(packet);
 
-                        if (current.getItemStack().getValue() != null && current.getItemStack().getTag() != null) {
-                            ItemStack item = current.getItemStack().getCraftItemStack().getItemStack().clone();
+                            if (current.getItemStack().getValue() != null && current.getItemStack().getTag() != null) {
+                                ItemStack item = current.getItemStack().getCraftItemStack().getItemStack().clone();
 
-                            int state = -1;
-                            if (ReflectionUtils.isCompatible(V1_17_R1.class)) {
-                                V1_17_R1 v = (V1_17_R1) getDefApi().getVersion();
+                                int state = -1;
+                                if (ReflectionUtils.isCompatible(V1_17_R1.class)) {
+                                    V1_17_R1 v = (V1_17_R1) multiplesLanguagesBukkit().getVersion();
 
-                                if (v.isStateEnabled()) {
-                                    state = current.getStateId();
+                                    if (v.isStateEnabled()) {
+                                        state = current.getStateId();
+                                    }
+                                }
+
+                                if (getTranslator().isTranslatable(item)) {
+                                    packet = getTranslator().translate(item, player, current.getWindowId(), current.getSlot(), state).getValue();
                                 }
                             }
-
-                            if (getTranslator().isTranslatable(item)) {
-                                packet = getTranslator().translate(item, player, current.getWindowId(), current.getSlot(), state).getValue();
-                            }
+                        } else if (packet.getClass().equals(multiplesLanguagesBukkit().getVersion().getClassExec("PacketPlayOutWindowItems").getReflectionClass())) {
+                            packet = multiplesLanguagesBukkit().getVersion().translateWindowItems(new PacketPlayOutWindowItems(packet), player).getValue();
                         }
-                    } else if (packet.getClass().equals(getDefApi().getVersion().getClassExec("PacketPlayOutWindowItems").getReflectionClass())) {
-                        packet = getDefApi().getVersion().translateWindowItems(new PacketPlayOutWindowItems(packet), player).getValue();
                     }
 
                     super.write(channelHandlerContext, packet, channelPromise);

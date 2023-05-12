@@ -1,23 +1,23 @@
 package codes.laivy.mlanguage.api.bukkit.reflection.versions;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
+import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.NBTBase;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.Packet;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.CraftPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,12 +27,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_11_R1 extends V1_10_R1 {
 
-    public V1_11_R1(@NotNull BukkitMultiplesLanguagesAPI api) {
-        super(api);
+    public V1_11_R1(@NotNull BukkitMultiplesLanguages plugin) {
+        super(plugin);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class V1_11_R1 extends V1_10_R1 {
     @Override
     public @Nullable ItemStack[] getWindowItemsPacketItems(@NotNull PacketPlayOutWindowItems packet) {
         //noinspection unchecked
-        @Nullable List<Object> items = (List<Object>) getDefApi().getVersion().getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
+        @Nullable List<Object> items = (List<Object>) multiplesLanguagesBukkit().getVersion().getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
         Set<ItemStack> itemsSet = new LinkedHashSet<>();
 
         if (items == null) {

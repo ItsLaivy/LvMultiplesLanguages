@@ -1,11 +1,11 @@
 package codes.laivy.mlanguage.api.bukkit.reflection;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.NBTBase;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagCompound;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagList;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
@@ -13,7 +13,7 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.MethodExecutor;
 import codes.laivy.mlanguage.api.bukkit.reflection.objects.StringObjExec;
 import codes.laivy.mlanguage.lang.Locale;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 public interface Version {
 
-    @NotNull BukkitMultiplesLanguagesAPI getApi();
+    @NotNull BukkitMultiplesLanguages getPlugin();
 
     boolean onLoad(@NotNull Class<? extends Version> version, @NotNull String key, @NotNull Executor executor);
 

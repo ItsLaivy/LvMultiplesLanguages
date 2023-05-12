@@ -1,30 +1,32 @@
 package codes.laivy.mlanguage.api.bukkit.reflection.versions;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.*;
-import codes.laivy.mlanguage.api.bukkit.reflection.objects.*;
+import codes.laivy.mlanguage.api.bukkit.IBukkitItemTranslator;
 import codes.laivy.mlanguage.api.bukkit.translator.BukkitItemTranslator;
-import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.NBTBase;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.Packet;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.CraftPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.*;
+import codes.laivy.mlanguage.api.bukkit.reflection.objects.*;
+import codes.laivy.mlanguage.lang.Locale;
+import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import io.netty.channel.Channel;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -36,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_8_R1 implements Version {
 
@@ -44,15 +46,15 @@ public class V1_8_R1 implements Version {
     private final @NotNull Map<@NotNull String, @NotNull MethodExecutor> methods = new HashMap<>();
     private final @NotNull Map<@NotNull String, @NotNull FieldExecutor> fields = new HashMap<>();
 
-    private final @NotNull BukkitMultiplesLanguagesAPI api;
+    private final @NotNull BukkitMultiplesLanguages plugin;
 
-    public V1_8_R1(@NotNull BukkitMultiplesLanguagesAPI api) {
-        this.api = api;
+    public V1_8_R1(@NotNull BukkitMultiplesLanguages plugin) {
+        this.plugin = plugin;
     }
 
     @Override
-    public @NotNull BukkitMultiplesLanguagesAPI getApi() {
-        return api;
+    public @NotNull BukkitMultiplesLanguages getPlugin() {
+        return plugin;
     }
 
     @Override
@@ -185,7 +187,7 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @Nullable ItemStack[] getWindowItemsPacketItems(@NotNull PacketPlayOutWindowItems packet) {
-        @Nullable Object[] items = (Object[]) getDefApi().getVersion().getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
+        @Nullable Object[] items = (Object[]) multiplesLanguagesBukkit().getVersion().getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
         Set<ItemStack> itemsSet = new LinkedHashSet<>();
 
         if (items == null) {
@@ -199,9 +201,29 @@ public class V1_8_R1 implements Version {
         return itemsSet.toArray(new ItemStack[0]);
     }
 
+    private boolean unknownTranslatorWarn = false;
+
+    private @Nullable BukkitItemTranslator getTranslator() {
+        IBukkitItemTranslator translatorTemp = getPlugin().getApi().getItemTranslator();
+
+        if (translatorTemp == null) {
+            if (!unknownTranslatorWarn) {
+                getPlugin().log(new TextComponent("§6The plugin is trying to translate items but an item translator isn't defined!"));
+                unknownTranslatorWarn = true;
+            }
+        } else if (!(translatorTemp instanceof BukkitItemTranslator)) {
+            getPlugin().log(new TextComponent("§6This translator '" + translatorTemp.getClass().getName() + "' isn't compatible with the versioning of the Bukkit Multiples Languages platform."));
+        } else {
+            @NotNull BukkitItemTranslator translator = (BukkitItemTranslator) translatorTemp;
+            return translator;
+        }
+        return null;
+    }
+
     @Override
     public void translateInventory(@NotNull Player player) {
-        BukkitItemTranslator translator = getApi().getItemTranslator();
+        BukkitItemTranslator translator = getTranslator();
+        if (translator == null) return;
 
         InventoryView open = player.getOpenInventory();
         for (int row = 0; row < open.countSlots(); row++) {
@@ -248,24 +270,28 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @NotNull PacketPlayOutWindowItems translateWindowItems(@NotNull PacketPlayOutWindowItems original, @NotNull Player player) {
-        BukkitItemTranslator translator = getApi().getItemTranslator();
+        IBukkitItemTranslator translator = getPlugin().getApi().getItemTranslator();
 
-        List<codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack> items = new LinkedList<>();
+        if (translator == null) {
+            throw new UnsupportedOperationException("The item translator hasn't found.");
+        }
+
+        List<ItemStack> items = new LinkedList<>();
         // Window id and items of the original packet
         int windowId = original.getWindowId();
-        codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack[] list = original.getItems();
+        ItemStack[] list = original.getItems();
         // Translation foreach
-        for (codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack itemNms : list) {
+        for (ItemStack itemNms : list) {
             org.bukkit.inventory.ItemStack item = itemNms.getCraftItemStack().getItemStack().clone();
 
             if (translator.isTranslatable(item)) {
                 translator.translate(item, player);
             }
 
-            items.add(codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack(item));
+            items.add(ItemStack.getNMSItemStack(item));
         }
         // Creating the new packet with translated items applied
-        return getDefApi().getVersion().createWindowItemsPacket(windowId, -1, items.toArray(new codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack[0]), null);
+        return multiplesLanguagesBukkit().getVersion().createWindowItemsPacket(windowId, -1, items.toArray(new ItemStack[0]), null);
     }
 
     /**
@@ -300,7 +326,7 @@ public class V1_8_R1 implements Version {
             NBTTagCompound f = (NBTTagCompound) from;
 
             for (String key : f.keySet()) {
-                i.set(key, Objects.requireNonNull(nbtCompound(Version.NBTCompoundAction.GET, f, new StringObjExec(key), null)));
+                i.set(key, Objects.requireNonNull(nbtCompound(NBTCompoundAction.GET, f, new StringObjExec(key), null)));
             }
         } else if (into instanceof NBTTagList && from instanceof List) {
             NBTTagList i = (NBTTagList) into;

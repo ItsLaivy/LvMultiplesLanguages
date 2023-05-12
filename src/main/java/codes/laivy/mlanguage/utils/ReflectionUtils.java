@@ -4,18 +4,18 @@ import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 import static org.bukkit.Bukkit.getServer;
 
+// TODO: 06/04/2023 A better reflection utils system
 public class ReflectionUtils {
-    
-    static {
-        // TODO: 06/04/2023 A better reflection utils system 
-        getDefApi();
+
+    private ReflectionUtils() {
+
     }
 
     public static boolean isCompatible(@NotNull Class<? extends Version> version) {
-        return version.isAssignableFrom(getDefApi().getVersion().getClass());
+        return version.isAssignableFrom(multiplesLanguagesBukkit().getVersion().getClass());
     }
 
     @NotNull
@@ -28,7 +28,7 @@ public class ReflectionUtils {
     }
 
     public static boolean isCompatible() {
-        return getDefApi().getVersion().isCompatible(getVersionName());
+        return multiplesLanguagesBukkit().getVersion().isCompatible(getVersionName());
     }
 
     @Nullable

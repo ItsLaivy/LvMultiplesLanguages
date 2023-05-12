@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class EntityPlayer extends ObjectExecutor {
 
@@ -22,23 +22,23 @@ public class EntityPlayer extends ObjectExecutor {
     }
 
     public @NotNull PlayerConnection getConnection() {
-        return new PlayerConnection(getDefApi().getVersion().getFieldExec("EntityPlayer:playerConnection").invokeInstance(this));
+        return new PlayerConnection(multiplesLanguagesBukkit().getVersion().getFieldExec("EntityPlayer:playerConnection").invokeInstance(this));
     }
 
     public @NotNull String getLocale() {
-        return (String) Objects.requireNonNull(getDefApi().getVersion().getFieldExec("EntityPlayer:locale").invokeInstance(this));
+        return (String) Objects.requireNonNull(multiplesLanguagesBukkit().getVersion().getFieldExec("EntityPlayer:locale").invokeInstance(this));
     }
 
     public @NotNull Container getActiveContainer() {
-        return new Container(getDefApi().getVersion().getFieldExec("EntityPlayer:activeContainer").invokeInstance(this));
+        return new Container(multiplesLanguagesBukkit().getVersion().getFieldExec("EntityPlayer:activeContainer").invokeInstance(this));
     }
     public @NotNull Container getDefaultContainer() {
-        return new Container(getDefApi().getVersion().getFieldExec("EntityPlayer:defaultContainer").invokeInstance(this));
+        return new Container(multiplesLanguagesBukkit().getVersion().getFieldExec("EntityPlayer:defaultContainer").invokeInstance(this));
     }
 
     @Override
     public @NotNull EntityPlayerClass getClassExecutor() {
-        return (EntityPlayerClass) getDefApi().getVersion().getClassExec("EntityPlayer");
+        return (EntityPlayerClass) multiplesLanguagesBukkit().getVersion().getClassExec("EntityPlayer");
     }
 
     public static class EntityPlayerClass extends ClassExecutor {

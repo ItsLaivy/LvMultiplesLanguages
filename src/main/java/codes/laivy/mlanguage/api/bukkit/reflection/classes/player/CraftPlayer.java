@@ -5,7 +5,7 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.ObjectExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class CraftPlayer extends ObjectExecutor {
     public CraftPlayer(@Nullable Object value) {
@@ -13,12 +13,12 @@ public class CraftPlayer extends ObjectExecutor {
     }
 
     public @NotNull EntityPlayer getHandle() {
-        return new EntityPlayer(getDefApi().getVersion().getMethodExec("CraftPlayer:getHandle").invokeInstance(this));
+        return new EntityPlayer(multiplesLanguagesBukkit().getVersion().getMethodExec("CraftPlayer:getHandle").invokeInstance(this));
     }
 
     @Override
     public @NotNull CraftPlayerClass getClassExecutor() {
-        return (CraftPlayerClass) getDefApi().getVersion().getClassExec("CraftPlayer");
+        return (CraftPlayerClass) multiplesLanguagesBukkit().getVersion().getClassExec("CraftPlayer");
     }
 
     public static class CraftPlayerClass extends ClassExecutor {

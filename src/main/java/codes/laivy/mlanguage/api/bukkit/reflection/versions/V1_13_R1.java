@@ -1,26 +1,26 @@
 package codes.laivy.mlanguage.api.bukkit.reflection.versions;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
-import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
-import codes.laivy.mlanguage.api.bukkit.reflection.executors.MethodExecutor;
+import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
 import codes.laivy.mlanguage.api.bukkit.reflection.Version;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.chat.IChatBaseComponent;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.CraftMetaItem;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.NBTBase;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.*;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.Packet;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutWindowItems;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.CraftPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.EntityPlayer;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.NetworkManager;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.PlayerConnection;
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Container;
+import codes.laivy.mlanguage.api.bukkit.reflection.classes.player.inventory.Slot;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
+import codes.laivy.mlanguage.api.bukkit.reflection.executors.MethodExecutor;
 import codes.laivy.mlanguage.utils.ClassUtils;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -33,12 +33,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static codes.laivy.mlanguage.api.bukkit.BukkitMultiplesLanguagesAPI.getDefApi;
+import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_13_R1 extends V1_12_R1 {
 
-    public V1_13_R1(@NotNull BukkitMultiplesLanguagesAPI api) {
-        super(api);
+    public V1_13_R1(@NotNull BukkitMultiplesLanguages plugin) {
+        super(plugin);
     }
 
     @Override
@@ -108,9 +108,9 @@ public class V1_13_R1 extends V1_12_R1 {
 
     public void setCraftItemMetaDisplayName(@NotNull CraftMetaItem item, @NotNull BaseComponent[] name) {
         if (name != null) {
-            getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, IChatBaseComponent.convert(name).getValue());
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, IChatBaseComponent.convert(name).getValue());
         } else {
-            getDefApi().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
         }
     }
     public void setCraftItemMetaLore(@NotNull CraftMetaItem item, @NotNull BaseComponent[] lore) {
@@ -120,9 +120,9 @@ public class V1_13_R1 extends V1_12_R1 {
                 objects.add(ComponentUtils.getText(component));
             }
 
-            getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
         } else {
-            getDefApi().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
+            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
         }
     }
 

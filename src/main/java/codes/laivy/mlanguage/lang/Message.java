@@ -1,14 +1,11 @@
 package codes.laivy.mlanguage.lang;
 
-import codes.laivy.mlanguage.data.SerializedData;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 /**
  * The Message class represents a message in a specific language, with a unique ID that allows
@@ -22,14 +19,7 @@ import java.util.UUID;
  */
 public interface Message<C> {
 
-    /**
-     * The language of this Message
-     * @return the language
-     */
-    @Contract(pure = true)
-    @NotNull MessageStorage<C> getStorage();
-
-    @NotNull Map<@NotNull Locale, @NotNull C[]> getData();
+    @NotNull Map<@NotNull Locale, @NotNull C> getData();
 
     /**
      * The language message ID of this Message
@@ -42,66 +32,34 @@ public interface Message<C> {
      * Note: If the replacement is an instance of Message of BaseComponent it will be automatically translated
      * @return the untranslated version of the replaces
      */
-    @Contract(pure = true)
-    @NotNull Object[] getReplacements();
+    @NotNull Set<Object> getReplacements();
 
-    default @NotNull C[] getText(@NotNull UUID uuid, @NotNull Object... replaces) {
-        Object[] mReplaces = getReplacements();
-        final Object[] finalReplaces = new Object[mReplaces.length + replaces.length];
-
-        int row = 0;
-        for (Object replace : mReplaces) {
-            finalReplaces[row] = replace;
-            row++;
-        }
-        for (Object replace : replaces) {
-            finalReplaces[row] = replace;
-            row++;
-        }
-
-        return getStorage().getText(uuid, getId(), finalReplaces);
+    @NotNull C getText(@NotNull Locale locale, @NotNull Object... replaces);
+    default @NotNull C getText(@NotNull Locale locale) {
+        return this.getText(locale, new Object[0]);
     }
 
-    default @NotNull C[] getText(@Nullable Locale locale, @NotNull Object... replaces) {
-        Object[] mReplaces = getReplacements();
-        final Object[] finalReplaces = new Object[mReplaces.length + replaces.length];
-
-        int row = 0;
-        for (Object replace : mReplaces) {
-            finalReplaces[row] = replace;
-            row++;
-        }
-        for (Object replace : replaces) {
-            finalReplaces[row] = replace;
-            row++;
-        }
-
-        return getStorage().getText(locale, getId(), finalReplaces);
+    @NotNull List<@NotNull C> getArray(@NotNull Locale locale, @NotNull Object... replaces);
+    default @NotNull List<@NotNull C> getArray(@NotNull Locale locale) {
+        return this.getArray(locale, new Object[0]);
     }
 
     /**
      * The prefixes of this message
-     * Note: The object can be a string, or another message
      * @return the prefixes list
      */
-    @Unmodifiable
-    @NotNull List<@NotNull Object> getPrefixes();
+    @NotNull Set<Object> getPrefixes();
 
     /**
      * The suffixes of this message
-     * Note: The object can be a string, or another message
      * @return the suffixes list
      */
-    @Unmodifiable
-    @NotNull List<@NotNull Object> getSuffixes();
+    @NotNull Set<Object> getSuffixes();
 
-    default boolean isArray(@NotNull Locale locale) {
-        return getStorage().isArray(this, locale);
-    }
+    boolean isArray(@NotNull Locale locale);
 
-    default Locale[] getLocales() {
-        return getData().keySet().toArray(new Locale[0]);
-    }
+    @NotNull Set<@NotNull Locale> getArrayTexts();
 
-    @NotNull SerializedData serialize();
+    Locale[] getLocales();
+
 }

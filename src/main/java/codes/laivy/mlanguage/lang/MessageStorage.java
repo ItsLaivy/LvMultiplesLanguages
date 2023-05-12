@@ -1,35 +1,24 @@
 package codes.laivy.mlanguage.lang;
 
-import codes.laivy.mlanguage.data.SerializedData;
 import codes.laivy.mlanguage.plugin.PluginProperty;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 /**
  * The message storage stores all the messages and translations
  * @param <C> the component type class
  */
-public interface MessageStorage<C> {
+public interface MessageStorage<C, M extends Message<C>> {
 
-    @NotNull Message<C>[] getMessages();
+    @NotNull Set<M> getMessages();
+    @NotNull M getMessage(@NotNull String id);
 
-    @NotNull Map<@NotNull String, Map<@NotNull Locale, @NotNull C[]>> getData();
-
-    @NotNull List<@NotNull C[]> getTextArray(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
-    @NotNull List<@NotNull C[]> getTextArray(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces);
-
-    @NotNull C[] getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
-
-    @NotNull C[] getText(@NotNull UUID uuid, @NotNull String id, @NotNull Object... replaces);
-
-    @NotNull Message<C> getMessage(@NotNull String id, @NotNull Object... replaces);
-
-    @NotNull MessageArray<C> getMessageArray(@NotNull String id, @NotNull Object... replaces);
+    @NotNull List<@NotNull C> getTextArray(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
+    @NotNull C getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
 
     @Contract(pure = true)
     @NotNull String getName();
@@ -39,21 +28,10 @@ public interface MessageStorage<C> {
 
     @NotNull Locale getDefaultLocale();
 
-    boolean isArray(@NotNull String id, @Nullable Locale locale);
+    boolean isArray(@NotNull String id, @NotNull Locale locale);
 
-    default boolean isArray(@NotNull Message<C> message, @Nullable Locale locale) {
+    default boolean isArray(@NotNull Message<C> message, @NotNull Locale locale) {
         return isArray(message.getId(), locale);
-    }
-
-    @NotNull SerializedData serialize();
-
-    /**
-     * Merge a message storage into this
-     * @param from the message that will be merged with this
-     * @return true if the merge has changes, false otherwise
-     */
-    default boolean merge(@NotNull MessageStorage<C> from) {
-        throw new UnsupportedOperationException("This message storage doesn't supports merges");
     }
 
     /**
