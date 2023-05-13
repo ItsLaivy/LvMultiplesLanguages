@@ -130,10 +130,10 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
     private boolean merge(@NotNull BukkitMessageStorage to, @NotNull BukkitMessageStorage from) {
         boolean changes = false;
 
-        for (BukkitMessage message : from.getMessages()) {
-            Optional<BukkitMessage> toMessage = to.getMessages().stream().filter(m -> m.getId().equals(message.getId())).findFirst();
+        for (BukkitMessage fromMessage : from.getMessages()) {
+            Optional<BukkitMessage> toMessage = to.getMessages().stream().filter(m -> m.getId().equals(fromMessage.getId())).findFirst();
             if (!toMessage.isPresent()) {
-                to.getMessages().add(new BukkitMessageProvider(message.getId(), message.getData(), message.getArrayTexts(), message.getLegacyTexts(), message.getReplacements(), message.getPrefixes(), message.getSuffixes()));
+                to.getMessages().add(new BukkitMessageProvider(fromMessage.getId(), fromMessage.getData(), fromMessage.getArrayTexts(), fromMessage.getLegacyTexts(), fromMessage.getReplacements(), fromMessage.getPrefixes(), fromMessage.getSuffixes()));
                 changes = true;
             }
         }

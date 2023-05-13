@@ -55,7 +55,7 @@ public class BungeeMessageProvider implements BungeeMessage {
     @Override
     public @NotNull BaseComponent @NotNull [] getText(@NotNull Locale locale, @NotNull Object... replaces) {
         if (!getData().containsKey(locale)) {
-            throw new NullPointerException("This message id '" + getId() + "' doesn't contains a message at locale '" + locale.name() + "'");
+            locale = getData().keySet().stream().findFirst().orElseThrow(() -> new NullPointerException("Message without data '" + getId() + "'"));
         }
 
         return replace(
@@ -113,14 +113,16 @@ public class BungeeMessageProvider implements BungeeMessage {
 
     @Override
     public @NotNull List<BaseComponent[]> getArray(@NotNull Locale locale, @NotNull Object... replaces) {
+        Locale original = locale;
+
         List<BaseComponent[]> components = new LinkedList<>();
 
         if (!getData().containsKey(locale)) {
-            throw new NullPointerException("This message id '" + getId() + "' doesn't contains a locale '" + locale.name() + "'");
+            locale = getData().keySet().stream().findFirst().orElseThrow(() -> new NullPointerException("Message without data '" + getId() + "'"));
         }
 
         if (!isArrayText(locale)) {
-            throw new UnsupportedOperationException("This text with id '" + getId() + "' and locale '" + locale.name() + "' isn't an array text, use #getText instead.");
+            throw new UnsupportedOperationException("This text with id '" + getId() + "' and locale '" + locale.name() + "' isn't an array text, use #getText instead (Original: '" + original.name() + "').");
         }
 
         for (BaseComponent component : getText(locale, replaces)) {
