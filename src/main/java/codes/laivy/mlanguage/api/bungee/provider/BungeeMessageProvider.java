@@ -115,8 +115,6 @@ public class BungeeMessageProvider implements BungeeMessage {
     public @NotNull List<BaseComponent[]> getArray(@NotNull Locale locale, @NotNull Object... replaces) {
         Locale original = locale;
 
-        List<BaseComponent[]> components = new LinkedList<>();
-
         if (!getData().containsKey(locale)) {
             locale = getData().keySet().stream().findFirst().orElseThrow(() -> new NullPointerException("Message without data '" + getId() + "'"));
         }
@@ -124,6 +122,8 @@ public class BungeeMessageProvider implements BungeeMessage {
         if (!isArrayText(locale)) {
             throw new UnsupportedOperationException("This text with id '" + getId() + "' and locale '" + locale.name() + "' isn't an array text, use #getText instead (Original: '" + original.name() + "').");
         }
+
+        List<BaseComponent[]> components = new LinkedList<>();
 
         for (BaseComponent component : getText(locale, replaces)) {
             components.add(new BaseComponent[] {

@@ -348,21 +348,21 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                     JsonElement base = entry2.getValue();
 
                     if (base.isJsonArray()) { // Is array
-                        BaseComponent[] array = new BaseComponent[0];
+                        Set<BaseComponent> array = new LinkedHashSet<>();
                         for (JsonElement line : base.getAsJsonArray()) {
                             String jsonStr = ChatColor.translateAlternateColorCodes('&', line.getAsString());
 
                             if (!(line.isJsonNull() || jsonStr.equals("")) && JsonUtils.isJson(jsonStr)) { // Check if is array text
-                                array = ComponentSerializer.parse(jsonStr);
+                                array.add(new TextComponent(ComponentSerializer.parse(jsonStr)));
                                 continue;
                             }
 
-                            array = new BaseComponent[] { new TextComponent(jsonStr) };
+                            array.add(new TextComponent(jsonStr));
 
                             // Declare legacy text
                             legacies.add(locale);
                         }
-                        data.put(locale, array);
+                        data.put(locale, array.toArray(new BaseComponent[0]));
 
                         // Declare array text
                         arrays.add(locale);
