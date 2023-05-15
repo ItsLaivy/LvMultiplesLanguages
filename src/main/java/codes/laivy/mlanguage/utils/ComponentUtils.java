@@ -18,20 +18,30 @@ public class ComponentUtils {
         return new TextComponent(components);
     }
 
-    public static @NotNull String serialize(BaseComponent components) {
-        return serialize(new BaseComponent[] { components });
+    public static @NotNull String serialize(BaseComponent component) {
+        if (component instanceof TextComponent) {
+            TextComponent text = (TextComponent) component;
+            if (!text.hasFormatting() && (text.getExtra() == null || text.getExtra().isEmpty())) {
+                JsonObject object = new JsonObject();
+                object.addProperty("text", text.getText());
+                return object.toString();
+            }
+        }
+        return ComponentSerializer.toString(component);
     }
     public static @NotNull String serialize(BaseComponent[] components) {
         if (components.length == 1) {
-            return ComponentSerializer.toString(components[0]);
+            return serialize(components[0]);
         } else {
             JsonArray array = new JsonArray();
             for (BaseComponent component : components) {
+                String serialized = serialize(component);
+
                 try {
                     //noinspection deprecation
-                    array.add(new JsonParser().parse(ComponentSerializer.toString(component)));
+                    array.add(new JsonParser().parse(serialized));
                 } catch (JsonSyntaxException ignore) {
-                    array.add(ComponentSerializer.toString(component));
+                    array.add(serialized);
                 }
             }
             return array.toString();
@@ -45,7 +55,10 @@ public class ComponentUtils {
             str.append(component.toLegacyText());
         }
 
-        return str.substring(2);
+        if (str.toString().startsWith("§f")) {
+            return str.toString().replaceFirst("§f", "");
+        }
+        return str.toString();
     }
 
     /**

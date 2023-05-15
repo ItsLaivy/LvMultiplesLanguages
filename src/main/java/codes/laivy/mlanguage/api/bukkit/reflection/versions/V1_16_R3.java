@@ -65,7 +65,7 @@ public class V1_16_R3 extends V1_16_R2 {
         if (lore != null) {
             List<Object> objects = new LinkedList<>();
             for (BaseComponent component : lore) {
-                objects.add(ComponentSerializer.toString(component));
+                objects.add(ComponentUtils.serialize(component));
             }
 
             multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);

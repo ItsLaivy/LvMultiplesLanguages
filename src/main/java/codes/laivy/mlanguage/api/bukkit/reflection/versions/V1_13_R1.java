@@ -77,7 +77,7 @@ public class V1_13_R1 extends V1_12_R1 {
         }
 
         if (name != null) {
-            display.set("Name", new NBTTagString(ComponentSerializer.toString(name)));
+            display.set("Name", new NBTTagString(ComponentUtils.serialize(name)));
         } else {
             display.remove("Name");
         }

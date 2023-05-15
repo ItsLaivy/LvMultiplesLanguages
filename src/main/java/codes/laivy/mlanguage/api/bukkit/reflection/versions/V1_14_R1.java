@@ -22,6 +22,7 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.MethodExecutor;
 import codes.laivy.mlanguage.utils.ClassUtils;
+import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -90,7 +91,7 @@ public class V1_14_R1 extends V1_13_R2 {
         if (lore != null) {
             List<NBTBase> loreBase = new LinkedList<>();
             for (BaseComponent line : lore) {
-                loreBase.add(multiplesLanguagesBukkit().getVersion().nbtTag(NBTTag.STRING, ComponentSerializer.toString(line)));
+                loreBase.add(multiplesLanguagesBukkit().getVersion().nbtTag(NBTTag.STRING, ComponentUtils.serialize(line)));
             }
             display.set("Lore", new NBTTagList(loreBase));
         } else {

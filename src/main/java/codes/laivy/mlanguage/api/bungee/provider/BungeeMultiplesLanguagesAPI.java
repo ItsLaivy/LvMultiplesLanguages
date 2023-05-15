@@ -104,7 +104,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                 Merge merge = merge(storage, temp);
 
                 if (!merge.getMerged().isEmpty()) {
-                    getPlugin().log(new TextComponent("§7Has been added §f" + merge.getMerged().size() + " messages to the §f'" + fs.getName() + "' §7message storage of the plugin §f'" + plugin.getDescription().getName() + "'§7."));
+                    getPlugin().log(new TextComponent("§7Has been added §f" + merge.getMerged().size() + " messages §7to the §f'" + fs.getName() + "' §7message storage of the plugin §f'" + plugin.getDescription().getName() + "'§7."));
                 } if (!merge.getUnused().isEmpty()) {
                     StringBuilder messagesStr = new StringBuilder();
                     int row = 0;
@@ -178,8 +178,10 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                     }
 
                     try {
+                        String dataStr = ChatColor.translateAlternateColorCodes('&', content.toString());
+
                         //noinspection deprecation
-                        JsonElement json = new JsonParser().parse(content.toString());
+                        JsonElement json = new JsonParser().parse(dataStr);
                         if (json.isJsonObject()) {
                             BungeeMessageStorage storage;
                             try {
@@ -248,11 +250,12 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                 }
                 // Write the serialized data into
                 JsonElement data = serializeStorage(storage);
+                String dataStr = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(data).replace("§", "&");
 
                 try (FileOutputStream fileOutputStream = new FileOutputStream(file);
                      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
                      BufferedWriter writer = new BufferedWriter(outputStreamWriter)) {
-                    writer.write(new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(data));
+                    writer.write(dataStr);
                 }
 
                 storage.unload();
