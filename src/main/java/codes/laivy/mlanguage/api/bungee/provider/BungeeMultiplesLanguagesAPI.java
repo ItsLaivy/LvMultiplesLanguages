@@ -10,6 +10,7 @@ import codes.laivy.mlanguage.main.BungeeMultiplesLanguages;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.FileUtils;
 import codes.laivy.mlanguage.utils.JsonUtils;
+import codes.laivy.mlanguage.utils.Merge;
 import com.google.gson.*;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -100,8 +101,21 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                 storage = fs;
 
                 BungeeMessageStorage temp = new BungeeMessageStorageProvider(plugin, name, locale, messages);
-                if (merge(storage, temp)) {
-                    getPlugin().log(new TextComponent("New messages has been added to the '" + fs.getName() + "' message storage of the plugin '" + getPlugin().getDescription().getName() + "'."));
+                Merge merge = merge(storage, temp);
+
+                if (!merge.getMerged().isEmpty()) {
+                    getPlugin().log(new TextComponent("§7Has been added §f" + merge.getMerged().size() + " messages to the §f'" + fs.getName() + "' §7message storage of the plugin §f'" + plugin.getDescription().getName() + "'§7."));
+                } if (!merge.getUnused().isEmpty()) {
+                    StringBuilder messagesStr = new StringBuilder();
+                    int row = 0;
+
+                    for (String id : merge.getUnused()) {
+                        if (row > 0) messagesStr.append("§r, ");
+                        messagesStr.append("§f").append(id);
+                        row++;
+                    }
+
+                    getPlugin().log(new TextComponent("§7These messages at the §f'" + fs.getName() + "' §7message storage of the plugin §f'" + plugin.getDescription().getName() + "' §7isn't used by the plugin, you can remove them: " + messagesStr));
                 }
             }
         }
@@ -114,19 +128,25 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
         return storage;
     }
 
-    private boolean merge(@NotNull BungeeMessageStorage to, @NotNull BungeeMessageStorage from) {
-        boolean changes = false;
+    private @NotNull Merge merge(@NotNull BungeeMessageStorage to, @NotNull BungeeMessageStorage from) {
+        Set<String> merged = new HashSet<>();
+        Set<String> unused = new HashSet<>();
 
-        for (BungeeMessage message : from.getMessages()) {
-            Optional<BungeeMessage> toMessage = to.getMessages().stream().filter(m -> m.getId().equals(message.getId())).findFirst();
+        for (BungeeMessage toMessage : to.getMessages()) {
+            Optional<BungeeMessage> fromMessage = from.getMessages().stream().filter(m -> m.getId().equals(toMessage.getId())).findFirst();
+            if (!fromMessage.isPresent()) {
+                unused.add(toMessage.getId());
+            }
+        }
+        for (BungeeMessage fromMessage : from.getMessages()) {
+            Optional<BungeeMessage> toMessage = to.getMessages().stream().filter(m -> m.getId().equals(fromMessage.getId())).findFirst();
             if (!toMessage.isPresent()) {
-                to.getMessages().add(new BungeeMessageProvider(message.getId(), message.getData(), message.getArrayTexts(), message.getLegacyTexts(), message.getReplacements(), message.getPrefixes(), message.getSuffixes()));
-
-                changes = true;
+                to.getMessages().add(new BungeeMessageProvider(fromMessage.getId(), fromMessage.getData(), fromMessage.getArrayTexts(), fromMessage.getLegacyTexts(), fromMessage.getReplacements(), fromMessage.getPrefixes(), fromMessage.getSuffixes()));
+                merged.add(fromMessage.getId());
             }
         }
 
-        return changes;
+        return new Merge(merged, unused);
     }
 
     @Override
@@ -221,7 +241,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                 // Create storage file (if not exists)
                 @NotNull File file = new File(rootFile, FileUtils.fileNameTranslate(storage.getName()) + ".json");
                 if (!file.exists() && !file.createNewFile()) {
-                    throw new IllegalStateException("Cannot create storage file data '" + storage.getPluginProperty().getName() + File.separator + rootFile.getParentFile().getName() + "' file of the storage '" + storage.getPluginProperty().getName() + "' at the plugin '" + storage.getName() + "'");
+                    throw new IllegalStateException("Cannot create storage file data '" + storage.getPluginProperty().getName() + File.separator + rootFile.getParentFile().getName() + "' file of the storage '" + storage.getName() + "' at the plugin '" + storage.getPluginProperty().getName() + "'");
                 }
                 if (!file.exists()) {
                     throw new NoSuchFileException("Couldn't get the message storage file '" + storage.getPluginProperty().getName() + File.separator + rootFile.getParentFile().getName() + "'");
@@ -238,7 +258,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                 storage.unload();
             } catch (Throwable e) {
                 e.printStackTrace();
-                getPlugin().log(new TextComponent("§cCouldn't save message storage called '" + storage.getName() + "' of the plugin '" + getPlugin().getDescription().getName() + "'"));
+                getPlugin().log(new TextComponent("§cCouldn't save message storage called '" + storage.getName() + "' of the plugin '" + storage.getPluginProperty().getName() + "'"));
             }
         }
         //
