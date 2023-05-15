@@ -9,6 +9,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class CraftMetaItem extends ObjectExecutor {
@@ -24,7 +26,7 @@ public class CraftMetaItem extends ObjectExecutor {
             throw new UnsupportedOperationException("This method is only available since 1.14+");
         }
     }
-    public void setLore(@NotNull BaseComponent[] lore) {
+    public void setLore(@Nullable List<BaseComponent[]> lore) {
         if (ReflectionUtils.isCompatible(V1_14_R1.class)) {
             V1_13_R1 version = (V1_13_R1) multiplesLanguagesBukkit().getVersion();
             version.setCraftItemMetaLore(this, lore);

@@ -8,6 +8,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
@@ -37,11 +38,11 @@ public class ItemStack extends ObjectExecutor {
         }
     }
 
-    public void setName(@Nullable BaseComponent name) {
+    public void setName(@NotNull BaseComponent[] name) {
         multiplesLanguagesBukkit().getVersion().setItemDisplayName(this, name);
     }
 
-    public void setLore(@NotNull BaseComponent... lore) {
+    public void setLore(@Nullable List<BaseComponent[]> lore) {
         multiplesLanguagesBukkit().getVersion().setItemLore(this, lore);
     }
 

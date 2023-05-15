@@ -149,14 +149,14 @@ public interface Version {
     }
 
     // ItemStack
-    void setItemDisplayName(@NotNull ItemStack itemStack, @Nullable BaseComponent name);
+    void setItemDisplayName(@NotNull ItemStack itemStack, @NotNull BaseComponent[] name);
 
-    void setItemLore(@NotNull ItemStack itemStack, @NotNull BaseComponent[] lore);
+    void setItemLore(@NotNull ItemStack itemStack, @Nullable List<BaseComponent[]> lore);
 
     // Bukkit ItemStack
-    void setItemBukkitDisplayName(@NotNull org.bukkit.inventory.ItemStack itemStack, @Nullable BaseComponent name);
+    void setItemBukkitDisplayName(@NotNull org.bukkit.inventory.ItemStack itemStack, @NotNull BaseComponent[] name);
 
-    void setItemBukkitLore(@NotNull org.bukkit.inventory.ItemStack itemStack, @NotNull BaseComponent[] lore);
+    void setItemBukkitLore(@NotNull org.bukkit.inventory.ItemStack itemStack, @Nullable List<BaseComponent[]> lore);
     // ItemStack
 
     // Player

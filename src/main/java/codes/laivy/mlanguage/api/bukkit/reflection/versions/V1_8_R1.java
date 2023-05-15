@@ -583,7 +583,7 @@ public class V1_8_R1 implements Version {
     }
 
     @Override
-    public void setItemDisplayName(@NotNull ItemStack itemStack, @Nullable BaseComponent name) {
+    public void setItemDisplayName(@NotNull ItemStack itemStack, @NotNull BaseComponent[] name) {
         NBTTagCompound tag = itemStack.getTag();
 
         if (tag == null) {
@@ -611,7 +611,7 @@ public class V1_8_R1 implements Version {
     }
 
     @Override
-    public void setItemLore(@NotNull ItemStack itemStack, @NotNull BaseComponent[] lore) {
+    public void setItemLore(@NotNull ItemStack itemStack, @Nullable List<BaseComponent[]> lore) {
         NBTTagCompound tag = itemStack.getTag();
 
         if (tag == null) {
@@ -630,7 +630,7 @@ public class V1_8_R1 implements Version {
 
         if (lore != null) {
             List<NBTBase> loreBase = new LinkedList<>();
-            for (BaseComponent line : lore) {
+            for (BaseComponent[] line : lore) {
                 loreBase.add(nbtTag(NBTTag.STRING, ComponentUtils.getText(line)));
             }
             display.set("Lore", new NBTTagList(loreBase));
@@ -655,7 +655,7 @@ public class V1_8_R1 implements Version {
     }
 
     @Override
-    public void setItemBukkitDisplayName(org.bukkit.inventory.@NotNull ItemStack itemStack, @Nullable BaseComponent name) {
+    public void setItemBukkitDisplayName(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull BaseComponent[] name) {
         if (itemStack.hasItemMeta()) {
             ItemMeta meta = itemStack.getItemMeta();
 
@@ -670,14 +670,14 @@ public class V1_8_R1 implements Version {
     }
 
     @Override
-    public void setItemBukkitLore(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull BaseComponent[] lore) {
+    public void setItemBukkitLore(org.bukkit.inventory.@NotNull ItemStack itemStack, @Nullable List<BaseComponent[]> lore) {
         if (itemStack.hasItemMeta()) {
             ItemMeta meta = itemStack.getItemMeta();
 
             if (meta != null) {
                 if (lore != null) {
                     List<String> loreStr = new LinkedList<>();
-                    for (BaseComponent component : lore) {
+                    for (BaseComponent[] component : lore) {
                         loreStr.add(ComponentUtils.getText(component));
                     }
 

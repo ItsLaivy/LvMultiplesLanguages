@@ -24,7 +24,6 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.MethodExecutor;
 import codes.laivy.mlanguage.utils.ClassUtils;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +58,7 @@ public class V1_13_R1 extends V1_12_R1 {
     }
 
     @Override
-    public void setItemDisplayName(@NotNull ItemStack itemStack, @Nullable BaseComponent name) {
+    public void setItemDisplayName(@NotNull ItemStack itemStack, @NotNull BaseComponent[] name) {
         NBTTagCompound tag = itemStack.getTag();
 
         if (tag == null) {
@@ -87,16 +86,12 @@ public class V1_13_R1 extends V1_12_R1 {
     }
 
     @Override
-    public void setItemBukkitDisplayName(org.bukkit.inventory.@NotNull ItemStack itemStack, @Nullable BaseComponent name) {
+    public void setItemBukkitDisplayName(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull BaseComponent[] name) {
         if (ClassUtils.isInstanceOf(getClassExec("CraftMetaItem").getReflectionClass(), itemStack.getItemMeta().getClass())) {
             if (itemStack.hasItemMeta()) {
                 CraftMetaItem itemMeta = new CraftMetaItem(itemStack.getItemMeta());
 
-                if (name != null) {
-                    itemMeta.setDisplayName(new BaseComponent[] { name });
-                } else {
-                    itemMeta.setDisplayName(null);
-                }
+                itemMeta.setDisplayName(name);
 
                 itemStack.setItemMeta((ItemMeta) itemMeta.getValue());
 
@@ -113,10 +108,10 @@ public class V1_13_R1 extends V1_12_R1 {
             multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
         }
     }
-    public void setCraftItemMetaLore(@NotNull CraftMetaItem item, @NotNull BaseComponent[] lore) {
+    public void setCraftItemMetaLore(@NotNull CraftMetaItem item, @Nullable List<BaseComponent[]> lore) {
         if (lore != null) {
             List<Object> objects = new LinkedList<>();
-            for (BaseComponent component : lore) {
+            for (BaseComponent[] component : lore) {
                 objects.add(ComponentUtils.getText(component));
             }
 

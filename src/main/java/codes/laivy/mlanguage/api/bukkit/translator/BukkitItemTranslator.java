@@ -12,7 +12,6 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagString
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
-import codes.laivy.mlanguage.utils.ComponentUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
@@ -152,7 +151,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getPlugin().getVersion().setItemBukkitDisplayName(
                         item,
-                        ComponentUtils.merge(name.getMessage().getText(nameLocale))
+                        name.getMessage().getText(nameLocale)
                 );
             } else {
                 getPlugin().getVersion().setItemBukkitDisplayName(item, null);
@@ -163,7 +162,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getPlugin().getVersion().setItemBukkitLore(
                         item,
-                        lore.getMessage().getText(loreLocale)
+                        lore.getMessage().getArray(loreLocale)
                 );
             } else {
                 getPlugin().getVersion().setItemBukkitLore(item, null);
@@ -209,9 +208,9 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
         final @Nullable BukkitStoredMessage lore = getLore(item);
 
         if (name != null) {
-            getPlugin().getVersion().setItemBukkitDisplayName(item, ComponentUtils.merge(name.getMessage().getText(name.getStorage().getDefaultLocale())));
+            getPlugin().getVersion().setItemBukkitDisplayName(item, name.getMessage().getText(name.getStorage().getDefaultLocale()));
         } if (lore != null) {
-            getPlugin().getVersion().setItemBukkitLore(item, lore.getMessage().getText(lore.getStorage().getDefaultLocale()));
+            getPlugin().getVersion().setItemBukkitLore(item, lore.getMessage().getArray(lore.getStorage().getDefaultLocale()));
         }
     }
 }

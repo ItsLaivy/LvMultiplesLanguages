@@ -18,7 +18,7 @@ public class ComponentUtils {
         return new TextComponent(components);
     }
 
-    public static @NotNull String serialize(BaseComponent component) {
+    public static @NotNull String serialize(@NotNull BaseComponent component) {
         if (component instanceof TextComponent) {
             TextComponent text = (TextComponent) component;
             if (!text.hasFormatting() && (text.getExtra() == null || text.getExtra().isEmpty())) {
@@ -29,7 +29,7 @@ public class ComponentUtils {
         }
         return ComponentSerializer.toString(component);
     }
-    public static @NotNull String serialize(BaseComponent[] components) {
+    public static @NotNull String serialize(@NotNull BaseComponent[] components) {
         if (components.length == 1) {
             return serialize(components[0]);
         } else {

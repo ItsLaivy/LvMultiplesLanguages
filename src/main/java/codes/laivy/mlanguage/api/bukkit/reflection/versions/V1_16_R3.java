@@ -22,7 +22,6 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
