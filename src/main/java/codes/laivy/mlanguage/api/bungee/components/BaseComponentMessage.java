@@ -34,27 +34,30 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
         int row = 0;
         for (final BaseComponent component : ComponentUtils.cloneComponent(components)) {
             for (BaseComponent recursive : ComponentUtils.getComponents(component)) {
-                if (replaces.length > row) {
-                    Object replace = replaces[row];
-                    BaseComponent index;
+                if (recursive instanceof TextComponent) {
+                    TextComponent text = (TextComponent) recursive;
 
-                    if (replace instanceof BukkitMessage) {
-                        index = ComponentUtils.merge(((BukkitMessage) replace).getText(locale));
-                    } else if (replace instanceof BaseComponent) {
-                        index = (BaseComponent) replace;
-                    } else if (replace instanceof BaseComponent[]) {
-                        index = new TextComponent((BaseComponent[]) replace);
-                    } else {
-                        index = new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace)));
-                    }
+                    while (text.getText().contains("%s")) {
+                        if (replaces.length > row) {
+                            Object replace = replaces[row];
+                            BaseComponent[] index;
 
-                    if (recursive instanceof TextComponent) {
-                        TextComponent text = (TextComponent) recursive;
+                            if (replace instanceof BukkitMessage) {
+                                index = ((BukkitMessage) replace).getText(locale);
+                            } else if (replace instanceof BaseComponent) {
+                                index = new BaseComponent[] { (BaseComponent) replace };
+                            } else if (replace instanceof BaseComponent[]) {
+                                index = (BaseComponent[]) replace;
+                            } else {
+                                index = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace))) };
+                            }
 
-                        // TODO: 11/05/2023 Component-based replace
-                        if (text.getText().contains("%s")) {
+
+                            // TODO: 11/05/2023 Component-based replace
                             text.setText(text.getText().replaceFirst("%s", ComponentUtils.getText(index)));
                             row++;
+                        } else {
+                            break;
                         }
                     }
                 }

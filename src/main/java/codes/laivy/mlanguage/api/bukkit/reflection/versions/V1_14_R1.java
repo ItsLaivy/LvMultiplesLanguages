@@ -70,7 +70,7 @@ public class V1_14_R1 extends V1_13_R2 {
         }
     }
 
-    @Override
+    @Override 
     public void setItemLore(@NotNull ItemStack itemStack, @Nullable List<BaseComponent[]> lore) {
         NBTTagCompound tag = itemStack.getTag();
 
