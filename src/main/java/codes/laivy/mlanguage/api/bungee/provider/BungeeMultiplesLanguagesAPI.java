@@ -371,7 +371,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                     JsonElement base = entry2.getValue();
 
                     if (base.isJsonArray()) { // Is array
-                        Set<BaseComponent> array = new LinkedHashSet<>();
+                        List<BaseComponent> array = new LinkedList<>();
                         for (JsonElement line : base.getAsJsonArray()) {
                             String jsonStr = ChatColor.translateAlternateColorCodes('&', line.getAsString());
 

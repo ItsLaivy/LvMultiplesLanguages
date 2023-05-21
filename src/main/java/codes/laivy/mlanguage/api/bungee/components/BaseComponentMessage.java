@@ -9,10 +9,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public interface BaseComponentMessage extends Message<BaseComponent[]> {
     @NotNull BaseComponent[] getText(@NotNull UUID uuid, @NotNull Object... replaces);
@@ -29,7 +26,7 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
     @NotNull Set<@NotNull Locale> getLegacyTexts();
 
     default @NotNull BaseComponent[] replace(@NotNull Locale locale, @NotNull BaseComponent[] components, @NotNull Object... replaces) {
-        Set<BaseComponent> componentSet = new LinkedHashSet<>();
+        List<BaseComponent> componentList = new LinkedList<>();
 
         int row = 0;
         for (final BaseComponent component : ComponentUtils.cloneComponent(components)) {
@@ -52,7 +49,6 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
                                 index = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace))) };
                             }
 
-
                             // TODO: 11/05/2023 Component-based replace
                             text.setText(text.getText().replaceFirst("%s", ComponentUtils.getText(index)));
                             row++;
@@ -63,9 +59,9 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
                 }
             }
 
-            componentSet.add(component);
+            componentList.add(component);
         }
 
-        return componentSet.toArray(new BaseComponent[0]);
+        return componentList.toArray(new BaseComponent[0]);
     }
 }

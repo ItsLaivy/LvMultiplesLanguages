@@ -67,7 +67,7 @@ public class ComponentUtils {
      * @return the component clones (including extras recursively)
      */
     public static @NotNull BaseComponent[] cloneComponent(@NotNull BaseComponent[] original) {
-        Set<BaseComponent> componentSet = new LinkedHashSet<>();
+        List<BaseComponent> componentList = new LinkedList<>();
 
         for (BaseComponent component : original) {
             BaseComponent cloned = component.duplicate();
@@ -75,21 +75,23 @@ public class ComponentUtils {
                 List<BaseComponent> clonedExtras = new ArrayList<>(new LinkedList<>(Arrays.asList(cloneComponent(component.getExtra().toArray(new BaseComponent[0])))));
                 cloned.setExtra(clonedExtras);
             }
-            componentSet.add(cloned);
+            componentList.add(cloned);
         }
 
-        return componentSet.toArray(new BaseComponent[0]);
+        return componentList.toArray(new BaseComponent[0]);
     }
 
     public static @NotNull BaseComponent[] getComponents(@NotNull BaseComponent component) {
-        Set<BaseComponent> componentSet = new LinkedHashSet<>();
-        componentSet.add(component);
+        List<BaseComponent> componentList = new LinkedList<>();
+
+        componentList.add(component);
         if (component.getExtra() != null) {
             for (BaseComponent extra : component.getExtra()) {
-                componentSet.addAll(Arrays.asList(getComponents(extra)));
+                componentList.addAll(Arrays.asList(getComponents(extra)));
             }
         }
-        return componentSet.toArray(new BaseComponent[0]);
+
+        return componentList.toArray(new BaseComponent[0]);
     }
 
 }
