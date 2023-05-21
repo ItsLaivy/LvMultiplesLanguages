@@ -10,6 +10,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public interface BaseComponentMessage extends Message<BaseComponent[]> {
     @NotNull BaseComponent[] getText(@NotNull UUID uuid, @NotNull Object... replaces);
@@ -50,7 +52,7 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
                             }
 
                             // TODO: 11/05/2023 Component-based replace
-                            text.setText(text.getText().replaceFirst("%s", ComponentUtils.getText(index)));
+                            text.setText(text.getText().replaceFirst(Pattern.quote("%s"), Matcher.quoteReplacement(ComponentUtils.getText(index))));
                             row++;
                         } else {
                             break;
