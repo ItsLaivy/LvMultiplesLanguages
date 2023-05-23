@@ -85,54 +85,6 @@ public class BukkitMessageProvider implements BukkitMessage {
     public @NotNull List<@NotNull BaseComponent[]> getArray(@NotNull OfflinePlayer player) {
         return getArray(player, new Object[0]);
     }
-
-    public @NotNull List<@NotNull BaseComponent[]> getArray(@NotNull UUID uuid, @NotNull Object... replaces) {
-        if (LvMultiplesLanguages.getApi() != null) {
-            return this.getArray(LvMultiplesLanguages.getApi().getLocale(uuid), replaces);
-        }
-        throw new NullPointerException("Couldn't find the multiples languages API");
-    }
-
-    public @NotNull List<@NotNull String> getLegacyArray(@NotNull UUID uuid, @NotNull Object... replaces) {
-        if (LvMultiplesLanguages.getApi() != null) {
-            return this.getLegacyArray(LvMultiplesLanguages.getApi().getLocale(uuid), replaces);
-        }
-        throw new NullPointerException("Couldn't find the multiples languages API");
-    }
-
-    public @NotNull List<String> getLegacyArray(@NotNull Locale locale, @NotNull Object... replaces) {
-        List<BaseComponent[]> components = getArray(locale, replaces);
-        List<String> legacy = new LinkedList<>();
-
-        for (BaseComponent[] component : components) {
-            legacy.add(ComponentUtils.getText(component));
-        }
-
-        return legacy;
-    }
-
-    @Override
-    public @NotNull List<BaseComponent[]> getArray(@NotNull Locale locale, @NotNull Object... replaces) {
-        Locale original = locale;
-
-        if (!getData().containsKey(locale)) {
-            locale = getData().keySet().stream().findFirst().orElseThrow(() -> new NullPointerException("Message without data '" + getId() + "'"));
-        }
-
-        if (!isArrayText(locale)) {
-            throw new UnsupportedOperationException("This text with id '" + getId() + "' and locale '" + locale.name() + "' isn't an array text, use #getText instead (Original: '" + original.name() + "').");
-        }
-
-        List<BaseComponent[]> components = new LinkedList<>();
-
-        for (BaseComponent component : getText(locale, replaces)) {
-            components.add(new BaseComponent[] {
-                    component.duplicate()
-            });
-        }
-
-        return components;
-    }
     // Array
 
     @Override

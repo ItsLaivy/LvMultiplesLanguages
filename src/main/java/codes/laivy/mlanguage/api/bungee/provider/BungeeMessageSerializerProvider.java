@@ -15,8 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static codes.laivy.mlanguage.main.BungeeMultiplesLanguages.multiplesLanguagesBungee;
-
 public class BungeeMessageSerializerProvider implements MessageSerializer<BaseComponent[], BungeeMessage, BungeeMessageStorage> {
 
     @Override
