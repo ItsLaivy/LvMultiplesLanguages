@@ -1,6 +1,5 @@
 package codes.laivy.mlanguage.api.bungee.components;
 
-import codes.laivy.mlanguage.api.bukkit.BukkitMessage;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.utils.ComponentUtils;
@@ -41,12 +40,35 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
                             Object replace = replaces[row];
                             BaseComponent[] index;
 
-                            if (replace instanceof BukkitMessage) {
-                                index = ((BukkitMessage) replace).getText(locale);
+                            // TODO: 23/05/2023 Enhance this
+                            if (replace instanceof BaseComponentMessage) {
+                                index = ((BaseComponentMessage) replace).getText(locale);
                             } else if (replace instanceof BaseComponent) {
                                 index = new BaseComponent[] { (BaseComponent) replace };
                             } else if (replace instanceof BaseComponent[]) {
                                 index = (BaseComponent[]) replace;
+                            } else if (replace instanceof Collection) {
+                                Collection<?> collection = (Collection<?>) replace;
+                                List<BaseComponent> componentList2 = new LinkedList<>();
+
+                                int r = 0;
+                                for (Object object : collection) {
+                                    if (r > 0) componentList2.add(new TextComponent("\n"));
+
+                                    if (object instanceof BaseComponent) {
+                                        componentList2.add((BaseComponent) object);
+                                    } else if (object instanceof BaseComponent[]) {
+                                        componentList2.add(new TextComponent((BaseComponent[]) object));
+                                    } else if (object instanceof BaseComponentMessage) {
+                                        componentList2.add(new TextComponent(((BaseComponentMessage) object).getText(locale)));
+                                    } else {
+                                        componentList2.add(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(object))));
+                                    }
+
+                                    r++;
+                                }
+
+                                index = componentList2.toArray(new BaseComponent[0]);
                             } else {
                                 index = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace))) };
                             }
