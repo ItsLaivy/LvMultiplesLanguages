@@ -7,10 +7,8 @@ import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,10 +75,6 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
                                 index = componentList2.toArray(new BaseComponent[0]);
                             } else {
                                 index = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace))) };
-                            }
-
-                            if (getId().equals("Objective types: block break name")) {
-                                Bukkit.broadcastMessage("Replace: '" + replace + "', class: '" + replace.getClass().getSimpleName() + "'");
                             }
 
                             // TODO: 11/05/2023 Component-based replace
