@@ -66,5 +66,7 @@ public interface IMultiplesLanguagesAPI<P, C, M extends Message<C>, S extends Me
 
     @NotNull M createMessage(@NotNull String id, @NotNull Map<@NotNull Locale, @NotNull C> data);
 
+    // TODO: 23/05/2023 #createStorage(InputStream)
+
     @NotNull MessageSerializer<C, M, S> getSerializer();
 }

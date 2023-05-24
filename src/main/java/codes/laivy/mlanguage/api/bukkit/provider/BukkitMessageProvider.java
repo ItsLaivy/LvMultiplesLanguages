@@ -5,6 +5,7 @@ import codes.laivy.mlanguage.api.bukkit.BukkitMessage;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,10 +59,16 @@ public class BukkitMessageProvider implements BukkitMessage {
             locale = getData().keySet().stream().findFirst().orElseThrow(() -> new NullPointerException("Message without data '" + getId() + "'"));
         }
 
+        List<Object> replacesList = new LinkedList<>();
+        replacesList.addAll(getReplacements());
+        replacesList.addAll(Arrays.asList(replaces));
+
+        Bukkit.broadcastMessage("Replacements: '" + replacesList.size() + "', id: '" + getId() + "'");
+
         return replace(
                 locale,
                 getData().get(locale),
-                replaces
+                replacesList.toArray(new Object[0])
         ).clone();
     }
 
@@ -138,8 +145,12 @@ public class BukkitMessageProvider implements BukkitMessage {
     }
 
     @Override
-    protected BukkitMessageProvider clone() throws CloneNotSupportedException {
-        BukkitMessageProvider clone = (BukkitMessageProvider) super.clone();
-        return new BukkitMessageProvider(clone.getId(), new LinkedHashMap<>(clone.getData()), new LinkedHashSet<>(clone.getArrayTexts()), new LinkedHashSet<>(clone.getLegacyTexts()), new LinkedHashSet<>(clone.getReplacements()), new LinkedHashSet<>(clone.getPrefixes()), new LinkedHashSet<>(clone.getSuffixes()));
+    public @NotNull BukkitMessageProvider clone() {
+        try {
+            BukkitMessageProvider clone = (BukkitMessageProvider) super.clone();
+            return new BukkitMessageProvider(clone.getId(), new LinkedHashMap<>(clone.getData()), new LinkedHashSet<>(clone.getArrayTexts()), new LinkedHashSet<>(clone.getLegacyTexts()), new LinkedHashSet<>(clone.getReplacements()), new LinkedHashSet<>(clone.getPrefixes()), new LinkedHashSet<>(clone.getSuffixes()));
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

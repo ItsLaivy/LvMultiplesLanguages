@@ -58,10 +58,14 @@ public class BungeeMessageProvider implements BungeeMessage {
             locale = getData().keySet().stream().findFirst().orElseThrow(() -> new NullPointerException("Message without data '" + getId() + "'"));
         }
 
+        List<Object> replacesList = new LinkedList<>();
+        replacesList.addAll(getReplacements());
+        replacesList.addAll(Arrays.asList(replaces));
+
         return replace(
                 locale,
                 getData().get(locale),
-                replaces
+                replacesList.toArray(new Object[0])
         ).clone();
     }
 
@@ -138,8 +142,12 @@ public class BungeeMessageProvider implements BungeeMessage {
     }
 
     @Override
-    protected BungeeMessageProvider clone() throws CloneNotSupportedException {
-        BungeeMessageProvider clone = (BungeeMessageProvider) super.clone();
-        return new BungeeMessageProvider(clone.getId(), new LinkedHashMap<>(clone.getData()), new LinkedHashSet<>(clone.getArrayTexts()), new LinkedHashSet<>(clone.getLegacyTexts()), new LinkedHashSet<>(clone.getReplacements()), new LinkedHashSet<>(clone.getPrefixes()), new LinkedHashSet<>(clone.getSuffixes()));
+    public @NotNull BungeeMessageProvider clone() {
+        try {
+            BungeeMessageProvider clone = (BungeeMessageProvider) super.clone();
+            return new BungeeMessageProvider(clone.getId(), new LinkedHashMap<>(clone.getData()), new LinkedHashSet<>(clone.getArrayTexts()), new LinkedHashSet<>(clone.getLegacyTexts()), new LinkedHashSet<>(clone.getReplacements()), new LinkedHashSet<>(clone.getPrefixes()), new LinkedHashSet<>(clone.getSuffixes()));
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

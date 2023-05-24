@@ -156,4 +156,7 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
         return components;
     }
     // Arrays
+
+    @Override
+    @NotNull BaseComponentMessage clone();
 }

@@ -17,7 +17,7 @@ import java.util.Set;
  * @author Laivy
  * @since 1.0
  */
-public interface Message<C> {
+public interface Message<C> extends Cloneable {
 
     @NotNull Map<@NotNull Locale, @NotNull C> getData();
 
@@ -61,5 +61,7 @@ public interface Message<C> {
     @NotNull Set<@NotNull Locale> getArrayTexts();
 
     Locale[] getLocales();
+
+    @NotNull Message<C> clone();
 
 }
