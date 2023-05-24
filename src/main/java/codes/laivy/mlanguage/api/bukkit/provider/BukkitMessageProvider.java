@@ -63,8 +63,6 @@ public class BukkitMessageProvider implements BukkitMessage {
         replacesList.addAll(getReplacements());
         replacesList.addAll(Arrays.asList(replaces));
 
-        Bukkit.broadcastMessage("Replacements: '" + replacesList.size() + "', id: '" + getId() + "'");
-
         return replace(
                 locale,
                 getData().get(locale),
