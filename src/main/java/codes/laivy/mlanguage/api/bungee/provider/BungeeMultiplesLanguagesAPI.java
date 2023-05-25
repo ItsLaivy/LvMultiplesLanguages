@@ -287,6 +287,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
             JsonArray prefixes = new JsonArray();
             JsonArray suffixes = new JsonArray();
+            JsonArray replacements = new JsonArray();
 
             MessageSerializer<BaseComponent[], BungeeMessage, BungeeMessageStorage> serializer = getPlugin().getApi().getSerializer();
             for (Map.Entry<@NotNull Locale, BaseComponent @NotNull []> entry : message.getData().entrySet()) {
@@ -320,11 +321,16 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
             for (Object suffix : message.getSuffixes()) {
                 suffixes.add(serializer.serializeObject(suffix));
             }
+            for (Object replacement : message.getReplacements()) {
+                replacements.add(serializer.serializeObject(replacement));
+            }
 
             if (prefixes.size() > 0) {
                 messageObj.add("prefixes", prefixes);
             } if (suffixes.size() > 0) {
                 messageObj.add("suffixes", suffixes);
+            } if (replacements.size() > 0) {
+                messageObj.add("replacements", replacements);
             }
 
             messages.add(message.getId(), messageObj);
@@ -412,7 +418,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                 message.getArrayTexts().addAll(arrays);
 
                 if (messagesObj.has("prefixes")) {
-                    Set<Object> prefixes = new LinkedHashSet<>();
+                    List<Object> prefixes = new LinkedList<>();
                     JsonArray prefixesObj = messagesObj.getAsJsonArray("prefixes");
                     for (JsonElement prefixElement : prefixesObj) {
                         prefixes.add(serializer.deserializeObject(prefixElement));
@@ -420,12 +426,20 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                     message.getPrefixes().addAll(prefixes);
                 }
                 if (messagesObj.has("suffixes")) {
-                    Set<Object> suffixes = new LinkedHashSet<>();
+                    List<Object> suffixes = new LinkedList<>();
                     JsonArray suffixesObj = messagesObj.getAsJsonArray("suffixes");
                     for (JsonElement suffixElement : suffixesObj) {
                         suffixes.add(serializer.deserializeObject(suffixElement));
                     }
-                    message.getPrefixes().addAll(suffixes);
+                    message.getSuffixes().addAll(suffixes);
+                }
+                if (messagesObj.has("replacements")) {
+                    List<Object> replaces = new LinkedList<>();
+                    JsonArray replacesObj = messagesObj.getAsJsonArray("replacements");
+                    for (JsonElement replaceElement : replacesObj) {
+                        replaces.add(serializer.deserializeObject(replaceElement));
+                    }
+                    message.getReplacements().addAll(replaces);
                 }
 
                 add(message);

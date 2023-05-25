@@ -13,10 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BukkitMessageSerializerProvider implements MessageSerializer<BaseComponent[], BukkitMessage, BukkitMessageStorage> {
 
@@ -107,9 +104,9 @@ public class BukkitMessageSerializerProvider implements MessageSerializer<BaseCo
             Set<Locale> arrays = new LinkedHashSet<>();
             Set<Locale> legacies = new LinkedHashSet<>();
 
-            Set<Object> replacements = new LinkedHashSet<>();
-            Set<Object> prefixes = new LinkedHashSet<>();
-            Set<Object> suffixes = new LinkedHashSet<>();
+            List<Object> replacements = new LinkedList<>();
+            List<Object> prefixes = new LinkedList<>();
+            List<Object> suffixes = new LinkedList<>();
             Map<Locale, BaseComponent[]> data = new LinkedHashMap<>();
 
             for (Map.Entry<String, JsonElement> entry : object.getAsJsonObject("data").entrySet()) {

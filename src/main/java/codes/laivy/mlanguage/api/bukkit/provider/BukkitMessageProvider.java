@@ -20,21 +20,23 @@ public class BukkitMessageProvider implements BukkitMessage {
     private final @NotNull Set<Locale> array;
     private final @NotNull Set<Locale> legacies;
 
-    private final @NotNull Set<Object> replacements;
-    private final @NotNull Set<Object> prefixes;
-    private final @NotNull Set<Object> suffixes;
+    private final @NotNull List<Object> replacements;
+    private final @NotNull List<Object> prefixes;
+    private final @NotNull List<Object> suffixes;
 
-    public BukkitMessageProvider(@NotNull String id, @NotNull Map<Locale, BaseComponent[]> data, @NotNull Set<Locale> array, @NotNull Set<Locale> legacies) {
-        this(id, data, array, legacies, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>());
-    }
     public BukkitMessageProvider(@NotNull String id, @NotNull Map<Locale, BaseComponent[]> data) {
         this(id, data, new LinkedHashSet<>(), new LinkedHashSet<>());
     }
-    public BukkitMessageProvider(@NotNull String id, @NotNull Map<Locale, BaseComponent[]> data, @NotNull Set<Locale> array, @NotNull Set<Locale> legacies, @NotNull Set<Object> replacements, @NotNull Set<Object> prefixes, @NotNull Set<Object> suffixes) {
+    public BukkitMessageProvider(@NotNull String id, @NotNull Map<Locale, BaseComponent[]> data, @NotNull Set<Locale> array, @NotNull Set<Locale> legacies) {
+        this(id, data, array, legacies, new LinkedList<>(), new LinkedList<>(), new LinkedList<>());
+    }
+    public BukkitMessageProvider(@NotNull String id, @NotNull Map<Locale, BaseComponent[]> data, @NotNull Set<Locale> array, @NotNull Set<Locale> legacies, @NotNull List<Object> replacements, @NotNull List<Object> prefixes, @NotNull List<Object> suffixes) {
         this.id = id;
         this.data = data;
+
         this.array = array;
         this.legacies = legacies;
+
         this.replacements = replacements;
         this.prefixes = prefixes;
         this.suffixes = suffixes;
@@ -62,6 +64,12 @@ public class BukkitMessageProvider implements BukkitMessage {
         List<Object> replacesList = new LinkedList<>();
         replacesList.addAll(getReplacements());
         replacesList.addAll(Arrays.asList(replaces));
+
+        if (getId().equals("Quests menu list: quest lore")) {
+            for (Object replace : replacesList) {
+                Bukkit.broadcastMessage("Replace: '" + replace + "', class: '" + replace.getClass().getName() + "'");
+            }
+        }
 
         return replace(
                 locale,
@@ -103,17 +111,17 @@ public class BukkitMessageProvider implements BukkitMessage {
     }
 
     @Override
-    public @NotNull Set<Object> getReplacements() {
+    public @NotNull List<Object> getReplacements() {
         return replacements;
     }
 
     @Override
-    public @NotNull Set<Object> getPrefixes() {
+    public @NotNull List<Object> getPrefixes() {
         return prefixes;
     }
 
     @Override
-    public @NotNull Set<Object> getSuffixes() {
+    public @NotNull List<Object> getSuffixes() {
         return suffixes;
     }
 
@@ -146,7 +154,7 @@ public class BukkitMessageProvider implements BukkitMessage {
     public @NotNull BukkitMessageProvider clone() {
         try {
             BukkitMessageProvider clone = (BukkitMessageProvider) super.clone();
-            return new BukkitMessageProvider(clone.getId(), new LinkedHashMap<>(clone.getData()), new LinkedHashSet<>(clone.getArrayTexts()), new LinkedHashSet<>(clone.getLegacyTexts()), new LinkedHashSet<>(clone.getReplacements()), new LinkedHashSet<>(clone.getPrefixes()), new LinkedHashSet<>(clone.getSuffixes()));
+            return new BukkitMessageProvider(clone.getId(), new LinkedHashMap<>(clone.getData()), new LinkedHashSet<>(clone.getArrayTexts()), new LinkedHashSet<>(clone.getLegacyTexts()), new LinkedList<>(clone.getReplacements()), new LinkedList<>(clone.getPrefixes()), new LinkedList<>(clone.getSuffixes()));
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }

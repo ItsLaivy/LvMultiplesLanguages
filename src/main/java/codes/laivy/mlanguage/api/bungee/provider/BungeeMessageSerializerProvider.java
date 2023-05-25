@@ -103,9 +103,9 @@ public class BungeeMessageSerializerProvider implements MessageSerializer<BaseCo
             Set<Locale> arrays = new LinkedHashSet<>();
             Set<Locale> legacies = new LinkedHashSet<>();
 
-            Set<Object> replacements = new LinkedHashSet<>();
-            Set<Object> prefixes = new LinkedHashSet<>();
-            Set<Object> suffixes = new LinkedHashSet<>();
+            List<Object> replacements = new LinkedList<>();
+            List<Object> prefixes = new LinkedList<>();
+            List<Object> suffixes = new LinkedList<>();
             Map<Locale, BaseComponent[]> data = new LinkedHashMap<>();
 
             for (Map.Entry<String, JsonElement> entry : object.getAsJsonObject("data").entrySet()) {
