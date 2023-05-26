@@ -399,7 +399,7 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
                         for (JsonElement line : base.getAsJsonArray()) {
                             String jsonStr = ChatColor.translateAlternateColorCodes('&', line.getAsString());
 
-                            if (!(line.isJsonNull() || jsonStr.equals("")) && JsonUtils.isJson(jsonStr)) { // Check if is array text
+                            if (!(line.isJsonNull() || jsonStr.equals("")) && JsonUtils.isJson(jsonStr)) { // Check if is not legacy
                                 array.add(new TextComponent(ComponentSerializer.parse(jsonStr)));
                                 continue;
                             }

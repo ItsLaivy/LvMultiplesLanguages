@@ -9,7 +9,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.StringReader;
 
-public class JsonUtils {
+public final class JsonUtils {
+
+    private JsonUtils() {
+    }
 
     public static boolean isJson(@NotNull String json) {
         try {
@@ -17,7 +20,9 @@ public class JsonUtils {
             reader.setLenient(false);
             Streams.parse(reader);
 
-            JsonElement element = JsonParser.parseString(json);
+            //noinspection deprecation
+            JsonElement element = new JsonParser().parse(json);
+
             if (element.isJsonObject() || element.isJsonArray()) {
                 return true;
             }
