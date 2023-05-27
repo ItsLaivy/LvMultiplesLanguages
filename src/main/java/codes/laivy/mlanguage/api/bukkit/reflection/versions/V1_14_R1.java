@@ -21,7 +21,6 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.ClassExecutor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.MethodExecutor;
-import codes.laivy.mlanguage.utils.ClassUtils;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,8 +29,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_14_R1 extends V1_13_R2 {
 
@@ -64,9 +61,9 @@ public class V1_14_R1 extends V1_13_R2 {
                 objects.add(IChatBaseComponent.convert(component).getValue());
             }
 
-            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
+            getFieldExec("CraftMetaItem:lore").set(item, objects);
         } else {
-            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
+            getFieldExec("CraftMetaItem:lore").set(item, null);
         }
     }
 
@@ -91,7 +88,7 @@ public class V1_14_R1 extends V1_13_R2 {
         if (lore != null) {
             List<NBTBase> loreBase = new LinkedList<>();
             for (BaseComponent[] line : lore) {
-                loreBase.add(multiplesLanguagesBukkit().getVersion().nbtTag(NBTTag.STRING, ComponentUtils.serialize(line)));
+                loreBase.add(nbtTag(NBTTag.STRING, ComponentUtils.serialize(line)));
             }
             display.set("Lore", new NBTTagList(loreBase));
         } else {
@@ -104,15 +101,17 @@ public class V1_14_R1 extends V1_13_R2 {
 
     @Override
     public void setItemBukkitLore(org.bukkit.inventory.@NotNull ItemStack itemStack, @Nullable List<BaseComponent[]> lore) {
-        if (ClassUtils.isInstanceOf(getClassExec("CraftMetaItem").getReflectionClass(), itemStack.getItemMeta().getClass())) {
-            if (itemStack.hasItemMeta()) {
-                CraftMetaItem itemMeta = new CraftMetaItem(itemStack.getItemMeta());
-                itemMeta.setLore(lore);
-                itemStack.setItemMeta((ItemMeta) itemMeta.getValue());
-                return;
-            }
+        ItemMeta meta = itemStack.getItemMeta();
+
+        if (meta != null) {
+            CraftMetaItem itemMeta = new CraftMetaItem(meta);
+            itemMeta.setLore(lore);
+            itemStack.setItemMeta((ItemMeta) itemMeta.getValue());
+
+            return;
         }
-        super.setItemBukkitLore(itemStack, lore);
+
+        throw new UnsupportedOperationException("This item doesn't have a meta");
     }
 
     @Override

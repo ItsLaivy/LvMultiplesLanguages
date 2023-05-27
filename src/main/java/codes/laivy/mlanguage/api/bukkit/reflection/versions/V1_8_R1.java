@@ -38,8 +38,6 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
-
 public class V1_8_R1 implements Version {
 
     private final @NotNull Map<@NotNull String, @NotNull ClassExecutor> classes = new HashMap<>();
@@ -187,7 +185,7 @@ public class V1_8_R1 implements Version {
 
     @Override
     public @Nullable ItemStack[] getWindowItemsPacketItems(@NotNull PacketPlayOutWindowItems packet) {
-        @Nullable Object[] items = (Object[]) multiplesLanguagesBukkit().getVersion().getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
+        @Nullable Object[] items = (Object[]) getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
         Set<ItemStack> itemsSet = new LinkedHashSet<>();
 
         if (items == null) {
@@ -291,7 +289,7 @@ public class V1_8_R1 implements Version {
             items.add(ItemStack.getNMSItemStack(item));
         }
         // Creating the new packet with translated items applied
-        return multiplesLanguagesBukkit().getVersion().createWindowItemsPacket(windowId, -1, items.toArray(new ItemStack[0]), null);
+        return createWindowItemsPacket(windowId, -1, items.toArray(new ItemStack[0]), null);
     }
 
     /**
@@ -656,9 +654,9 @@ public class V1_8_R1 implements Version {
 
     @Override
     public void setItemBukkitDisplayName(org.bukkit.inventory.@NotNull ItemStack itemStack, @NotNull BaseComponent[] name) {
-        if (itemStack.hasItemMeta()) {
-            ItemMeta meta = itemStack.getItemMeta();
+        ItemMeta meta = itemStack.getItemMeta();
 
+        if (meta != null) {
             if (name != null) {
                 meta.setDisplayName(ComponentUtils.getText(name));
             } else {
@@ -666,29 +664,34 @@ public class V1_8_R1 implements Version {
             }
 
             itemStack.setItemMeta(meta);
+
+            return;
         }
+
+        throw new UnsupportedOperationException("This item doesn't have a meta");
     }
 
     @Override
     public void setItemBukkitLore(org.bukkit.inventory.@NotNull ItemStack itemStack, @Nullable List<BaseComponent[]> lore) {
-        if (itemStack.hasItemMeta()) {
-            ItemMeta meta = itemStack.getItemMeta();
+        ItemMeta meta = itemStack.getItemMeta();
 
-            if (meta != null) {
-                if (lore != null) {
-                    List<String> loreStr = new LinkedList<>();
-                    for (BaseComponent[] component : lore) {
-                        loreStr.add(ComponentUtils.getText(component));
-                    }
-
-                    meta.setLore(loreStr);
-                } else {
-                    meta.setLore(null);
+        if (meta != null) {
+            if (lore != null) {
+                List<String> loreStr = new LinkedList<>();
+                for (BaseComponent[] component : lore) {
+                    loreStr.add(ComponentUtils.getText(component));
                 }
 
-                itemStack.setItemMeta(meta);
+                meta.setLore(loreStr);
+            } else {
+                meta.setLore(null);
             }
+
+            itemStack.setItemMeta(meta);
+            return;
         }
+
+        throw new UnsupportedOperationException("This item doesn't have a meta");
     }
 
     @Override

@@ -152,4 +152,17 @@ public class BukkitMessageProvider implements BukkitMessage {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BukkitMessageProvider)) return false;
+        BukkitMessageProvider that = (BukkitMessageProvider) o;
+        return getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 }

@@ -191,11 +191,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                                 continue;
                             }
 
-                            getStorages().add(storage);
-
                             storage.load();
-
-                            messageStorages.add(storage);
 
                             loaded++;
                         } else {

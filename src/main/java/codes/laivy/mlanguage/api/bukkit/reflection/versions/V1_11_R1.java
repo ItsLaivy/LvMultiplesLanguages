@@ -27,8 +27,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
-
 public class V1_11_R1 extends V1_10_R1 {
 
     public V1_11_R1(@NotNull BukkitMultiplesLanguages plugin) {
@@ -109,7 +107,7 @@ public class V1_11_R1 extends V1_10_R1 {
     @Override
     public @Nullable ItemStack[] getWindowItemsPacketItems(@NotNull PacketPlayOutWindowItems packet) {
         //noinspection unchecked
-        @Nullable List<Object> items = (List<Object>) multiplesLanguagesBukkit().getVersion().getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
+        @Nullable List<Object> items = (List<Object>) getFieldExec("PacketPlayOutWindowItems:items").invokeInstance(packet);
         Set<ItemStack> itemsSet = new LinkedHashSet<>();
 
         if (items == null) {

@@ -113,8 +113,7 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
             if (fs.getPluginProperty().getPlugin().equals(plugin) && fs.getName().equals(name)) {
                 storage = fs;
 
-                BukkitMessageStorage temp = new BukkitMessageStorageProvider(plugin, name, locale, messages);
-                Merge merge = merge(storage, temp);
+                Merge merge = merge(storage, new BukkitMessageStorageProvider(plugin, name, locale, messages));
 
                 if (!merge.getMerged().isEmpty()) {
                     getPlugin().log(new TextComponent("§7Has been added §f" + merge.getMerged().size() + " messages §7to the §f'" + fs.getName() + "' §7message storage of the plugin §f'" + plugin.getName() + "'§7."));
@@ -154,7 +153,7 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
         for (BukkitMessage fromMessage : from.getMessages()) {
             Optional<BukkitMessage> toMessage = to.getMessages().stream().filter(m -> m.getId().equals(fromMessage.getId())).findFirst();
             if (!toMessage.isPresent()) {
-                to.getMessages().add(new BukkitMessageProvider(fromMessage.getId(), fromMessage.getData(), fromMessage.getArrayTexts(), fromMessage.getLegacyTexts(), fromMessage.getReplacements(), fromMessage.getPrefixes(), fromMessage.getSuffixes()));
+                to.getMessages().add(fromMessage.clone());
                 merged.add(fromMessage.getId());
             }
         }
@@ -206,11 +205,7 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
                                 continue;
                             }
 
-                            getStorages().add(storage);
-
                             storage.load();
-
-                            messageStorages.add(storage);
 
                             loaded++;
                         } else {

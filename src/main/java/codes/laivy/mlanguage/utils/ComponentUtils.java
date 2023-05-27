@@ -4,6 +4,7 @@ import com.google.gson.*;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -12,10 +13,6 @@ import java.util.*;
 public class ComponentUtils {
 
     private ComponentUtils() {
-    }
-
-    public static @NotNull TextComponent merge(BaseComponent[] components) {
-        return new TextComponent(components);
     }
 
     public static @NotNull String serialize(@NotNull BaseComponent component) {
@@ -58,6 +55,7 @@ public class ComponentUtils {
         if (str.toString().startsWith("§f")) {
             return str.toString().replaceFirst("§f", "");
         }
+
         return str.toString();
     }
 

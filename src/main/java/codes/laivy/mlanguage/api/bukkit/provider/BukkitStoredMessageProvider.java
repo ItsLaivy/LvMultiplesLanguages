@@ -5,6 +5,8 @@ import codes.laivy.mlanguage.api.bukkit.BukkitMessageStorage;
 import codes.laivy.mlanguage.api.bukkit.BukkitStoredMessage;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class BukkitStoredMessageProvider implements BukkitStoredMessage {
 
     private final @NotNull BukkitMessageStorage storage;
@@ -23,5 +25,18 @@ public class BukkitStoredMessageProvider implements BukkitStoredMessage {
     @Override
     public @NotNull BukkitMessage getMessage() {
         return message;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BukkitStoredMessageProvider)) return false;
+        BukkitStoredMessageProvider that = (BukkitStoredMessageProvider) o;
+        return getStorage().equals(that.getStorage()) && getMessage().equals(that.getMessage());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getStorage(), getMessage());
     }
 }

@@ -22,12 +22,12 @@ import codes.laivy.mlanguage.api.bukkit.reflection.executors.Executor;
 import codes.laivy.mlanguage.api.bukkit.reflection.executors.FieldExecutor;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 
 public class V1_16_R3 extends V1_16_R2 {
 
@@ -55,21 +55,23 @@ public class V1_16_R3 extends V1_16_R2 {
     @Override
     public void setCraftItemMetaDisplayName(@NotNull CraftMetaItem item, @NotNull BaseComponent[] name) {
         if (name != null) {
-            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, ComponentUtils.serialize(name));
+            getFieldExec("CraftMetaItem:displayName").set(item, ComponentUtils.serialize(name));
         } else {
-            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:displayName").set(item, null);
+            getFieldExec("CraftMetaItem:displayName").set(item, null);
         }
     }
-    public void setCraftItemMetaLore(@NotNull CraftMetaItem item, @NotNull BaseComponent[] lore) {
+    @Override
+    public void setCraftItemMetaLore(@NotNull CraftMetaItem item, @Nullable List<BaseComponent[]> lore) {
         if (lore != null) {
-            List<Object> objects = new LinkedList<>();
-            for (BaseComponent component : lore) {
+            List<String> objects = new LinkedList<>();
+
+            for (BaseComponent[] component : lore) {
                 objects.add(ComponentUtils.serialize(component));
             }
 
-            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, objects);
+            getFieldExec("CraftMetaItem:lore").set(item, objects);
         } else {
-            multiplesLanguagesBukkit().getVersion().getFieldExec("CraftMetaItem:lore").set(item, null);
+            getFieldExec("CraftMetaItem:lore").set(item, null);
         }
     }
 

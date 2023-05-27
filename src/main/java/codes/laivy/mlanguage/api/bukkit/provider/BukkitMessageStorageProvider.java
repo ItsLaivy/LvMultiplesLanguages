@@ -10,10 +10,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class BukkitMessageStorageProvider implements BukkitMessageStorage {
 
@@ -91,10 +88,7 @@ public class BukkitMessageStorageProvider implements BukkitMessageStorage {
     @Override
     public @NotNull BukkitMessage getMessage(@NotNull String id) {
         Optional<BukkitMessage> optional = messages.stream().filter(m -> m.getId().equals(id)).findFirst();
-        if (optional.isPresent()) {
-            return optional.get();
-        }
-        throw new NullPointerException("This storage named '" + getName() + "' at plugin '" + getPluginProperty().getName() + "' doesn't contains a message with id '" + id + "'");
+        return optional.orElseThrow(() -> new NullPointerException("This storage named '" + getName() + "' at plugin '" + getPluginProperty().getName() + "' doesn't contains a message with id '" + id + "'"));
     }
 
     @Override
@@ -129,5 +123,18 @@ public class BukkitMessageStorageProvider implements BukkitMessageStorage {
     @Override
     public void unload() {
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BukkitMessageStorageProvider)) return false;
+        BukkitMessageStorageProvider that = (BukkitMessageStorageProvider) o;
+        return getPluginProperty().equals(that.getPluginProperty()) && getName().equals(that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPluginProperty(), getName());
     }
 }

@@ -23,15 +23,15 @@ public class CraftMetaItem extends ObjectExecutor {
             V1_13_R1 version = (V1_13_R1) multiplesLanguagesBukkit().getVersion();
             version.setCraftItemMetaDisplayName(this, displayName);
         } else {
-            throw new UnsupportedOperationException("This method is only available since 1.14+");
+            throw new UnsupportedOperationException("This method is only available since 1.13+");
         }
     }
     public void setLore(@Nullable List<BaseComponent[]> lore) {
-        if (ReflectionUtils.isCompatible(V1_14_R1.class)) {
+        if (ReflectionUtils.isCompatible(V1_13_R1.class)) {
             V1_13_R1 version = (V1_13_R1) multiplesLanguagesBukkit().getVersion();
             version.setCraftItemMetaLore(this, lore);
         } else {
-            throw new UnsupportedOperationException("This method is only available since 1.14+");
+            throw new UnsupportedOperationException("This method is only available since 1.13+");
         }
     }
 
