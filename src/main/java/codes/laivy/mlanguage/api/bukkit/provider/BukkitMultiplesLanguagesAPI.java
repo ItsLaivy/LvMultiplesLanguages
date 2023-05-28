@@ -23,6 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -485,5 +486,79 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
     @EventHandler
     private void quit(@NotNull PlayerQuitEvent e) {
         getPlugin().getInjectionManager().remove(e.getPlayer());
+    }
+
+    @EventHandler
+    private void chat(@NotNull AsyncPlayerChatEvent e) {
+        Bukkit.getScheduler().runTask(multiplesLanguagesBukkit(), () -> {
+            if (e.getMessage().equals("aa")) {
+                TextComponent textBefore = new TextComponent(new TextComponent("1"));
+                TextComponent textCenter = new TextComponent(new TextComponent(new TextComponent("2")));
+                TextComponent textAfter = new TextComponent("3");
+
+                Bukkit.broadcastMessage(ComponentUtils.getText(ComponentUtils.mergeBetween(
+                        textBefore,
+                        textAfter,
+                        new BaseComponent[] { textCenter }
+                )));
+            } else if (e.getMessage().equals("bb")) {
+                TextComponent a = new TextComponent("a");
+                a.setColor(ChatColor.RED);
+                a.setStrikethrough(true);
+
+                TextComponent b = new TextComponent("b");
+                b.setColor(ChatColor.BLUE);
+                a.addExtra(b);
+
+                Bukkit.spigot().broadcast(a);
+                Bukkit.broadcastMessage(ComponentUtils.serialize(a));
+            } else if (e.getMessage().equals("cc")) {
+                TextComponent a = new TextComponent("a");
+                a.setColor(ChatColor.RED);
+                a.setStrikethrough(true);
+
+                TextComponent b = new TextComponent("b");
+                b.setColor(ChatColor.BLUE);
+                a.addExtra(b);
+
+                try {
+                    Bukkit.spigot().broadcast(ComponentUtils.removeExtras(a));
+                    Bukkit.broadcastMessage(ComponentUtils.serialize(ComponentUtils.removeExtras(a)));
+                } catch (NoSuchFieldException | IllegalAccessException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } else if (e.getMessage().equals("dd")) {
+                TextComponent a = new TextComponent("a");
+                a.setColor(ChatColor.RED);
+                a.setStrikethrough(true);
+
+                TextComponent b = new TextComponent("b");
+                TextComponent c = new TextComponent("c");
+                c.setColor(ChatColor.AQUA);
+                b.addExtra(new TextComponent(new TextComponent(c)));
+
+                a.addExtra(b);
+                try {
+                    Bukkit.spigot().broadcast(ComponentUtils.removeExtras(a));
+                    Bukkit.broadcastMessage(ComponentUtils.serialize(ComponentUtils.removeExtras(a)));
+                } catch (NoSuchFieldException | IllegalAccessException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } else if (e.getMessage().equals("ee")) {
+                TextComponent a = new TextComponent("a");
+                a.setColor(ChatColor.RED);
+                a.setStrikethrough(true);
+
+                TextComponent b = new TextComponent("b");
+                TextComponent c = new TextComponent("c");
+                c.setColor(ChatColor.AQUA);
+
+                b.addExtra(new TextComponent(new TextComponent(c)));
+                a.addExtra(b);
+
+                Bukkit.spigot().broadcast(a);
+                Bukkit.broadcastMessage(ComponentUtils.serialize(a));
+            }
+        });
     }
 }

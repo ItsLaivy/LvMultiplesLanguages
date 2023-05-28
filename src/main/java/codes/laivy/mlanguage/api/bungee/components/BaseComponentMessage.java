@@ -7,10 +7,10 @@ import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface BaseComponentMessage extends Message<BaseComponent[]> {
@@ -32,62 +32,37 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
                 if (recursive instanceof TextComponent) {
                     TextComponent text = (TextComponent) recursive;
 
-                    while (text.getText().contains("%s")) {
-                        if (replaces.length > row) {
-                            Object replace = replaces[row];
-                            BaseComponent[] index;
+                    if (text.getText().contains("%s")) {
+                        do {
+                            if (replaces.length > row) {
+                                Object replace = replaces[row];
+                                BaseComponent[] index = ComponentUtils.convert(locale, replace);
 
-                            // TODO: 23/05/2023 Enhance this
-                            if (replace instanceof BaseComponentMessage) {
-                                index = ((BaseComponentMessage) replace).getText(locale);
-                            } else if (replace instanceof BaseComponent) {
-                                index = new BaseComponent[] { (BaseComponent) replace };
-                            } else if (replace instanceof BaseComponent[]) {
-                                index = (BaseComponent[]) replace;
-                            } else if (replace instanceof Collection || replace instanceof Object[]) {
-                                Object[] array;
+                                String[] parts = text.getText().split(Pattern.quote("%s"), 2);
 
-                                if (replace instanceof Collection) {
-                                    array = ((Collection<?>) replace).toArray();
-                                } else {
-                                    array = (Object[]) replace;
-                                }
+                                TextComponent extra = (TextComponent) text.duplicate();
+                                TextComponent indexComponent = (TextComponent) text.duplicate();
+                                extra.setText(parts[1]);
 
-                                List<BaseComponent> componentList2 = new LinkedList<>();
+                                Bukkit.broadcastMessage("Index: '" + indexComponent.getText() + "'");
 
-                                int r = 0;
-                                for (Object object : array) {
-                                    if (r > 0) componentList2.add(new TextComponent("\n"));
+                                indexComponent.setText("");
+                                indexComponent.setExtra(Arrays.asList(index));
 
-                                    if (object instanceof BaseComponent) {
-                                        componentList2.add((BaseComponent) object);
-                                    } else if (object instanceof BaseComponent[]) {
-                                        componentList2.add(new TextComponent((BaseComponent[]) object));
-                                    } else if (object instanceof BaseComponentMessage) {
-                                        componentList2.add(new TextComponent(((BaseComponentMessage) object).getText(locale)));
-                                    } else {
-                                        componentList2.add(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(object))));
-                                    }
+                                text.setText(parts[0]);
+                                text.addExtra(indexComponent);
+                                text.addExtra(extra);
 
-                                    r++;
-                                }
+                                Bukkit.broadcastMessage(parts[0].replace("§", "&"));
 
-                                index = componentList2.toArray(new BaseComponent[0]);
+                                row++;
                             } else {
-                                index = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace))) };
+                                break;
                             }
-
-                            // TODO: 11/05/2023 Component-based replace
-                            text.setText(text.getText().replaceFirst(Pattern.quote("%s"), Matcher.quoteReplacement(ComponentUtils.getText(index))));
-                            row++;
-                        } else {
-                            break;
-                        }
+                        } while (text.getText().contains("%s"));
                     }
                 }
             }
-
-            componentList.add(component);
         }
 
         return componentList.toArray(new BaseComponent[0]);
@@ -134,30 +109,33 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
         List<BaseComponent[]> components = new LinkedList<>();
 
         for (BaseComponent component : getText(locale, replaces)) {
-            if (component instanceof TextComponent) {
-                TextComponent text = (TextComponent) component;
+            for (BaseComponent recurring : ComponentUtils.getComponents(component)) {
+                if (recurring instanceof TextComponent) {
+                    TextComponent text = (TextComponent) recurring;
 
-                if (text.getText().contains("\n")) {
-                    while (text.getText().contains("\n")) {
-                        String[] split = text.getText().split("\n", 2);
+                    if (text.getText().contains("\n")) {
+                        while (text.getText().contains("\n")) {
+                            String[] split = text.getText().split("\n", 2);
 
-                        TextComponent t1 = (TextComponent) text.duplicate();
-                        TextComponent t2 = (TextComponent) text.duplicate();
+                            TextComponent t1 = (TextComponent) text.duplicate();
+                            TextComponent t2 = (TextComponent) text.duplicate();
 
-                        t1.setText(split[0]);
-                        t2.setText(split[1]);
+                            t1.setText(split[0]);
+                            t2.setText(split[1]);
 
-                        components.add(new BaseComponent[] { t1 });
+                            components.add(new BaseComponent[] { t1 });
 
-                        text = t2;
+                            text = t2;
+                        }
+
+                        recurring = text;
                     }
-                    component = text;
                 }
-            }
 
-            components.add(new BaseComponent[] {
-                    component
-            });
+                components.add(new BaseComponent[] {
+                        recurring
+                });
+            }
         }
 
         return components;
