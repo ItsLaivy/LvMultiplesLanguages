@@ -4,7 +4,6 @@ import codes.laivy.mlanguage.LvMultiplesLanguages;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.utils.ComponentUtils;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
@@ -34,48 +33,7 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
 
                     while (text.getText().contains("%s")) {
                         if (replaces.length > row) {
-                            Object replace = replaces[row];
-                            BaseComponent[] index;
-
-                            // TODO: 23/05/2023 Enhance this
-                            if (replace instanceof BaseComponentMessage) {
-                                index = ((BaseComponentMessage) replace).getText(locale);
-                            } else if (replace instanceof BaseComponent) {
-                                index = new BaseComponent[] { (BaseComponent) replace };
-                            } else if (replace instanceof BaseComponent[]) {
-                                index = (BaseComponent[]) replace;
-                            } else if (replace instanceof Collection || replace instanceof Object[]) {
-                                Object[] array;
-
-                                if (replace instanceof Collection) {
-                                    array = ((Collection<?>) replace).toArray();
-                                } else {
-                                    array = (Object[]) replace;
-                                }
-
-                                List<BaseComponent> componentList2 = new LinkedList<>();
-
-                                int r = 0;
-                                for (Object object : array) {
-                                    if (r > 0) componentList2.add(new TextComponent("\n"));
-
-                                    if (object instanceof BaseComponent) {
-                                        componentList2.add((BaseComponent) object);
-                                    } else if (object instanceof BaseComponent[]) {
-                                        componentList2.add(new TextComponent((BaseComponent[]) object));
-                                    } else if (object instanceof BaseComponentMessage) {
-                                        componentList2.add(new TextComponent(((BaseComponentMessage) object).getText(locale)));
-                                    } else {
-                                        componentList2.add(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(object))));
-                                    }
-
-                                    r++;
-                                }
-
-                                index = componentList2.toArray(new BaseComponent[0]);
-                            } else {
-                                index = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace))) };
-                            }
+                            BaseComponent[] index = ComponentUtils.convert(locale, replaces[row]);
 
                             // TODO: 11/05/2023 Component-based replace
                             text.setText(text.getText().replaceFirst(Pattern.quote("%s"), Matcher.quoteReplacement(ComponentUtils.getText(index))));
