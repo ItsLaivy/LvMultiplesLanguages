@@ -208,22 +208,29 @@ public class ComponentUtils {
         parentField.set(component, null);
     }
 
-    public static @NotNull BaseComponent[] mergeBetween(@NotNull TextComponent before, @NotNull TextComponent after, @NotNull BaseComponent[] center) {
-        JsonArray array = new JsonArray();
+    public static @NotNull BaseComponent[] fixComponents(@NotNull BaseComponent... components) {
+        List<BaseComponent> componentList = new LinkedList<>();
 
-        JsonElement beforeElement = new JsonParser().parse(ComponentUtils.serialize(before));
-        JsonElement afterElement = new JsonParser().parse(ComponentUtils.serialize(after));
-        JsonElement centerElement = new JsonParser().parse(ComponentUtils.serialize(center));
+        for (BaseComponent component : components) {
+            if (component instanceof TextComponent) {
+                TextComponent text = new TextComponent();
 
-        if (beforeElement.isJsonArray()) array.addAll(beforeElement.getAsJsonArray());
-        else array.add(beforeElement); // Before
-        if (centerElement.isJsonArray()) array.addAll(centerElement.getAsJsonArray());
-        else array.add(centerElement); // Center
-        if (afterElement.isJsonArray()) array.addAll(afterElement.getAsJsonArray());
-        else array.add(afterElement); // After
+                if (ChatColor.STRIP_COLOR_PATTERN.matcher(text.getText()).find()) {
+                    try {
+                        BaseComponent[] extras = removeExtras(TextComponent.fromLegacyText(text.getText()));
+                        componentList.addAll(Arrays.asList(extras));
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
 
+                    continue;
+                }
+            }
 
-        return ComponentSerializer.parse(array.toString());
+            componentList.add(component);
+        }
+
+        return componentList.toArray(new BaseComponent[0]);
     }
 
     public static @NotNull BaseComponent[] convert(@NotNull Locale locale, @NotNull Object replace) {

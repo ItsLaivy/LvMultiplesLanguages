@@ -17,6 +17,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,6 +36,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 import static org.bukkit.Bukkit.getServer;
@@ -492,73 +495,48 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
     private void chat(@NotNull AsyncPlayerChatEvent e) {
         Bukkit.getScheduler().runTask(multiplesLanguagesBukkit(), () -> {
             if (e.getMessage().equals("aa")) {
-                TextComponent textBefore = new TextComponent(new TextComponent("1"));
-                TextComponent textCenter = new TextComponent(new TextComponent(new TextComponent("2")));
-                TextComponent textAfter = new TextComponent("3");
-
-                Bukkit.broadcastMessage(ComponentUtils.getText(ComponentUtils.mergeBetween(
-                        textBefore,
-                        textAfter,
-                        new BaseComponent[] { textCenter }
-                )));
-            } else if (e.getMessage().equals("bb")) {
-                TextComponent a = new TextComponent("a");
-                a.setColor(ChatColor.RED);
-                a.setStrikethrough(true);
-
-                TextComponent b = new TextComponent("b");
-                b.setColor(ChatColor.BLUE);
-                a.addExtra(b);
-
-                Bukkit.spigot().broadcast(a);
-                Bukkit.broadcastMessage(ComponentUtils.serialize(a));
-            } else if (e.getMessage().equals("cc")) {
-                TextComponent a = new TextComponent("a");
-                a.setColor(ChatColor.RED);
-                a.setStrikethrough(true);
-
-                TextComponent b = new TextComponent("b");
-                b.setColor(ChatColor.BLUE);
-                a.addExtra(b);
-
-                try {
-                    Bukkit.spigot().broadcast(ComponentUtils.removeExtras(a));
-                    Bukkit.broadcastMessage(ComponentUtils.serialize(ComponentUtils.removeExtras(a)));
-                } catch (NoSuchFieldException | IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
+                String colors = "§a1§223§b4";
+                for (String part : colors.split(ChatColor.STRIP_COLOR_PATTERN.pattern())) {
+                    Bukkit.broadcastMessage("Part: '" + part + "'");
                 }
-            } else if (e.getMessage().equals("dd")) {
-                TextComponent a = new TextComponent("a");
-                a.setColor(ChatColor.RED);
-                a.setStrikethrough(true);
+            }
+            if (e.getMessage().equals("bb")) {
+                String colors1 = "§a1§223§b4";
+                String colors2 = "§tu";
 
-                TextComponent b = new TextComponent("b");
-                TextComponent c = new TextComponent("c");
-                c.setColor(ChatColor.AQUA);
-                b.addExtra(new TextComponent(new TextComponent(c)));
+                Bukkit.broadcastMessage("'" + colors1 + "' - '" + ChatColor.STRIP_COLOR_PATTERN.matcher(colors1).find() + "'");
+                Bukkit.broadcastMessage("'" + colors2 + "' - '" + ChatColor.STRIP_COLOR_PATTERN.matcher(colors2).find() + "'");
+            }
+            if (e.getMessage().equals("cc")) {
+                TextComponent c = new TextComponent("§1foda§edemais");
+                String input = c.getText();
 
-                a.addExtra(b);
-                try {
-                    Bukkit.spigot().broadcast(ComponentUtils.removeExtras(a));
-                    Bukkit.broadcastMessage(ComponentUtils.serialize(ComponentUtils.removeExtras(a)));
-                } catch (NoSuchFieldException | IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
-                }
-            } else if (e.getMessage().equals("ee")) {
-                TextComponent a = new TextComponent("a");
-                a.setColor(ChatColor.RED);
-                a.setStrikethrough(true);
+                Bukkit.broadcastMessage(ComponentUtils.serialize(TextComponent.fromLegacyText(input)));
+            }
+            if (e.getMessage().equals("dd")) {
+                TextComponent c = new TextComponent("§1foda§edemais§a");
+                String input = c.getText();
 
-                TextComponent b = new TextComponent("b");
-                TextComponent c = new TextComponent("c");
-                c.setColor(ChatColor.AQUA);
-
-                b.addExtra(new TextComponent(new TextComponent(c)));
-                a.addExtra(b);
-
-                Bukkit.spigot().broadcast(a);
-                Bukkit.broadcastMessage(ComponentUtils.serialize(a));
+                Bukkit.broadcastMessage(ComponentUtils.serialize(TextComponent.fromLegacyText(input)));
+            }
+            if (e.getMessage().equals("ee")) {
+                Bukkit.broadcastMessage(ComponentUtils.serialize(TextComponent.fromLegacyText("§a")));
             }
         });
+    }
+
+    public static String[] splitColors(String input) {
+        Matcher matcher = ChatColor.STRIP_COLOR_PATTERN.matcher(input);
+
+        // Divide a string mantendo as cores
+        List<String> result = new ArrayList<>();
+
+        for (String part : input.split(ChatColor.STRIP_COLOR_PATTERN.pattern())) {
+            if (!part.isEmpty()) {
+                result.add(part);
+            }
+        }
+
+        return result.toArray(new String[0]);
     }
 }

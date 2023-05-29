@@ -7,10 +7,10 @@ import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface BaseComponentMessage extends Message<BaseComponent[]> {
@@ -32,37 +32,62 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
                 if (recursive instanceof TextComponent) {
                     TextComponent text = (TextComponent) recursive;
 
-                    if (text.getText().contains("%s")) {
-                        do {
-                            if (replaces.length > row) {
-                                Object replace = replaces[row];
-                                BaseComponent[] index = ComponentUtils.convert(locale, replace);
+                    while (text.getText().contains("%s")) {
+                        if (replaces.length > row) {
+                            Object replace = replaces[row];
+                            BaseComponent[] index;
 
-                                String[] parts = text.getText().split(Pattern.quote("%s"), 2);
+                            // TODO: 23/05/2023 Enhance this
+                            if (replace instanceof BaseComponentMessage) {
+                                index = ((BaseComponentMessage) replace).getText(locale);
+                            } else if (replace instanceof BaseComponent) {
+                                index = new BaseComponent[] { (BaseComponent) replace };
+                            } else if (replace instanceof BaseComponent[]) {
+                                index = (BaseComponent[]) replace;
+                            } else if (replace instanceof Collection || replace instanceof Object[]) {
+                                Object[] array;
 
-                                TextComponent extra = (TextComponent) text.duplicate();
-                                TextComponent indexComponent = (TextComponent) text.duplicate();
-                                extra.setText(parts[1]);
+                                if (replace instanceof Collection) {
+                                    array = ((Collection<?>) replace).toArray();
+                                } else {
+                                    array = (Object[]) replace;
+                                }
 
-                                Bukkit.broadcastMessage("Index: '" + indexComponent.getText() + "'");
+                                List<BaseComponent> componentList2 = new LinkedList<>();
 
-                                indexComponent.setText("");
-                                indexComponent.setExtra(Arrays.asList(index));
+                                int r = 0;
+                                for (Object object : array) {
+                                    if (r > 0) componentList2.add(new TextComponent("\n"));
 
-                                text.setText(parts[0]);
-                                text.addExtra(indexComponent);
-                                text.addExtra(extra);
+                                    if (object instanceof BaseComponent) {
+                                        componentList2.add((BaseComponent) object);
+                                    } else if (object instanceof BaseComponent[]) {
+                                        componentList2.add(new TextComponent((BaseComponent[]) object));
+                                    } else if (object instanceof BaseComponentMessage) {
+                                        componentList2.add(new TextComponent(((BaseComponentMessage) object).getText(locale)));
+                                    } else {
+                                        componentList2.add(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(object))));
+                                    }
 
-                                Bukkit.broadcastMessage(parts[0].replace("§", "&"));
+                                    r++;
+                                }
 
-                                row++;
+                                index = componentList2.toArray(new BaseComponent[0]);
                             } else {
-                                break;
+                                index = new BaseComponent[] { new TextComponent(ChatColor.translateAlternateColorCodes('&', String.valueOf(replace))) };
                             }
-                        } while (text.getText().contains("%s"));
+
+                            // TODO: 11/05/2023 Component-based replace
+                            text.setText(text.getText().replaceFirst(Pattern.quote("%s"), Matcher.quoteReplacement(ComponentUtils.getText(index))));
+                            row++;
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
+
+            componentList.add(component);
         }
 
         return componentList.toArray(new BaseComponent[0]);
