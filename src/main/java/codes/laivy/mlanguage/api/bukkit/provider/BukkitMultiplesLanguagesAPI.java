@@ -17,14 +17,12 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -36,8 +34,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLanguagesBukkit;
 import static org.bukkit.Bukkit.getServer;
@@ -489,54 +485,5 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
     @EventHandler
     private void quit(@NotNull PlayerQuitEvent e) {
         getPlugin().getInjectionManager().remove(e.getPlayer());
-    }
-
-    @EventHandler
-    private void chat(@NotNull AsyncPlayerChatEvent e) {
-        Bukkit.getScheduler().runTask(multiplesLanguagesBukkit(), () -> {
-            if (e.getMessage().equals("aa")) {
-                String colors = "§a1§223§b4";
-                for (String part : colors.split(ChatColor.STRIP_COLOR_PATTERN.pattern())) {
-                    Bukkit.broadcastMessage("Part: '" + part + "'");
-                }
-            }
-            if (e.getMessage().equals("bb")) {
-                String colors1 = "§a1§223§b4";
-                String colors2 = "§tu";
-
-                Bukkit.broadcastMessage("'" + colors1 + "' - '" + ChatColor.STRIP_COLOR_PATTERN.matcher(colors1).find() + "'");
-                Bukkit.broadcastMessage("'" + colors2 + "' - '" + ChatColor.STRIP_COLOR_PATTERN.matcher(colors2).find() + "'");
-            }
-            if (e.getMessage().equals("cc")) {
-                TextComponent c = new TextComponent("§1foda§edemais");
-                String input = c.getText();
-
-                Bukkit.broadcastMessage(ComponentUtils.serialize(TextComponent.fromLegacyText(input)));
-            }
-            if (e.getMessage().equals("dd")) {
-                TextComponent c = new TextComponent("§1foda§edemais§a");
-                String input = c.getText();
-
-                Bukkit.broadcastMessage(ComponentUtils.serialize(TextComponent.fromLegacyText(input)));
-            }
-            if (e.getMessage().equals("ee")) {
-                Bukkit.broadcastMessage(ComponentUtils.serialize(TextComponent.fromLegacyText("§a")));
-            }
-        });
-    }
-
-    public static String[] splitColors(String input) {
-        Matcher matcher = ChatColor.STRIP_COLOR_PATTERN.matcher(input);
-
-        // Divide a string mantendo as cores
-        List<String> result = new ArrayList<>();
-
-        for (String part : input.split(ChatColor.STRIP_COLOR_PATTERN.pattern())) {
-            if (!part.isEmpty()) {
-                result.add(part);
-            }
-        }
-
-        return result.toArray(new String[0]);
     }
 }
