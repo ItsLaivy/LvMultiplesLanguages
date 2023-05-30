@@ -100,8 +100,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
             if (fs.getPluginProperty().getPlugin().equals(plugin) && fs.getName().equals(name)) {
                 storage = fs;
 
-                BungeeMessageStorage temp = new BungeeMessageStorageProvider(plugin, name, locale, messages);
-                Merge merge = merge(storage, temp);
+                Merge merge = merge(storage, new BungeeMessageStorageProvider(plugin, name, locale, messages));
 
                 if (!merge.getMerged().isEmpty()) {
                     getPlugin().log(new TextComponent("§7Has been added §f" + merge.getMerged().size() + " messages §7to the §f'" + fs.getName() + "' §7message storage of the plugin §f'" + plugin.getDescription().getName() + "'§7."));
@@ -117,6 +116,8 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
 
                     getPlugin().log(new TextComponent("§7These messages at the §f'" + fs.getName() + "' §7message storage of the plugin §f'" + plugin.getDescription().getName() + "' §7isn't used by the plugin, you can remove them: " + messagesStr));
                 }
+
+                break;
             }
         }
 

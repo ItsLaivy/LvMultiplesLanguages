@@ -129,6 +129,8 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
 
                     getPlugin().log(new TextComponent("§7These messages at the §f'" + fs.getName() + "' §7message storage of the plugin §f'" + plugin.getName() + "' §7isn't used by the plugin, you can remove them: " + messagesStr));
                 }
+
+                break;
             }
         }
 
