@@ -6,11 +6,8 @@ import com.google.gson.*;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 // TODO: 07/04/2023 OOP
@@ -30,7 +27,7 @@ public class ComponentUtils {
         }
         return ComponentSerializer.toString(component);
     }
-    public static @NotNull String serialize(@NotNull BaseComponent[] components) {
+    public static @NotNull String serialize(@NotNull BaseComponent... components) {
         if (components.length == 1) {
             return serialize(components[0]);
         } else {
@@ -68,7 +65,7 @@ public class ComponentUtils {
      * @param original the components that will be cloned
      * @return the component clones (including extras recursively)
      */
-    public static @NotNull BaseComponent[] cloneComponent(@NotNull BaseComponent[] original) {
+    public static @NotNull BaseComponent[] cloneComponent(@NotNull BaseComponent... original) {
         List<BaseComponent> componentList = new LinkedList<>();
 
         for (BaseComponent component : original) {
@@ -94,140 +91,6 @@ public class ComponentUtils {
             for (BaseComponent extra : component.getExtra()) {
                 componentList.addAll(Arrays.asList(getComponents(extra)));
             }
-        }
-
-        return componentList.toArray(new BaseComponent[0]);
-    }
-
-    public static @NotNull BaseComponent[] removeExtras(@NotNull BaseComponent... components) throws NoSuchFieldException, IllegalAccessException {
-        List<BaseComponent> componentList = new LinkedList<>();
-
-        for (BaseComponent component : components) {
-            BaseComponent clone = component.duplicate();
-            componentList.add(clone);
-
-            Config config = getConfig(component);
-            config.apply(clone);
-
-            if (component.getExtra() != null) {
-                for (BaseComponent extra : component.getExtra()) {
-                    componentList.addAll(Arrays.asList(removeExtras(extra)));
-                }
-            }
-
-            removeExtra(clone);
-        }
-
-        for (BaseComponent component : componentList) {
-            removeExtra(component);
-            removeParent(component);
-        }
-
-        return componentList.toArray(new BaseComponent[0]);
-    }
-
-    private static @NotNull Config getConfig(@NotNull BaseComponent component) throws NoSuchFieldException, IllegalAccessException {
-        @Nullable ChatColor color = component.getColorRaw();
-        @Nullable Boolean bold = component.isBoldRaw();
-        @Nullable Boolean italic = component.isItalicRaw();
-        @Nullable Boolean underlined = component.isUnderlinedRaw();
-        @Nullable Boolean strikethrough = component.isStrikethroughRaw();
-
-        @Nullable BaseComponent parent = getParent(component);
-        while (parent != null) {
-            if (color == null) {
-                color = parent.getColorRaw();
-            }
-            if (bold == null) {
-                bold = parent.isBoldRaw();
-            }
-            if (italic == null) {
-                italic = parent.isItalicRaw();
-            }
-            if (underlined == null) {
-                underlined = parent.isUnderlinedRaw();
-            }
-            if (strikethrough == null) {
-                strikethrough = parent.isStrikethroughRaw();
-            }
-
-            parent = getParent(parent);
-        }
-
-        return new Config(color, bold, italic, underlined, strikethrough);
-    }
-
-    private static final class Config {
-        public @Nullable ChatColor color;
-        public @Nullable Boolean bold;
-        public @Nullable Boolean italic;
-        public @Nullable Boolean underlined;
-        public @Nullable Boolean strikethrough;
-
-        public Config(@Nullable ChatColor color, @Nullable Boolean bold, @Nullable Boolean italic, @Nullable Boolean underlined, @Nullable Boolean strikethrough) {
-            this.color = color;
-            this.bold = bold;
-            this.italic = italic;
-            this.underlined = underlined;
-            this.strikethrough = strikethrough;
-        }
-
-        @NotNull Config apply(@NotNull BaseComponent component) {
-            if (component.isItalicRaw() == null) {
-                component.setColor(color);
-            }
-            if (component.isBoldRaw() == null) {
-                component.setBold(bold);
-            }
-            if (component.isItalicRaw() == null) {
-                component.setItalic(italic);
-            }
-            if (component.isUnderlinedRaw() == null) {
-                component.setUnderlined(underlined);
-            }
-            if (component.isStrikethroughRaw() == null) {
-                component.setStrikethrough(strikethrough);
-            }
-            return new Config(component.getColorRaw(), component.isBoldRaw(), component.isItalicRaw(), component.isUnderlinedRaw(), component.isStrikethroughRaw());
-        }
-    }
-
-    private static @Nullable BaseComponent getParent(@NotNull BaseComponent component) throws NoSuchFieldException, IllegalAccessException {
-        Field parentField = BaseComponent.class.getDeclaredField("parent");
-        parentField.setAccessible(true);
-        return (BaseComponent) parentField.get(component);
-    }
-    private static void removeParent(@NotNull BaseComponent component) throws NoSuchFieldException, IllegalAccessException {
-        Field parentField = BaseComponent.class.getDeclaredField("parent");
-        parentField.setAccessible(true);
-        parentField.set(component, null);
-    }
-    private static void removeExtra(@NotNull BaseComponent component) throws NoSuchFieldException, IllegalAccessException {
-        Field parentField = BaseComponent.class.getDeclaredField("extra");
-        parentField.setAccessible(true);
-        parentField.set(component, null);
-    }
-
-    public static @NotNull BaseComponent[] fixComponents(@NotNull BaseComponent... components) {
-        List<BaseComponent> componentList = new LinkedList<>();
-
-        for (BaseComponent component : components) {
-            if (component instanceof TextComponent) {
-                TextComponent text = new TextComponent();
-
-                if (ChatColor.STRIP_COLOR_PATTERN.matcher(text.getText()).find()) {
-                    try {
-                        BaseComponent[] extras = removeExtras(TextComponent.fromLegacyText(text.getText()));
-                        componentList.addAll(Arrays.asList(extras));
-                    } catch (NoSuchFieldException | IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    continue;
-                }
-            }
-
-            componentList.add(component);
         }
 
         return componentList.toArray(new BaseComponent[0]);
