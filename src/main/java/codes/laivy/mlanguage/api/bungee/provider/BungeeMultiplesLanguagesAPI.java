@@ -7,9 +7,7 @@ import codes.laivy.mlanguage.api.bungee.IBungeeMultiplesLanguagesAPI;
 import codes.laivy.mlanguage.exceptions.PluginNotFoundException;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.main.BungeeMultiplesLanguages;
-import codes.laivy.mlanguage.utils.ComponentUtils;
 import codes.laivy.mlanguage.utils.FileUtils;
-import codes.laivy.mlanguage.utils.JsonUtils;
 import codes.laivy.mlanguage.utils.Merge;
 import com.google.gson.*;
 import net.md_5.bungee.api.ChatColor;
@@ -18,7 +16,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -186,7 +183,8 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                         if (json.isJsonObject()) {
                             BungeeMessageStorage storage;
                             try {
-                                storage = deserializeStorage(json);
+                                storage = serializer.deserializeStorage(json);
+                                storage = createStorage((Plugin) storage.getPluginProperty().getPlugin(), storage.getName(), storage.getDefaultLocale(), storage.getMessages());
                             } catch (PluginNotFoundException e) {
                                 unknown.add(e.getPlugin());
                                 continue;
@@ -246,7 +244,7 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
                     throw new NoSuchFileException("Couldn't get the message storage file '" + storage.getPluginProperty().getName() + File.separator + rootFile.getParentFile().getName() + "'");
                 }
                 // Write the serialized data into
-                JsonElement data = serializeStorage(storage);
+                JsonElement data = serializer.serializeStorage(storage);
                 String dataStr = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(data).replace("§", "&");
 
                 try (FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -270,177 +268,5 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
     @Override
     public boolean isLoaded() {
         return loaded;
-    }
-
-    // Serializer
-
-    protected @NotNull JsonElement serializeStorage(@NotNull BungeeMessageStorage storage) {
-        JsonObject object = new JsonObject();
-        JsonObject messages = new JsonObject();
-
-        for (BungeeMessage message : storage.getMessages()) {
-            JsonObject messageObj = new JsonObject();
-            JsonObject contentObj = new JsonObject();
-
-            JsonArray prefixes = new JsonArray();
-            JsonArray suffixes = new JsonArray();
-            JsonArray replacements = new JsonArray();
-
-            MessageSerializer<BaseComponent[], BungeeMessage, BungeeMessageStorage> serializer = getPlugin().getApi().getSerializer();
-            for (Map.Entry<@NotNull Locale, BaseComponent @NotNull []> entry : message.getData().entrySet()) {
-                Locale locale = entry.getKey();
-                BaseComponent[] component = entry.getValue();
-
-                if (message.isArrayText(locale)) { // Is array
-                    JsonArray array = new JsonArray();
-                    for (BaseComponent line : component) {
-                        if (message.isLegacyText(locale)) {
-                            array.add(ComponentUtils.getText(line));
-                        } else {
-                            array.add(ComponentUtils.serialize(line));
-                        }
-                    }
-                    contentObj.add(locale.name(), array);
-                } else { // Not array
-                    if (message.isLegacyText(locale)) {
-                        contentObj.addProperty(locale.name(), ComponentUtils.getText(component));
-                    } else {
-                        contentObj.addProperty(locale.name(), ComponentUtils.serialize(component));
-                    }
-                }
-            }
-
-            messageObj.add("content", contentObj);
-
-            for (Object prefix : message.getPrefixes()) {
-                prefixes.add(serializer.serializeObject(prefix));
-            }
-            for (Object suffix : message.getSuffixes()) {
-                suffixes.add(serializer.serializeObject(suffix));
-            }
-            for (Object replacement : message.getReplacements()) {
-                replacements.add(serializer.serializeObject(replacement));
-            }
-
-            if (prefixes.size() > 0) {
-                messageObj.add("prefixes", prefixes);
-            } if (suffixes.size() > 0) {
-                messageObj.add("suffixes", suffixes);
-            } if (replacements.size() > 0) {
-                messageObj.add("replacements", replacements);
-            }
-
-            messages.add(message.getId(), messageObj);
-        }
-
-        object.addProperty("name", storage.getName());
-        object.addProperty("plugin", storage.getPluginProperty().getName());
-        object.addProperty("default locale", storage.getDefaultLocale().name());
-        object.add("messages", messages);
-
-        return object;
-    }
-    protected @NotNull BungeeMessageStorage deserializeStorage(@NotNull JsonElement storageElement) {
-        JsonObject object = storageElement.getAsJsonObject();
-
-        String name = object.get("name").getAsString();
-        String pluginStr = object.get("plugin").getAsString();
-        Locale defaultLocale = Locale.valueOf(object.get("default locale").getAsString());
-        JsonObject messages = object.getAsJsonObject("messages");
-
-        Optional<Plugin> optional = ProxyServer.getInstance().getPluginManager().getPlugins().stream().filter(p -> p.getDescription().getName().equals(pluginStr)).findFirst();
-        @Nullable Plugin plugin = optional.orElse(null);
-        if (plugin == null) {
-            throw new NullPointerException("Couldn't find plugin '" + pluginStr + "'");
-        }
-
-        return getPlugin().getApi().createStorage(plugin, name, defaultLocale, new LinkedHashSet<BungeeMessage>() {{
-            for (Map.Entry<String, JsonElement> entry : messages.entrySet()) {
-                String id = entry.getKey();
-                JsonObject messagesObj = entry.getValue().getAsJsonObject();
-                JsonObject contentObj = messagesObj.getAsJsonObject("content");
-
-                Set<Locale> legacies = new LinkedHashSet<>();
-                Set<Locale> arrays = new LinkedHashSet<>();
-
-                Map<Locale, BaseComponent[]> data = new LinkedHashMap<>();
-                for (Map.Entry<String, JsonElement> entry2 : contentObj.entrySet()) {
-                    Locale locale;
-                    try {
-                        locale = Locale.valueOf(entry2.getKey().toUpperCase());
-                    } catch (IllegalArgumentException ignore) {
-                        throw new IllegalArgumentException("Couldn't find a locale named '" + entry2.getKey() + "'");
-                    }
-                    JsonElement base = entry2.getValue();
-
-                    if (base.isJsonArray()) { // Is array
-                        List<BaseComponent> array = new LinkedList<>();
-                        for (JsonElement line : base.getAsJsonArray()) {
-                            String jsonStr = ChatColor.translateAlternateColorCodes('&', line.getAsString());
-
-                            if (!(line.isJsonNull() || jsonStr.equals("")) && JsonUtils.isJson(jsonStr)) { // Check if is not legacy
-                                array.add(new TextComponent(ComponentSerializer.parse(jsonStr)));
-                                continue;
-                            }
-
-                            array.add(new TextComponent(jsonStr));
-
-                            // Declare legacy text
-                            legacies.add(locale);
-                        }
-                        data.put(locale, array.toArray(new BaseComponent[0]));
-
-                        // Declare array text
-                        arrays.add(locale);
-                    } else { // Not array
-                        BaseComponent[] text;
-
-                        String jsonStr = ChatColor.translateAlternateColorCodes('&', base.getAsString());
-                        if (JsonUtils.isJson(jsonStr)) {
-                            text = ComponentSerializer.parse(jsonStr);
-                        } else {
-                            text = new BaseComponent[] { new TextComponent(jsonStr) };
-
-                            // Declare legacy text
-                            legacies.add(locale); // Legacy text
-                        }
-
-                        data.put(locale, text);
-                    }
-                }
-
-                BungeeMessage message = getPlugin().getApi().createMessage(id, data);
-
-                message.getLegacyTexts().addAll(legacies);
-                message.getArrayTexts().addAll(arrays);
-
-                if (messagesObj.has("prefixes")) {
-                    List<Object> prefixes = new LinkedList<>();
-                    JsonArray prefixesObj = messagesObj.getAsJsonArray("prefixes");
-                    for (JsonElement prefixElement : prefixesObj) {
-                        prefixes.add(serializer.deserializeObject(prefixElement));
-                    }
-                    message.getPrefixes().addAll(prefixes);
-                }
-                if (messagesObj.has("suffixes")) {
-                    List<Object> suffixes = new LinkedList<>();
-                    JsonArray suffixesObj = messagesObj.getAsJsonArray("suffixes");
-                    for (JsonElement suffixElement : suffixesObj) {
-                        suffixes.add(serializer.deserializeObject(suffixElement));
-                    }
-                    message.getSuffixes().addAll(suffixes);
-                }
-                if (messagesObj.has("replacements")) {
-                    List<Object> replaces = new LinkedList<>();
-                    JsonArray replacesObj = messagesObj.getAsJsonArray("replacements");
-                    for (JsonElement replaceElement : replacesObj) {
-                        replaces.add(serializer.deserializeObject(replaceElement));
-                    }
-                    message.getReplacements().addAll(replaces);
-                }
-
-                add(message);
-            }
-        }});
     }
 }
