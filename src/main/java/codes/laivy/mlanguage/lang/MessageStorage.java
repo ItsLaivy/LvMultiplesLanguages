@@ -16,6 +16,7 @@ public interface MessageStorage<C, M extends Message<C>> {
 
     @NotNull Set<M> getMessages();
     @NotNull M getMessage(@NotNull String id);
+    @NotNull M getMessage(@NotNull String id, @NotNull Object... replaces);
 
     @NotNull List<@NotNull C> getTextArray(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);
     @NotNull C getText(@Nullable Locale locale, @NotNull String id, @NotNull Object... replaces);

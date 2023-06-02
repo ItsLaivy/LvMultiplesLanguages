@@ -92,6 +92,17 @@ public class BukkitMessageStorageProvider implements BukkitMessageStorage {
     }
 
     @Override
+    public @NotNull BukkitMessage getMessage(@NotNull String id, @NotNull Object... replaces) {
+        Optional<BukkitMessage> optional = messages.stream().filter(m -> m.getId().equals(id)).findFirst();
+        BukkitMessage message = optional.orElseThrow(() -> new NullPointerException("This storage named '" + getName() + "' at plugin '" + getPluginProperty().getName() + "' doesn't contains a message with id '" + id + "'"));
+
+        message = message.clone();
+        message.getReplacements().add(replaces);
+
+        return message;
+    }
+
+    @Override
     public @NotNull String getName() {
         return name;
     }
