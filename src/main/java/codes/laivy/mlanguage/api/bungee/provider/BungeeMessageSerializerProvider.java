@@ -274,7 +274,7 @@ public class BungeeMessageSerializerProvider implements MessageSerializer<BaseCo
                             if (JsonUtils.isJson(jsonStr)) {
                                 text = ComponentSerializer.parse(jsonStr);
                             } else {
-                                text = new BaseComponent[] { new TextComponent(jsonStr) };
+                                text = new BaseComponent[]{new TextComponent(jsonStr)};
 
                                 // Declare legacy text
                                 legacies.add(locale); // Legacy text
@@ -319,6 +319,8 @@ public class BungeeMessageSerializerProvider implements MessageSerializer<BaseCo
             }};
 
             return new BungeeMessageStorageProvider(plugin, name, defaultLocale, messages);
+        } catch (PluginNotFoundException e) {
+            throw e;
         } catch (Throwable e) {
             throw new RuntimeException("This json '" + storage + "' isn't a serialized storage data", e);
         }
