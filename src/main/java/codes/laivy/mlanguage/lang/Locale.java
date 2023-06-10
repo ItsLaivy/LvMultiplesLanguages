@@ -3,6 +3,7 @@ package codes.laivy.mlanguage.lang;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+// TODO: 06/06/2023 Pseudo enum
 public enum Locale {
     EN_US("en_US", "English (US)"),
     ES_ES("es_ES", "Español (España)"),

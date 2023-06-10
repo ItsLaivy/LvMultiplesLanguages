@@ -64,11 +64,17 @@ public class BukkitMessageProvider implements BukkitMessage {
         replacesList.addAll(getReplacements());
         replacesList.addAll(Arrays.asList(replaces));
 
-        return replace(
+        BaseComponent[] components = replace(
                 locale,
                 getData().get(locale),
                 replacesList.toArray(new Object[0])
         ).clone();
+
+        if (components.length == 0) {
+            throw new IllegalArgumentException("This message '" + getId() + "' has an empty array of components");
+        }
+
+        return components;
     }
 
     @Override
