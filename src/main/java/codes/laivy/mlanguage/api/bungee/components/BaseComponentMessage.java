@@ -48,7 +48,8 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
             componentList.add(component);
         }
 
-        return componentList.toArray(new BaseComponent[0]);
+        BaseComponent[] array = componentList.toArray(new BaseComponent[0]);
+        return ComponentUtils.fixComponents(array);
     }
 
     // Arrays

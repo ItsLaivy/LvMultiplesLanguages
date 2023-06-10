@@ -8,12 +8,41 @@ import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 // TODO: 07/04/2023 OOP
 public class ComponentUtils {
 
     private ComponentUtils() {
+    }
+
+    public static @NotNull BaseComponent[] fixComponents(@NotNull BaseComponent[] componentArray) {
+        Set<BaseComponent> components = new LinkedHashSet<>();
+
+        for (BaseComponent component : componentArray) {
+            List<BaseComponent> extra = component.getExtra();
+            if (extra == null || extra.isEmpty()) {
+                removeExtra(component);
+            } else for (BaseComponent extraComponent : extra) {
+                components.addAll(Arrays.asList(fixComponents(new BaseComponent[] {
+                        extraComponent
+                })));
+            }
+            components.add(component);
+        }
+
+        return components.toArray(new BaseComponent[0]);
+    }
+
+    public static void removeExtra(@NotNull BaseComponent component) {
+        try {
+            Field field = BaseComponent.class.getDeclaredField("extra");
+            field.setAccessible(true);
+            field.set(component, null);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static @NotNull String serialize(@NotNull BaseComponent component) {
@@ -28,7 +57,9 @@ public class ComponentUtils {
         return ComponentSerializer.toString(component);
     }
     public static @NotNull String serialize(@NotNull BaseComponent... components) {
-        if (components.length == 1) {
+        if (components.length == 0) {
+            throw new JsonParseException("Empty array of base components");
+        } else if (components.length == 1) {
             return serialize(components[0]);
         } else {
             JsonArray array = new JsonArray();
