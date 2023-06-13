@@ -49,7 +49,7 @@ public class BungeeMessageProvider implements BungeeMessage {
     @Override
     public @NotNull BaseComponent @NotNull [] getText(@NotNull UUID uuid, @NotNull Object... replaces) {
         if (LvMultiplesLanguages.getApi() != null) {
-            return this.getText(LvMultiplesLanguages.getApi().getLocale(uuid), id, replaces);
+            return this.getText(LvMultiplesLanguages.getApi().getLocale(uuid), replaces);
         }
         throw new NullPointerException("Couldn't find the multiples languages API");
     }
