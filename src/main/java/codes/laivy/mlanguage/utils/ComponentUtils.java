@@ -18,7 +18,7 @@ public class ComponentUtils {
     }
 
     public static @NotNull BaseComponent[] fixComponents(@NotNull BaseComponent[] componentArray) {
-        Set<BaseComponent> components = new LinkedHashSet<>();
+        List<BaseComponent> components = new LinkedList<>();
 
         for (BaseComponent component : componentArray) {
             List<BaseComponent> extra = component.getExtra();
