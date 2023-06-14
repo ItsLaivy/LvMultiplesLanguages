@@ -139,6 +139,11 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
         return storage;
     }
 
+    @Override
+    public @NotNull BukkitMessageStorage createStorage(BukkitMessageStorage original) {
+        return this.createStorage((Plugin) original.getPluginProperty().getPlugin(), original.getName(), original.getDefaultLocale(), original.getMessages());
+    }
+
     private @NotNull Merge merge(@NotNull BukkitMessageStorage to, @NotNull BukkitMessageStorage from) {
         Set<String> merged = new HashSet<>();
         Set<String> unused = new HashSet<>();

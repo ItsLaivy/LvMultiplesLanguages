@@ -64,6 +64,8 @@ public interface IMultiplesLanguagesAPI<P, C, M extends Message<C>, S extends Me
      */
     @NotNull S createStorage(@NotNull P plugin, @NotNull String name, @NotNull Locale locale, @NotNull Set<M> messages);
 
+    @NotNull S createStorage(S original);
+
     @NotNull M createMessage(@NotNull String id, @NotNull Map<@NotNull Locale, @NotNull C> data);
 
     // TODO: 23/05/2023 #createStorage(InputStream)

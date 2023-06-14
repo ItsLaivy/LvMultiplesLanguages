@@ -126,6 +126,11 @@ public class BungeeMultiplesLanguagesAPI implements IBungeeMultiplesLanguagesAPI
         return storage;
     }
 
+    @Override
+    public @NotNull BungeeMessageStorage createStorage(BungeeMessageStorage original) {
+        return createStorage((Plugin) original.getPluginProperty().getPlugin(), original.getName(), original.getDefaultLocale(), original.getMessages());
+    }
+
     private @NotNull Merge merge(@NotNull BungeeMessageStorage to, @NotNull BungeeMessageStorage from) {
         Set<String> merged = new HashSet<>();
         Set<String> unused = new HashSet<>();
