@@ -97,7 +97,7 @@ public class BungeeMessageStorageProvider implements BungeeMessageStorage {
         BungeeMessage message = optional.orElseThrow(() -> new NullPointerException("This storage named '" + getName() + "' at plugin '" + getPluginProperty().getName() + "' doesn't contains a message with id '" + id + "'"));
 
         message = message.clone();
-        message.getReplacements().add(replaces);
+        message.getReplacements().addAll(Arrays.asList(replaces));
 
         return message;
     }
