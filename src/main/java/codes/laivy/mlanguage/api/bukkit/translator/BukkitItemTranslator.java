@@ -194,7 +194,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
             throw new NullPointerException("Couldn't find plugin '" + storagePluginName + "'");
         }
 
-        @Nullable BukkitMessageStorage storage = multiplesLanguagesBukkit().getApi().getStorage(plugin, storageName);
+        @Nullable BukkitMessageStorage storage = multiplesLanguagesBukkit().getApi().getStorage(storagePlugin, storageName);
         if (storage == null) {
             throw new NullPointerException("Couldn't find storage named '" + storageName + "' at plugin '" + storagePluginName + "'");
         }

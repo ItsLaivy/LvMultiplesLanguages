@@ -5,3 +5,4 @@ target
 *.jar
 src/test
 /old/
+/old2/
