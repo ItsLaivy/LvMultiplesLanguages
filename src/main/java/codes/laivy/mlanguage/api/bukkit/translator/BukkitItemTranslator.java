@@ -62,14 +62,23 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
         compound.set("Translatable", new NBTTagByte((byte) 1));
         if (name != null) {
             compound.set("NameTranslation", new NBTTagString(serialize(name).toString()));
+        } else {
+            compound.set("NameTranslation", new NBTTagString("{}"));
         }
+
+
         if (lore != null) {
             compound.set("LoreTranslation", new NBTTagString(serialize(lore).toString()));
+        } else {
+            compound.set("LoreTranslation", new NBTTagString("{}"));
         }
 
         nmsItem.setTag(compound);
 
-        return nmsItem.getCraftItemStack().getItemStack();
+        ItemStack bukkitItem = nmsItem.getCraftItemStack().getItemStack();
+        translate(bukkitItem, (Locale) null);
+
+        return bukkitItem;
     }
 
     @Override
@@ -101,7 +110,14 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
             final BukkitStoredMessage name;
 
             if (tag.contains("NameTranslation")) {
-                JsonObject loreObj = JsonParser.parseString(Objects.requireNonNull(new NBTTagString(tag.get("LoreTranslation").getValue()).getData())).getAsJsonObject();
+                String nameStr = new NBTTagString(tag.get("NameTranslation").getValue()).getData();
+                if (nameStr == null) {
+                    return null;
+                }
+                if (nameStr.equals("{}")) {
+                    return null;
+                }
+                JsonObject loreObj = JsonParser.parseString(Objects.requireNonNull(nameStr)).getAsJsonObject();
                 name = deserialize(loreObj);
             } else {
                 name = null;
@@ -118,7 +134,14 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
             final BukkitStoredMessage lore;
 
             if (tag.contains("LoreTranslation")) {
-                JsonObject loreObj = JsonParser.parseString(Objects.requireNonNull(new NBTTagString(tag.get("LoreTranslation").getValue()).getData())).getAsJsonObject();
+                String loreStr = new NBTTagString(tag.get("LoreTranslation").getValue()).getData();
+                if (loreStr == null) {
+                    return null;
+                }
+                if (loreStr.equals("{}")) {
+                    return null;
+                }
+                JsonObject loreObj = JsonParser.parseString(loreStr).getAsJsonObject();
                 lore = deserialize(loreObj);
             } else {
                 lore = null;
@@ -126,6 +149,37 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
             return lore;
         }
         return null;
+    }
+
+    public void translate(@NotNull ItemStack item, @Nullable Locale locale) {
+        if (isTranslatable(item)) {
+            @Nullable BukkitStoredMessage name = getName(item);
+            @Nullable BukkitStoredMessage lore = getLore(item);
+
+            if (name != null) {
+                final Locale nameLocale = (locale != null ? locale : name.getStorage().getDefaultLocale());
+
+                getPlugin().getVersion().setItemBukkitDisplayName(
+                        item,
+                        name.getMessage().getText(nameLocale)
+                );
+            } else {
+                getPlugin().getVersion().setItemBukkitDisplayName(item, null);
+            }
+
+            if (lore != null) {
+                final Locale loreLocale = (locale != null ? locale : lore.getStorage().getDefaultLocale());
+
+                getPlugin().getVersion().setItemBukkitLore(
+                        item,
+                        lore.getMessage().getArray(loreLocale)
+                );
+            } else {
+                getPlugin().getVersion().setItemBukkitLore(item, null);
+            }
+        } else {
+            throw new IllegalArgumentException("This item isn't translatable!");
+        }
     }
 
     @Override

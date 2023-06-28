@@ -88,7 +88,6 @@ public class V1_13_R1 extends V1_12_R1 {
 
         if (meta != null) {
             CraftMetaItem itemMeta = new CraftMetaItem(meta);
-
             itemMeta.setDisplayName(name);
             itemStack.setItemMeta((ItemMeta) itemMeta.getValue());
         } else {
