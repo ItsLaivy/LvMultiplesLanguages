@@ -6,6 +6,7 @@ import codes.laivy.mlanguage.lang.Message;
 import codes.laivy.mlanguage.utils.ComponentUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -23,33 +24,20 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
     @NotNull Set<@NotNull Locale> getLegacyTexts();
 
     default @NotNull BaseComponent[] replace(@NotNull Locale locale, @NotNull BaseComponent[] components, @NotNull Object... replaces) {
-        List<BaseComponent> componentList = new LinkedList<>();
+        String serialized = ComponentUtils.serialize(ComponentUtils.cloneComponent(components));
 
         int row = 0;
-        for (final BaseComponent component : ComponentUtils.cloneComponent(components)) {
-            for (BaseComponent recursive : ComponentUtils.getComponents(component)) {
-                if (recursive instanceof TextComponent) {
-                    TextComponent text = (TextComponent) recursive;
+        while (serialized.contains("%s")) {
+            if (replaces.length > row) {
+                BaseComponent[] index = ComponentUtils.convert(locale, replaces[row]);
 
-                    while (text.getText().contains("%s")) {
-                        if (replaces.length > row) {
-                            BaseComponent[] index = ComponentUtils.convert(locale, replaces[row]);
-
-                            // TODO: 11/05/2023 Component-based replace
-                            text.setText(text.getText().replaceFirst(Pattern.quote("%s"), Matcher.quoteReplacement(ComponentUtils.getText(index))));
-                            row++;
-                        } else {
-                            break;
-                        }
-                    }
-                }
+                // TODO: 11/05/2023 Component-based replace
+                serialized = serialized.replaceFirst(Pattern.quote("%s"), ComponentUtils.getText(index));
+                row++;
             }
-
-            componentList.add(component);
         }
 
-        BaseComponent[] array = componentList.toArray(new BaseComponent[0]);
-        return ComponentUtils.fixComponents(array);
+        return ComponentUtils.fixComponents(ComponentSerializer.parse(serialized));
     }
 
     // Arrays

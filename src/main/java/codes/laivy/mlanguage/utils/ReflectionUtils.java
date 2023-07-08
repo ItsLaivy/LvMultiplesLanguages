@@ -8,7 +8,8 @@ import static codes.laivy.mlanguage.main.BukkitMultiplesLanguages.multiplesLangu
 import static org.bukkit.Bukkit.getServer;
 
 // TODO: 06/04/2023 A better reflection utils system
-public class ReflectionUtils {
+public class
+ReflectionUtils {
 
     private ReflectionUtils() {
 
