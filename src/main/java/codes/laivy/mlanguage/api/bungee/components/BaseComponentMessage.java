@@ -32,7 +32,7 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
                 BaseComponent[] index = ComponentUtils.convert(locale, replaces[row]);
 
                 // TODO: 11/05/2023 Component-based replace
-                serialized = serialized.replaceFirst(Pattern.quote("%s"), ComponentUtils.getText(index));
+                serialized = serialized.replaceFirst(Pattern.quote("%s"), Matcher.quoteReplacement(ComponentUtils.getText(index)));
                 row++;
             }
         }

@@ -17,19 +17,6 @@ public final class ComponentUtils {
     private ComponentUtils() {
     }
 
-    public static @NotNull String quoteReplacement(@NotNull String s) {
-        if ((s.indexOf('$') == -1)) return s;
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c == '$') sb.append('\\');
-            sb.append(c);
-        }
-
-        return sb.toString();
-    }
-
     public static @NotNull BaseComponent[] fixComponents(@NotNull BaseComponent[] componentArray) {
         List<BaseComponent> components = new LinkedList<>();
 
