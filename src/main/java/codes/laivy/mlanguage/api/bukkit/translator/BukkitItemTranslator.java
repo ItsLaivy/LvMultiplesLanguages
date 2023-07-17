@@ -12,6 +12,8 @@ import codes.laivy.mlanguage.api.bukkit.reflection.classes.nbt.tags.NBTTagString
 import codes.laivy.mlanguage.api.bukkit.reflection.classes.packets.PacketPlayOutSetSlot;
 import codes.laivy.mlanguage.lang.Locale;
 import codes.laivy.mlanguage.main.BukkitMultiplesLanguages;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
@@ -21,6 +23,8 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 import static codes.laivy.mlanguage.api.bukkit.reflection.classes.item.ItemStack.getNMSItemStack;
@@ -205,7 +209,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getPlugin().getVersion().setItemBukkitDisplayName(
                         item,
-                        name.getMessage().getText(nameLocale)
+                        name.getMessage().getText(nameLocale, name.getReplacements().toArray(new Object[0]))
                 );
             } else {
                 getPlugin().getVersion().setItemBukkitDisplayName(item, null);
@@ -216,7 +220,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getPlugin().getVersion().setItemBukkitLore(
                         item,
-                        lore.getMessage().getArray(loreLocale)
+                        lore.getMessage().getArray(loreLocale, lore.getReplacements().toArray(new Object[0]))
                 );
             } else {
                 getPlugin().getVersion().setItemBukkitLore(item, null);
@@ -233,7 +237,33 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
         storageObj.addProperty("name", stored.getStorage().getName());
         storageObj.addProperty("plugin", stored.getStorage().getPluginProperty().getName());
 
+        JsonArray replacements = new JsonArray();
+        for (@NotNull Object replace : stored.getReplacements()) {
+            replacements.add(multiplesLanguagesBukkit().getApi().getSerializer().serializeObject(replace));
+        }
+
+        JsonArray prefixes = new JsonArray();
+        for (@NotNull Object prefix : stored.getPrefixes()) {
+            prefixes.add(multiplesLanguagesBukkit().getApi().getSerializer().serializeObject(prefix));
+        }
+
+        JsonArray suffixes = new JsonArray();
+        for (@NotNull Object suffix : stored.getSuffixes()) {
+            suffixes.add(multiplesLanguagesBukkit().getApi().getSerializer().serializeObject(suffix));
+        }
+
         object.addProperty("id", stored.getMessage().getId());
+
+        if (!stored.getReplacements().isEmpty()) {
+            object.add("replacements", replacements);
+        }
+        if (!stored.getPrefixes().isEmpty()) {
+            object.add("prefixes", prefixes);
+        }
+        if (!stored.getSuffixes().isEmpty()) {
+            object.add("suffixes", suffixes);
+        }
+
         object.add("storage", storageObj);
         return object;
     }
@@ -253,7 +283,33 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
             throw new NullPointerException("Couldn't find storage named '" + storageName + "' at plugin '" + storagePluginName + "'");
         }
 
-        return new BukkitStoredMessageProvider(storage, storage.getMessage(id));
+        List<Object> replacements = new LinkedList<>();
+        List<Object> prefixes = new LinkedList<>();
+        List<Object> suffixes = new LinkedList<>();
+
+        if (message.has("replacements")) {
+            for (JsonElement element : message.getAsJsonArray("replacements")) {
+                replacements.add(multiplesLanguagesBukkit().getApi().getSerializer().deserializeObject(element));
+            }
+        }
+        if (message.has("prefixes")) {
+            for (JsonElement element : message.getAsJsonArray("prefixes")) {
+                prefixes.add(multiplesLanguagesBukkit().getApi().getSerializer().deserializeObject(element));
+            }
+        }
+        if (message.has("suffixes")) {
+            for (JsonElement element : message.getAsJsonArray("suffixes")) {
+                suffixes.add(multiplesLanguagesBukkit().getApi().getSerializer().deserializeObject(element));
+            }
+        }
+
+        BukkitStoredMessageProvider stored = new BukkitStoredMessageProvider(storage, storage.getMessage(id));
+
+        stored.getReplacements().addAll(replacements);
+        stored.getPrefixes().addAll(prefixes);
+        stored.getSuffixes().addAll(suffixes);
+
+        return stored;
     }
 
     @Override

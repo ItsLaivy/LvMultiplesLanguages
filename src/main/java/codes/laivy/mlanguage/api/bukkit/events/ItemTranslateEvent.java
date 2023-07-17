@@ -36,7 +36,7 @@ public class ItemTranslateEvent extends ItemEvent implements Cancellable {
      * The Locale of the translation
      * @return if null, the name and lore's language will be the storage default.
      */
-    public @Nullable Locale getLocale() {
+    public final @Nullable Locale getLocale() {
         if (getPlayer().getGameMode() == GameMode.CREATIVE) {
             return null;
         } else {
@@ -47,7 +47,7 @@ public class ItemTranslateEvent extends ItemEvent implements Cancellable {
     /**
      * @param locale if null, the name and lore's language will be the storage default.
      */
-    public void setLocale(@Nullable Locale locale) {
+    public final void setLocale(@Nullable Locale locale) {
         if (getPlayer().getGameMode() == GameMode.CREATIVE) {
             throw new UnsupportedOperationException("The player's gamemode is creative, the locale will be the default of the name/lore storage.");
         } else {

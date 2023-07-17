@@ -45,7 +45,7 @@ public class BukkitMessageSerializerProvider implements MessageSerializer<BaseCo
     public @NotNull Object deserializeObject(@NotNull JsonElement element) {
         try {
             return deserializeMessage(element); // Get as message
-        } catch (IllegalArgumentException ignore) {
+        } catch (Exception ignore) {
             try {
                 return ComponentSerializer.parse(element.toString()); // Get as BaseComponent or BaseComponent[]
             } catch (JsonSyntaxException syntax) {
@@ -101,51 +101,47 @@ public class BukkitMessageSerializerProvider implements MessageSerializer<BaseCo
 
     @Override
     public @NotNull BukkitMessage deserializeMessage(@NotNull JsonElement message) {
-        try {
-            JsonObject object = message.getAsJsonObject();
+        JsonObject object = message.getAsJsonObject();
 
-            Set<Locale> arrays = new LinkedHashSet<>();
-            Set<Locale> legacies = new LinkedHashSet<>();
+        Set<Locale> arrays = new LinkedHashSet<>();
+        Set<Locale> legacies = new LinkedHashSet<>();
 
-            List<Object> replacements = new LinkedList<>();
-            List<Object> prefixes = new LinkedList<>();
-            List<Object> suffixes = new LinkedList<>();
-            Map<Locale, BaseComponent[]> data = new LinkedHashMap<>();
+        List<Object> replacements = new LinkedList<>();
+        List<Object> prefixes = new LinkedList<>();
+        List<Object> suffixes = new LinkedList<>();
+        Map<Locale, BaseComponent[]> data = new LinkedHashMap<>();
 
-            for (Map.Entry<String, JsonElement> entry : object.getAsJsonObject("data").entrySet()) {
-                @NotNull Locale locale;
-                try {
-                    locale = Locale.valueOf(entry.getKey().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Couldn't find locale '" + entry.getKey() + "'", e);
-                }
-
-                data.put(locale, ComponentSerializer.parse(entry.getValue().toString()));
+        for (Map.Entry<String, JsonElement> entry : object.getAsJsonObject("data").entrySet()) {
+            @NotNull Locale locale;
+            try {
+                locale = Locale.valueOf(entry.getKey().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Couldn't find locale '" + entry.getKey() + "'", e);
             }
 
-            @NotNull String id = object.get("id").getAsString();
-
-            for (JsonElement array : object.get("arrays").getAsJsonArray()) {
-                arrays.add(Locale.valueOf(array.getAsString()));
-            }
-            for (JsonElement legacy : object.get("legacies").getAsJsonArray()) {
-                legacies.add(Locale.valueOf(legacy.getAsString()));
-            }
-
-            for (JsonElement replacement : object.get("replacements").getAsJsonArray()) {
-                replacements.add(deserializeObject(replacement));
-            }
-            for (JsonElement prefix : object.get("prefixes").getAsJsonArray()) {
-                prefixes.add(deserializeObject(prefix));
-            }
-            for (JsonElement suffix : object.get("suffixes").getAsJsonArray()) {
-                suffixes.add(deserializeObject(suffix));
-            }
-
-            return new BukkitMessageProvider(id, data, arrays, legacies, replacements, prefixes, suffixes);
-        } catch (Throwable e) {
-            throw new RuntimeException("This json '" + message + "' isn't a serialized message data", e);
+            data.put(locale, ComponentSerializer.parse(entry.getValue().toString()));
         }
+
+        @NotNull String id = object.get("id").getAsString();
+
+        for (JsonElement array : object.get("arrays").getAsJsonArray()) {
+            arrays.add(Locale.valueOf(array.getAsString()));
+        }
+        for (JsonElement legacy : object.get("legacies").getAsJsonArray()) {
+            legacies.add(Locale.valueOf(legacy.getAsString()));
+        }
+
+        for (JsonElement replacement : object.get("replacements").getAsJsonArray()) {
+            replacements.add(deserializeObject(replacement));
+        }
+        for (JsonElement prefix : object.get("prefixes").getAsJsonArray()) {
+            prefixes.add(deserializeObject(prefix));
+        }
+        for (JsonElement suffix : object.get("suffixes").getAsJsonArray()) {
+            suffixes.add(deserializeObject(suffix));
+        }
+
+        return new BukkitMessageProvider(id, data, arrays, legacies, replacements, prefixes, suffixes);
     }
 
     @Override

@@ -29,8 +29,10 @@ public interface Message<C> extends Cloneable {
     @NotNull String getId();
 
     /**
-     * Note: If the replacement is an instance of Message, BaseComponent or BaseComponent[] (for Bukkit/Bungee); Works for Collections and arrays too. it will be automatically translated
-     * @return the untranslated version of the replaces
+     * Note: If the replacement is an instance of Message,
+     * BaseComponent or BaseComponent[] (for Bukkit/Bungee); Works for Collections and arrays too.
+     * It will be automatically translated
+     * @return the untranslated version of the replacing
      */
     @NotNull List<Object> getReplacements();
 
@@ -46,13 +48,13 @@ public interface Message<C> extends Cloneable {
 
     /**
      * The prefixes of this message
-     * @return the prefixes list
+     * @return the prefix list
      */
     @NotNull List<Object> getPrefixes();
 
     /**
      * The suffixes of this message
-     * @return the suffixes list
+     * @return the suffix list
      */
     @NotNull List<Object> getSuffixes();
 
