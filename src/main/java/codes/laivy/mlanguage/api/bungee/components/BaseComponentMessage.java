@@ -27,13 +27,18 @@ public interface BaseComponentMessage extends Message<BaseComponent[]> {
         String serialized = ComponentUtils.serialize(ComponentUtils.cloneComponent(components));
 
         int row = 0;
-        while (serialized.contains("%s")) {
-            if (replaces.length > row) {
-                BaseComponent[] index = ComponentUtils.convert(locale, replaces[row]);
 
-                // TODO: 11/05/2023 Component-based replace
-                serialized = serialized.replaceFirst(Pattern.quote("%s"), Matcher.quoteReplacement(ComponentUtils.getText(index)));
-                row++;
+        if (replaces != null) {
+            while (serialized.contains("%s")) {
+                if (replaces.length > row) {
+                    BaseComponent[] index = ComponentUtils.convert(locale, replaces[row]);
+
+                    // TODO: 11/05/2023 Component-based replace
+                    serialized = serialized.replaceFirst(Pattern.quote("%s"), Matcher.quoteReplacement(ComponentUtils.getText(index)));
+                    row++;
+                } else {
+                    break;
+                }
             }
         }
 
