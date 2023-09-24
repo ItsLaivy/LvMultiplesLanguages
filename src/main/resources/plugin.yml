@@ -1,7 +1,7 @@
 name: "LvMultiplesLanguages"
 version: ${project.version}
 main: codes.laivy.mlanguage.main.BukkitMultiplesLanguages
-author: "ItsLaivy (DanielZinh#7616)"
+author: "Laivy (@itslaivy)"
 api-version: 1.13
 
 website: "https://laivy.codes/"

@@ -71,7 +71,11 @@ public class BukkitMultiplesLanguagesAPI implements IBukkitMultiplesLanguagesAPI
     public @NotNull Locale getLocale(@NotNull UUID user) {
         Player player = Bukkit.getPlayer(user);
         if (player != null && player.isOnline()) {
-            return getPlugin().getVersion().getPlayerMinecraftLocale(player);
+            try {
+                return getPlugin().getVersion().getPlayerMinecraftLocale(player);
+            } catch (IllegalArgumentException ignore) {
+                return Locale.EN_US;
+            }
         }
         throw new UnsupportedOperationException("This user isn't online");
     }
