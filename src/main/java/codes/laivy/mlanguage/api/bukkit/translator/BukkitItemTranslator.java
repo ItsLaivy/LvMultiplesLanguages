@@ -165,7 +165,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getPlugin().getVersion().setItemBukkitDisplayName(
                         item,
-                        name.getMessage().getText(nameLocale)
+                        name.getMessage().getText(nameLocale, name.getReplacements().toArray(new Object[0]))
                 );
             } else {
                 getPlugin().getVersion().setItemBukkitDisplayName(item, null);
@@ -176,7 +176,7 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
 
                 getPlugin().getVersion().setItemBukkitLore(
                         item,
-                        lore.getMessage().getArray(loreLocale)
+                        lore.getMessage().getArray(loreLocale, lore.getReplacements().toArray(new Object[0]))
                 );
             } else {
                 getPlugin().getVersion().setItemBukkitLore(item, null);
@@ -318,9 +318,9 @@ public final class BukkitItemTranslator implements IBukkitItemTranslator {
         final @Nullable BukkitStoredMessage lore = getLore(item);
 
         if (name != null) {
-            getPlugin().getVersion().setItemBukkitDisplayName(item, name.getMessage().getText(name.getStorage().getDefaultLocale()));
+            getPlugin().getVersion().setItemBukkitDisplayName(item, name.getMessage().getText(name.getStorage().getDefaultLocale(), name.getReplacements().toArray(new Object[0])));
         } if (lore != null) {
-            getPlugin().getVersion().setItemBukkitLore(item, lore.getMessage().getArray(lore.getStorage().getDefaultLocale()));
+            getPlugin().getVersion().setItemBukkitLore(item, lore.getMessage().getArray(lore.getStorage().getDefaultLocale(), lore.getReplacements().toArray(new Object[0])));
         }
     }
 }

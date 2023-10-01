@@ -37,6 +37,7 @@ public interface Message<C> extends Cloneable {
     @NotNull List<Object> getReplacements();
 
     @NotNull C getText(@NotNull Locale locale, @NotNull Object... replaces);
+
     default @NotNull C getText(@NotNull Locale locale) {
         return this.getText(locale, new Object[0]);
     }
